@@ -8,7 +8,7 @@ class MAV_Viewer:
         self.application = pg.QtGui.QApplication([])
         self.window = gl.GLViewWidget()
         self.window.setWindowTitle('Flight Simulator')
-        self.window.setGeometry(0, 0, 1000, 1000)
+        self.window.setGeometry(0, 0, 750, 750)
         grid = gl.GLGridItem()
         grid.scale(20, 20, 20)
         self.window.addItem(grid)
@@ -20,3 +20,4 @@ class MAV_Viewer:
 
 if __name__ == "__main__":
     simulator = MAV_Viewer()
+    pg.QtGui.QApplication.instance().exec_()
