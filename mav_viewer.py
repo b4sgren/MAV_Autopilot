@@ -2,6 +2,9 @@ import numpy as np
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
+import sys
+sys.path.append('..')
+import messages.state_msg as state_msg
 
 class MAV_Viewer:
     def __init__(self):
@@ -54,6 +57,83 @@ class MAV_Viewer:
         mesh_colors[11] = green
 
         return points, mesh_colors
+
+    ### public functions
+    def update(self, state):
+        #This will update the animation
+        mav_position = np.array([[state.pn], [state.pe], [-state.h]])
+        R = self.EulerToRotation(state.phi, state.theta, state.psi)
+        rotated_pts = self.rotatePoints(self.points, R)
+        trans_pts = self.translatePoints(rotated_pts, mav_position)
+
+        R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]) # Convert to ENU coordinates for rendering
+        trans_pts = R @ trans_pts
+        mesh = self.pointsToMesh(trans_pts)
+
+        if not self.plot_initialize:
+            self.body = gl.GLMeshItem(vertexes=mesh, #defines mesh (Nx3x3)
+                                      vertexColors=self.mesh_colors,
+                                      drawEdges=True,
+                                      smooth=False, #speeds up rendering
+                                      computeNormals=False) # speeds up rendering
+            self.window.addItem(self.body)
+            self.plot_initialized = True
+        else:
+            self.body.setMeshData(vertexes=mesh, vertexColors=self.mesh_colors)
+
+        view_location = Vector(state.pe, state.pn, state.h) # in ENU frame
+        self.window.opts['center'] = view_location
+
+        self.application.processEvents() #redraw
+
+    ### Private Functions
+    def translatePoints(self, points, T):
+        trans_pts = points + T @ np.ones((1, points.shape[1]))
+        return trans_pts
+
+    def rotatePoints(self, points, R):
+        rotated_pts = R @ points
+        return rotated_pts
+
+    def pointsToMesh(self, points):
+        points = points.T
+        mesh = np.array([[points[0], points[1], points[5]],
+                         [points[0], points[4], points[5]],
+                         [points[3], points[2], points[6]],
+                         [points[3], points[7], points[6]],
+                         [points[3], points[0], points[4]],
+                         [points[3], points[7], points[4]],
+                         [points[2], points[1], points[5]],
+                         [points[2], points[6], points[5]],
+                         [points[7], points[6], points[5]],
+                         [points[11], points[8], points[9]],
+                         [points[11], points[10], points[9]]])
+        return mesh
+
+    def EulerToRotation(self, phi, theta, psi):
+        c_psi = np.cos(psi)
+        s_psi = np.sin(psi)
+        c_theta = np.cos(theta)
+        s_theta = np.sin(theta)
+        c_phi = np.cos(phi)
+        s_phi = np.sin(phi)
+
+        Rz = np.array([[c_psi, s_psi, 0.0],
+                       [-s_psi, c_psi, 0.0],
+                       [0.0, 0.0, 1.0]])
+        Ry = np.array([[c_theta, 0.0, -s_theta],
+                       [0.0, 1.0, 0.0],
+                       [s_theta, 0.0, c_theta]])
+        Rx = np.array([[1.0, 0.0, 0.0],
+                       [0.0, c_phi, s_phi],
+                       [0.0, -s_phi, c_phi]])
+
+        R = Rx @ Ry @ Rz # this is the rotation from the inertial to body
+        return R.T  # Return transpose to take body frame to inertial
+
 if __name__ == "__main__":
     simulator = MAV_Viewer()
+    state = state_msg.StateMsg() 
+    simulator.update(state)
     pg.QtGui.QApplication.instance().exec_()
+
