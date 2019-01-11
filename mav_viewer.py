@@ -23,18 +23,22 @@ class MAV_Viewer:
         self.points, self.mesh_colors = self.getMAVPoints()
 
     def getMAVPoints(self):
-        points = np.array([[1, 1, 0],
-                           [1, -1, 0],
-                           [-1, -1, 0],
-                           [-1, 1, 0],
-                           [1, 1, -2],
-                           [1, -1, -2],
-                           [-1, -1, -2],
-                           [-1, 1, -2],
-                           [1.5, 1.5, 0],
-                           [1.5, -1.5, 0],
-                           [-1.5, -1.5, 0],
-                           [-1.5, 1.5, 0]]).T
+        points = np.array([[3.5, 0.0, 0.0],
+                           [2.0, 1.0, -1.0],
+                           [2.0, -1.0, -1.0],
+                           [2.0, -1.0, 1.0],
+                           [2.0, 1.0, 1.0],
+                           [-7.0, 0.0, 0.0],
+                           [0.0, 5.0, 0.0],
+                           [-2.0, 5.0, 0.0],
+                           [-2.0, -5.0, 0.0],
+                           [0.0, -5.0, 0.0],
+                           [-5.0, 3.0, 0.0],
+                           [-7.0, 3.0, 0.0],
+                           [-7.0, -3.0, 0.0],
+                           [-5.0, -3.0,0.0],
+                           [-5.0, 0.0, 0.0],
+                           [-7.0, 0.0, -3.0]]).T
         scale = 10
         points = scale * points
 
@@ -42,19 +46,20 @@ class MAV_Viewer:
         green = np.array([0.0, 1.0, 0.0, 1])
         blue = np.array([0.0, 0.0, 1.0, 1])
         yellow = np.array([1.0, 1.0, 0.0, 1])
-        mesh_colors = np.empty((12, 3, 4), dtype=np.float32)
-        mesh_colors[0] = yellow
+        mesh_colors = np.empty((13, 3, 4), dtype=np.float32)
+        mesh_colors[0] = yellow 
         mesh_colors[1] = yellow
-        mesh_colors[2] = blue
-        mesh_colors[3] = blue
-        mesh_colors[4] = blue
+        mesh_colors[2] = yellow 
+        mesh_colors[3] = yellow 
+        mesh_colors[4] = blue 
         mesh_colors[5] = blue
         mesh_colors[6] = blue
         mesh_colors[7] = blue
-        mesh_colors[8] = blue
-        mesh_colors[9] = blue
-        mesh_colors[10] = green
-        mesh_colors[11] = green
+        mesh_colors[8] = red 
+        mesh_colors[9] = red 
+        mesh_colors[10] = red 
+        mesh_colors[11] = red
+        mesh_colors[12] = green
 
         return points, mesh_colors
 
@@ -97,17 +102,19 @@ class MAV_Viewer:
 
     def pointsToMesh(self, points):
         points = points.T
-        mesh = np.array([[points[0], points[1], points[5]],
-                         [points[0], points[4], points[5]],
-                         [points[3], points[2], points[6]],
-                         [points[3], points[7], points[6]],
-                         [points[3], points[0], points[4]],
-                         [points[3], points[7], points[4]],
-                         [points[2], points[1], points[5]],
-                         [points[2], points[6], points[5]],
-                         [points[7], points[6], points[5]],
-                         [points[11], points[8], points[9]],
-                         [points[11], points[10], points[9]]])
+        mesh = np.array([[points[0], points[1], points[2]],
+                         [points[0], points[1], points[4]],
+                         [points[0], points[4], points[3]],
+                         [points[0], points[3], points[2]],
+                         [points[1], points[2], points[5]],
+                         [points[2], points[3], points[5]],
+                         [points[3], points[4], points[5]],
+                         [points[4], points[1], points[5]],
+                         [points[7], points[6], points[9]],
+                         [points[7], points[8], points[9]],
+                         [points[11], points[10], points[13]],
+                         [points[11], points[12], points[13]],
+                         [points[5], points[14], points[15]]])
         return mesh
 
     def EulerToRotation(self, phi, theta, psi):
