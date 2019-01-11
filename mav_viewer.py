@@ -144,10 +144,11 @@ if __name__ == "__main__":
     simulator.update(state)
     dt = .01
     t = 0.0
-    while t < 100:
-        state.phi = t
-        simulator.update(state)
-        print(t)
+    while t < 2 * np.pi:
+        state.psi = t
+        state.phi = 2 * t
+        state.theta = t/2.0 
+        simulator.update(state) 
         t = t + dt
 
     pg.QtGui.QApplication.instance().exec_()
