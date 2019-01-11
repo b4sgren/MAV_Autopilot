@@ -82,7 +82,7 @@ class MAV_Viewer:
                                       smooth=False, #speeds up rendering
                                       computeNormals=False) # speeds up rendering
             self.window.addItem(self.body)
-            self.plot_initialized = True
+            self.plot_initialize = True
         else:
             self.body.setMeshData(vertexes=mesh, vertexColors=self.mesh_colors)
 
@@ -142,5 +142,13 @@ if __name__ == "__main__":
     simulator = MAV_Viewer()
     state = state_msg.StateMsg() 
     simulator.update(state)
+    dt = .01
+    t = 0.0
+    while t < 100:
+        state.phi = t
+        simulator.update(state)
+        print(t)
+        t = t + dt
+
     pg.QtGui.QApplication.instance().exec_()
 
