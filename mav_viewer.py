@@ -39,7 +39,7 @@ class MAV_Viewer:
                            [-5.0, -3.0,0.0],
                            [-5.0, 0.0, 0.0],
                            [-7.0, 0.0, -3.0]]).T
-        scale = 10
+        scale = 5
         points = scale * points
 
         red = np.array([1.0, 0.0, 0.0, 1])
@@ -132,6 +132,7 @@ class MAV_Viewer:
                        [0.0, 1.0, 0.0],
                        [s_theta, 0.0, c_theta]])
         Rx = np.array([[1.0, 0.0, 0.0],
+
                        [0.0, c_phi, s_phi],
                        [0.0, -s_phi, c_phi]])
 
@@ -145,10 +146,20 @@ if __name__ == "__main__":
     dt = .01
     t = 0.0
     while t < 2 * np.pi:
-        state.psi = t
-        state.phi = 2 * t
-        state.theta = t/2.0 
-        simulator.update(state) 
+        # state.psi = -np.pi / 4.0
+        # state.phi = t
+        # state.theta = -np.pi / 4.0
+        # state.pn = 20.0 * np.cos(t)
+        # state.pe = 20.0 * np.sin(t)
+        if t < 3.0 * np.pi / 4.0:
+            state.phi = t
+            state.pn = t * 10.0
+        elif t < np.pi:
+            state.theta = t - 3.0 * np.pi / 4.0
+        else:
+            state.psi = t - np.pi
+            state.pe = (t - np.pi) * 10.0
+        simulator.update(state)
         t = t + dt
 
     pg.QtGui.QApplication.instance().exec_()
