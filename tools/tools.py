@@ -15,11 +15,7 @@ def Quaternion2Euler(quat):
 
     return euler
 
-def Euler2Quaternion(euler):
-    phi = euler[0]
-    theta = euler[1]
-    psi = euler[2]
-
+def Euler2Quaternion(phi, theta, psi):
     c_phi2 = np.cos(phi/2.0)
     s_phi2 = np.sin(phi/2.0)
     c_theta2 = np.cos(theta/2.0)

@@ -14,7 +14,7 @@ sys.path.append('..')
 import numpy as np
 
 # load message types
-from messages.msg_state import msg_state
+from messages.state_msg import StateMsg 
 
 import parameters.aerosonde_parameters as MAV
 from tools.tools import Quaternion2Euler
@@ -89,22 +89,11 @@ class mav_dynamics:
         m = forces_moments.item(4)
         n = forces_moments.item(5)
 
-        # formatting information
-        euler = Quaternion2Euler(np.array([e0, e1, e2, e3]))
-
-        c_phi = np.cos(euler[0])
-        s_phi = np.sin(euler[0])
-        c_theta = np.cos(euler[1])
-        s_theta = np.sin(euler[1])
-        c_psi = np.cos(euler[2])
-        s_psi = np.sin(euler[2])
-
-        Rv_b = np.array([[c_theta*c_psi, s_phi*s_theta*c_psi-c_phi*s_psi, c_phi*s_theta*c_psi + s_phi*s_psi],
-                         [c_theta*s_psi, s_phi*s_theta*s_psi + c_phi*c_psi, c_phi*s_theta*s_psi - s_phi*c_psi],
-                         [-s_theta, s_phi*c_theta, c_phi*c_theta]])
-        Rb_v = Rv_b.T
-
         # position kinematics
+        Rb_v = np.array([[e1**2 + e0**2 - e2**2 - e3**2, 2*(e1*e2 - e3*e0), 2*(e1*e3 + e2*e0)],
+                         [2*(e1*e2 + e3*e0), e2**2 + e0**2 - e1**2 -e3**2, 2*(e2*e3 - e1*e0)],
+                         [2*(e1*e3 - e2*e0), 2*(e2*e3 + e1*e0), e3**2 + e0**2 - e1**2 - e2**2]])
+
         pos_dot = Rb_v @ np.array([u, v, w]).T
         pn_dot = pos_dot[0]
         pe_dot = pos_dot[1]
@@ -116,15 +105,16 @@ class mav_dynamics:
         w_dot = q*u - p*v + 1/m * fz
 
         # rotational kinematics
-        e0_dot =
-        e1_dot =
-        e2_dot =
-        e3_dot =
+        e0_dot = (-p * e1 -q * e2 -r * e3) * 0.5
+        e1_dot = (p * e0 + r * e2 - q * e3) * 0.5
+        e2_dot = (q * e0 -r * e1 + p * e3) * 0.5
+        e3_dot = (r * e0 + q * e1 - p * e2) * 0.5
 
         # rotatonal dynamics
-        p_dot =
-        q_dot =
-        r_dot = 
+        gammas = self._getGammaValues(Jx, Jy, Jx, Jxz)
+        p_dot = gammas[0] * p * q - gammas[1] * q * r + gammas[2] * l + gammas[3] * n
+        q_dot = gammas[4] * p * r - gammas[5] * (p**2 - r**2) + 1/Jy * m
+        r_dot = gammas[6] * p * q - gammas[0] * q * r + gammas[4] * l + gammas[7] * n
 
         # collect the derivative of the states
         x_dot = np.array([[pn_dot, pe_dot, pd_dot, u_dot, v_dot, w_dot,
@@ -143,3 +133,17 @@ class mav_dynamics:
         self.msg_true_state.p = self._state.item(10)
         self.msg_true_state.q = self._state.item(11)
         self.msg_true_state.r = self._state.item(12)
+
+    def _getGammaValues(self, Jx, Jy, Jz, Jxz):
+        gamma = Jx * Jz - Jxz**2
+        gamma1 = (Jxz * (Jx - Jy + Jz))/gamma
+        gamma2 = (Jz * (Jz - Jy) + Jxz**2)/gamma
+        gamma3 = Jz/gamma
+        gamma4 = Jxz/gamma
+        gamma5 = (Jz - Jx)/Jy
+        gamma6 = Jxz/Jy
+        gamma7 = ((Jx - Jy)*Jx + Jxz**2)/gamma
+        gamma8 = Jx/gamma
+
+        return np.array([gamma1, gamma2, gamma3, gamma4, gamma5, gamma6, gamma7, gamma8])
+
