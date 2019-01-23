@@ -112,9 +112,9 @@ class mav_dynamics:
 
         # rotatonal dynamics
         gammas = self._getGammaValues(Jx, Jy, Jx, Jxz)
-        p_dot = gammas[0] * p * q - gammas[1] * q * r + gammas[2] * l + gammas[3] * n
-        q_dot = gammas[4] * p * r - gammas[5] * (p**2 - r**2) + 1/Jy * m
-        r_dot = gammas[6] * p * q - gammas[0] * q * r + gammas[4] * l + gammas[7] * n
+        p_dot = MAV.gamma1 * p * q - MAV.gamma2 * q * r + MAV.gamma3 * l + MAV.gamma4 * n
+        q_dot = MAV.gamma5 * p * r - MAV.gamma6 * (p**2 - r**2) + 1/Jy * m
+        r_dot = MAV.gamma7 * p * q - MAV.gamma1 * q * r + MAV.gamma4 * l + MAV.gamma8 * n
 
         # collect the derivative of the states
         x_dot = np.array([[pn_dot, pe_dot, pd_dot, u_dot, v_dot, w_dot,
@@ -133,17 +133,3 @@ class mav_dynamics:
         self.msg_true_state.p = self._state.item(10)
         self.msg_true_state.q = self._state.item(11)
         self.msg_true_state.r = self._state.item(12)
-
-    def _getGammaValues(self, Jx, Jy, Jz, Jxz):
-        gamma = Jx * Jz - Jxz**2
-        gamma1 = (Jxz * (Jx - Jy + Jz))/gamma
-        gamma2 = (Jz * (Jz - Jy) + Jxz**2)/gamma
-        gamma3 = Jz/gamma
-        gamma4 = Jxz/gamma
-        gamma5 = (Jz - Jx)/Jy
-        gamma6 = Jxz/Jy
-        gamma7 = ((Jx - Jy)*Jx + Jxz**2)/gamma
-        gamma8 = Jx/gamma
-
-        return np.array([gamma1, gamma2, gamma3, gamma4, gamma5, gamma6, gamma7, gamma8])
-
