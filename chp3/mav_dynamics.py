@@ -89,15 +89,31 @@ class mav_dynamics:
         m = forces_moments.item(4)
         n = forces_moments.item(5)
 
+        # formatting information
+        euler = Quaternion2Euler(np.array([e0, e1, e2, e3]))
+
+        c_phi = np.cos(euler[0])
+        s_phi = np.sin(euler[0])
+        c_theta = np.cos(euler[1])
+        s_theta = np.sin(euler[1])
+        c_psi = np.cos(euler[2])
+        s_psi = np.sin(euler[2])
+
+        Rv_b = np.array([[c_theta*c_psi, s_phi*s_theta*c_psi-c_phi*s_psi, c_phi*s_theta*c_psi + s_phi*s_psi],
+                         [c_theta*s_psi, s_phi*s_theta*s_psi + c_phi*c_psi, c_phi*s_theta*s_psi - s_phi*c_psi],
+                         [-s_theta, s_phi*c_theta, c_phi*c_theta]])
+        Rb_v = Rv_b.T
+
         # position kinematics
-        pn_dot =
-        pe_dot =
-        pd_dot =
+        pos_dot = Rb_v @ np.array([u, v, w]).T
+        pn_dot = pos_dot[0]
+        pe_dot = pos_dot[1]
+        pd_dot = pos_dot[2]
 
         # position dynamics
-        u_dot =
-        v_dot =
-        w_dot =
+        u_dot = r*v - q*w + 1/m * fx
+        v_dot = p*w - r*u + 1/m * fy
+        w_dot = q*u - p*v + 1/m * fz
 
         # rotational kinematics
         e0_dot =
