@@ -9,7 +9,7 @@ sys.path.append('..')
 
 # import viewers and video writer
 from mav_viewer import MAV_Viewer
-#from video_writer import video_writer
+from video_writer import video_writer
 
 #import the dynamics
 from chp3.mav_dynamics import mav_dynamics as Dynamics
@@ -31,8 +31,9 @@ dyn = Dynamics(SIM.ts_sim)
 # initialize viewers and video
 VIDEO = False  # True==write video, False==don't write video
 mav_view = MAV_Viewer()
+
 if VIDEO == True:
-    video = video_writer(video_name="chap2_video.avi",
+    video = video_writer(video_name="chap3_video.avi",
                          bounding_box=(0, 0, 1000, 1000),
                          output_rate=SIM.ts_video)
 
@@ -44,17 +45,18 @@ while sim_time < SIM.t_end:
     # Will need to set the initial state to check stuff
     #-------vary forces to check viewer-------------
     fx = 0 
-    fy = 0
+    fy = 0 
     fz = 0
     l = 0 
-    m = 0
-    n = .1
+    m = 0.1
+    n = 0 
     U = np.array([fx, fy, fz, l, m, n])
 
     dyn.update_state(U)
     state = dyn.msg_true_state
-    #-------update viewer and video-------------
-    mav_view.update(state)
+    #-------update viewer and video--------------- 
+    #the issue is on the following line when VIDEO == True 
+    mav_view.update(state) 
     if VIDEO == True: video.update(sim_time)
 
     #-------increment time-------------
