@@ -43,15 +43,16 @@ sim_time = SIM.t0
 while sim_time < SIM.t_end:
     # Will need to set the initial state to check stuff
     #-------vary forces to check viewer-------------
-    fx = 50 
+    fx = 0 
     fy = 0
     fz = 0
-    l = 0
+    l = 0 
     m = 0
-    n = 0
+    n = .1
     U = np.array([fx, fy, fz, l, m, n])
 
     dyn.update_state(U)
+    state = dyn.msg_true_state
     #-------update viewer and video-------------
     mav_view.update(state)
     if VIDEO == True: video.update(sim_time)
