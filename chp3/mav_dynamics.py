@@ -27,7 +27,7 @@ class mav_dynamics:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
         self._state = np.array([
                                 ])
-        self.msg_true_state = msg_state()
+        self.msg_true_state = StateMsg()
 
     ###################################
     # public functions
