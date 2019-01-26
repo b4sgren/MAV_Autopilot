@@ -25,8 +25,9 @@ class mav_dynamics:
         # set initial states based on parameter file
         # _state is the 13x1 internal state of the aircraft that is being propagated:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
-        self._state = np.array([
-                                ])
+        self._state = np.array([MAV.pn0, MAV.pe0, MAV.pd0, MAV.u0, MAV.v0, MAV.w0,
+                                MAV.e0, MAV.e1, MAV.e2, MAV.e3, MAV.p0, MAV.q0, MAV.r0])
+        self._state = self._state.reshape((13, 1))
         self.msg_true_state = StateMsg()
 
     ###################################
@@ -100,9 +101,9 @@ class mav_dynamics:
         pd_dot = pos_dot[2]
 
         # position dynamics
-        u_dot = r*v - q*w + 1/m * fx
-        v_dot = p*w - r*u + 1/m * fy
-        w_dot = q*u - p*v + 1/m * fz
+        u_dot = r*v - q*w + 1/MAV.mass * fx
+        v_dot = p*w - r*u + 1/MAV.mass * fy
+        w_dot = q*u - p*v + 1/MAV.mass * fz
 
         # rotational kinematics
         e0_dot = (-p * e1 -q * e2 -r * e3) * 0.5
@@ -111,9 +112,8 @@ class mav_dynamics:
         e3_dot = (r * e0 + q * e1 - p * e2) * 0.5
 
         # rotatonal dynamics
-        gammas = self._getGammaValues(Jx, Jy, Jx, Jxz)
         p_dot = MAV.gamma1 * p * q - MAV.gamma2 * q * r + MAV.gamma3 * l + MAV.gamma4 * n
-        q_dot = MAV.gamma5 * p * r - MAV.gamma6 * (p**2 - r**2) + 1/Jy * m
+        q_dot = MAV.gamma5 * p * r - MAV.gamma6 * (p**2 - r**2) + 1/MAV.Jy * m
         r_dot = MAV.gamma7 * p * q - MAV.gamma1 * q * r + MAV.gamma4 * l + MAV.gamma8 * n
 
         # collect the derivative of the states
