@@ -61,7 +61,7 @@ class mav_dynamics:
 
         # update the message class for the true state
         self._update_msg_true_state()
-        return self.msg_true_state
+        # return self.msg_true_state
 
     ###################################
     # private functions
@@ -125,6 +125,7 @@ class mav_dynamics:
     def _update_msg_true_state(self):
         # update the true state message:
         phi, theta, psi = Quaternion2Euler(self._state[6:10])
+        print('psi', psi)
         self.msg_true_state.pn = self._state.item(0)
         self.msg_true_state.pe = self._state.item(1)
         self.msg_true_state.h = -self._state.item(2)
