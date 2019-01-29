@@ -47,9 +47,9 @@ while sim_time < SIM.t_end:
     fx = 0 
     fy = 0 
     fz = 0
-    l = 0.0
+    l = 0.1
     m = 0.0
-    n = 1.4
+    n = 0.0 
     U = np.array([fx, fy, fz, l, m, n])
 
     dyn.update_state(U)
