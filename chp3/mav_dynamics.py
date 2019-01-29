@@ -97,9 +97,9 @@ class mav_dynamics:
                          [2*(e1*e3 - e2*e0), 2*(e2*e3 + e1*e0), e3**2 + e0**2 - e1**2 - e2**2]])
 
         pos_dot = Rb_v @ np.array([u, v, w]).T
-        pn_dot = pos_dot[0]
-        pe_dot = pos_dot[1]
-        pd_dot = pos_dot[2]
+        pn_dot = pos_dot.item(0)
+        pe_dot = pos_dot.item(1)
+        pd_dot = pos_dot.item(2)
 
         # position dynamics
         u_dot = r*v - q*w + 1/MAV.mass * fx
@@ -107,7 +107,7 @@ class mav_dynamics:
         w_dot = q*u - p*v + 1/MAV.mass * fz
 
         # rotational kinematics
-        e0_dot = (-p * e1 -q * e2 -r * e3) * 0.5
+        e0_dot = (-p * e1 - q * e2 - r * e3) * 0.5
         e1_dot = (p * e0 + r * e2 - q * e3) * 0.5
         e2_dot = (q * e0 -r * e1 + p * e3) * 0.5
         e3_dot = (r * e0 + q * e1 - p * e2) * 0.5

@@ -48,7 +48,7 @@ while sim_time < SIM.t_end:
     fy = 0 
     fz = 0
     l = 0 
-    m = 0.1
+    m = 0.0
     n = 0 
     U = np.array([fx, fy, fz, l, m, n])
 
