@@ -8,12 +8,12 @@ def Quaternion2Euler(quat):
     ez = quat[3]
 
     euler = np.empty(3)
-    
-    euler[0] = math.atan2(2 * (e0*ex + ey*ez), e0**2 + ez**2 - ex**2 - ey**2) # phi
-    euler[1] = math.asin(2 * (e0*ey - ex*ez)) # theta
-    euler[2] = math.atan2(2*(e0*ez + ex*ey), e0**2 + ex**2 - ey**2 - ez**2) # psi
 
-    return euler
+    phi = math.atan2(2 * (e0*ex + ey*ez), e0**2 + ez**2 - ex**2 - ey**2) # phi
+    theta = math.asin(2 * (e0*ey - ex*ez)) # theta
+    psi = math.atan2(2*(e0*ez + ex*ey), e0**2 + ex**2 - ey**2 - ez**2) # psi
+
+    return phi, theta, psi
 
 def Euler2Quaternion(phi, theta, psi):
     c_phi2 = np.cos(phi/2.0)

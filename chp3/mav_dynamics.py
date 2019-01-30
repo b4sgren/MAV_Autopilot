@@ -2,10 +2,10 @@
 mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
-    
+
 part of mavsimPy
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         12/17/2018 - RWB
         1/14/2019 - RWB
 """
@@ -14,7 +14,7 @@ sys.path.append('..')
 import numpy as np
 
 # load message types
-from messages.state_msg import StateMsg 
+from messages.state_msg import StateMsg
 
 import parameters.aerosonde_parameters as MAV
 from tools.tools import Quaternion2Euler
@@ -35,7 +35,7 @@ class mav_dynamics:
     def update_state(self, forces_moments):
         '''
 
-            Integrate the differential equations defining dynamics. 
+            Integrate the differential equations defining dynamics.
             Inputs are the forces and moments on the aircraft.
             Ts is the time step between function calls.
         '''
@@ -93,7 +93,7 @@ class mav_dynamics:
 
         # position kinematics
         Rb_v = np.array([[e1**2 + e0**2 - e2**2 - e3**2, 2*(e1*e2 - e3*e0), 2*(e1*e3 + e2*e0)],
-                         [2*(e1*e2 + e3*e0), e2**2 + e0**2 - e1**2 -e3**2, 2*(e2*e3 - e1*e0)],
+                         [2*(e1*e2 + e3*e0), e2**2 + e0**2 - e1**2 - e3**2, 2*(e2*e3 - e1*e0)],
                          [2*(e1*e3 - e2*e0), 2*(e2*e3 + e1*e0), e3**2 + e0**2 - e1**2 - e2**2]])
 
         pos_dot = Rb_v @ np.array([u, v, w]).T
@@ -109,7 +109,7 @@ class mav_dynamics:
         # rotational kinematics
         e0_dot = (-p * e1 - q * e2 - r * e3) * 0.5
         e1_dot = (p * e0 + r * e2 - q * e3) * 0.5
-        e2_dot = (q * e0 -r * e1 + p * e3) * 0.5
+        e2_dot = (q * e0 - r * e1 + p * e3) * 0.5
         e3_dot = (r * e0 + q * e1 - p * e2) * 0.5
 
         # rotatonal dynamics
