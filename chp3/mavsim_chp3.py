@@ -47,13 +47,28 @@ while sim_time < SIM.t_end:
     fx = 0
     fy = 0
     fz = 0
-    l = .1
-    # if sim_time < 5:
-    #     l = 0.1
-    # else:
-    #     l = 0
-    m = 0.0
-    n = 0.0
+    l = 0
+    m = 0
+    n = 0
+    if sim_time < 8.0:
+        fx = 50
+    elif sim_time < 16.0:
+        fy = 50
+        dyn._state[3] = 0
+    elif sim_time < 24.0:
+        fz = 50
+        dyn._state[4] = 0
+    elif sim_time < 32.0:
+        l = 0.01
+        dyn._state[5] = 0
+    elif sim_time < 40.0:
+        m = 0.05
+        dyn._state[10] = 0
+        dyn._state[12] = 0
+    elif sim_time < 48.0:
+        n = 0.01
+        dyn._state[11] = 0
+
     U = np.array([fx, fy, fz, l, m, n])
 
     dyn.update_state(U)
