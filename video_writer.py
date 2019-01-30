@@ -10,7 +10,7 @@ import cv2
 import pyscreenshot as ImageGrab
 
 class video_writer():
-    def __init__(self, video_name="video.avi", bounding_box=(0, 0, 1000, 1000), output_rate = 0.1):
+    def __init__(self, video_name="video.avi", bounding_box=(0, 0, 750, 750), output_rate = 0.1):
         # bbox specifies specific region (bbox= top_left_x, top_left_y, width, height)
         # set up video writer by grabbing first image and initializing 
         img = ImageGrab.grab(bbox=bounding_box)
@@ -18,7 +18,7 @@ class video_writer():
         height, width, channels = img.shape
         # Define the codec and create VideoWriter object
         #fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        fourcc = cv2.VideoWriter_fourcc(*'mjpg')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
         self.video = cv2.VideoWriter(video_name, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 20.0, (width, height))
         self.bounding_box = bounding_box
@@ -28,11 +28,8 @@ class video_writer():
     ###################################
     # public functions
     def update(self, time):
-        print('Brendon')
         if (time-self.time_of_last_frame) >= self.output_rate:
-            print('Howdy')
             img = ImageGrab.grab(bbox=self.bounding_box)
-            print('Hey')
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             self.video.write(img)
             self.time_of_last_frame = time

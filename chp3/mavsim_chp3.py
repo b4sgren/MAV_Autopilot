@@ -44,7 +44,7 @@ sim_time = SIM.t0
 while sim_time < SIM.t_end:
     # Will need to set the initial state to check stuff
     #-------vary forces to check viewer-------------
-    fx = 0
+    fx = 50
     fy = 0
     fz = 0
     if sim_time < 5:
