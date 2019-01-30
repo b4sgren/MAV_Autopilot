@@ -47,10 +47,11 @@ while sim_time < SIM.t_end:
     fx = 0
     fy = 0
     fz = 0
-    if sim_time < 5:
-        l = 0.1
-    else:
-        l = 0
+    l = .1
+    # if sim_time < 5:
+    #     l = 0.1
+    # else:
+    #     l = 0
     m = 0.0
     n = 0.0
     U = np.array([fx, fy, fz, l, m, n])
