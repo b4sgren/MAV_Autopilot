@@ -65,9 +65,13 @@ while sim_time < SIM.t_end:
         m = 0.05
         dyn._state[10] = 0
         dyn._state[12] = 0
+        if sim_time <= 32.02:
+            dyn._state[6:10] = np.array([1, 0, 0, 0]).reshape((4, 1))
     elif sim_time < 48.0:
         n = 0.01
         dyn._state[11] = 0
+        if sim_time <= 40.02:
+            dyn._state[6:10] = np.array([1, 0, 0, 0]).reshape((4, 1))
 
     U = np.array([fx, fy, fz, l, m, n])
 
