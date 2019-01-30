@@ -44,7 +44,7 @@ sim_time = SIM.t0
 while sim_time < SIM.t_end:
     # Will need to set the initial state to check stuff
     #-------vary forces to check viewer-------------
-    fx = 50
+    fx = 0
     fy = 0
     fz = 0
     if sim_time < 5:
@@ -58,7 +58,7 @@ while sim_time < SIM.t_end:
     dyn.update_state(U)
     state = dyn.msg_true_state
     #-------update viewer and video---------------
-    #the issue is on the following line when VIDEO == True
+    #the issue is on the following line when VIDEO == True. Right now I'm thinking of ditching the video writer
     mav_view.update(state)
     if VIDEO == True: video.update(sim_time)
 

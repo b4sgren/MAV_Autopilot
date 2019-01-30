@@ -47,17 +47,17 @@ class MAV_Viewer:
         blue = np.array([0.0, 0.0, 1.0, 1])
         yellow = np.array([1.0, 1.0, 0.0, 1])
         mesh_colors = np.empty((13, 3, 4), dtype=np.float32)
-        mesh_colors[0] = yellow 
+        mesh_colors[0] = yellow
         mesh_colors[1] = yellow
-        mesh_colors[2] = yellow 
-        mesh_colors[3] = yellow 
-        mesh_colors[4] = blue 
+        mesh_colors[2] = yellow
+        mesh_colors[3] = yellow
+        mesh_colors[4] = blue
         mesh_colors[5] = blue
         mesh_colors[6] = blue
         mesh_colors[7] = blue
-        mesh_colors[8] = red 
-        mesh_colors[9] = red 
-        mesh_colors[10] = red 
+        mesh_colors[8] = red
+        mesh_colors[9] = red
+        mesh_colors[10] = red
         mesh_colors[11] = red
         mesh_colors[12] = green
 
@@ -132,7 +132,6 @@ class MAV_Viewer:
                        [0.0, 1.0, 0.0],
                        [s_theta, 0.0, c_theta]])
         Rx = np.array([[1.0, 0.0, 0.0],
-
                        [0.0, c_phi, s_phi],
                        [0.0, -s_phi, c_phi]])
 
@@ -141,7 +140,7 @@ class MAV_Viewer:
 
 if __name__ == "__main__":
     simulator = MAV_Viewer()
-    state = state_msg.StateMsg() 
+    state = state_msg.StateMsg()
     simulator.update(state)
     dt = .01
     t = 0.0
@@ -163,4 +162,3 @@ if __name__ == "__main__":
         t = t + dt
 
     pg.QtGui.QApplication.instance().exec_()
-

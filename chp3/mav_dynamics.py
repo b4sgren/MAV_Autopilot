@@ -61,7 +61,6 @@ class mav_dynamics:
 
         # update the message class for the true state
         self._update_msg_true_state()
-        # return self.msg_true_state
 
     ###################################
     # private functions
