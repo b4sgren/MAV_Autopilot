@@ -7,27 +7,18 @@ mavsim
 import sys
 sys.path.append('..')
 
-# import viewers and video writer
 from mav_viewer import MAV_Viewer
-
-#import the dynamics
 from mav_dynamics import mav_dynamics as Dynamics
-
-# import parameters
 import parameters.sim_params as SIM
-
-# import message types
 from messages.state_msg import StateMsg
-
+from data_viewer import data_viewer
 import numpy as np
-
-# initialize messages
-state = StateMsg()  # instantiate state message
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 
 mav_view = MAV_Viewer()
+data_view = data_viewer()
 
 # initialize the simulation time
 sim_time = SIM.t0
@@ -68,9 +59,12 @@ while sim_time < SIM.t_end:
     U = np.array([fx, fy, fz, l, m, n])
 
     dyn.update_state(U)
-    state = dyn.msg_true_state
     #-------update viewer---------------
-   mav_view.update(state)
+   mav_view.update(dyn.msg_true_state)
+   data_view.update(dyn.msg_true_state,
+                    dyn.msg_true_state,
+                    dyn.msg_true_state,
+                    SIM.tx_simulation)
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
