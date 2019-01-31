@@ -12,10 +12,12 @@ from mav_dynamics import mav_dynamics as Dynamics
 import parameters.sim_params as SIM
 from messages.state_msg import StateMsg
 from data_viewer import data_viewer
+from wind_simulation import wind_simulation
 import numpy as np
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
+wind = wind_simulation(SIM.ts_sim)
 
 mav_view = MAV_Viewer()
 data_view = data_viewer()
