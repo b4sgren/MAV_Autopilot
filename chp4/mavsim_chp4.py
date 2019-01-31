@@ -60,11 +60,11 @@ while sim_time < SIM.t_end:
 
     dyn.update_state(U)
     #-------update viewer---------------
-   mav_view.update(dyn.msg_true_state)
-   data_view.update(dyn.msg_true_state,
+    mav_view.update(dyn.msg_true_state)
+    data_view.update(dyn.msg_true_state,
                     dyn.msg_true_state,
                     dyn.msg_true_state,
-                    SIM.tx_simulation)
+                    SIM.ts_sim)
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
