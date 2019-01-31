@@ -99,11 +99,14 @@ D_prop = 20*(0.0254)     # prop diameter in m
 
 # Motor parameters
 K_V = 145.                   # from datasheet RPM/V
+KQ = (1.0/K_V) * 60.0/(2*np.pi)
 R_motor = 0.042              # ohms
 i0 = 1.5                     # no-load (zero-torque) current (A)
 
+
 # Inputs
 ncells = 12.
+V_max = 3.7 * ncells
 
 # Coeffiecients from prop_data fit
 C_Q2 = -0.01664
