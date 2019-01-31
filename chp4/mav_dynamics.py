@@ -3,11 +3,6 @@ mav_dynamics
     - this file implements the dynamic equations of motion for MAV
     - use unit quaternion for the attitude state
 
-part of mavsimPy
-    - Beard & McLain, PUP, 2012
-    - Update history:
-        12/17/2018 - RWB
-        1/14/2019 - RWB
 """
 import sys
 sys.path.append('..')
@@ -17,7 +12,7 @@ import numpy as np
 from messages.state_msg import StateMsg
 
 import parameters.aerosonde_parameters as MAV
-from tools.tools import Quaternion2Euler
+from tools.tools import Quaternion2Euler, Quaternion2Rotation
 
 class mav_dynamics:
     def __init__(self, Ts):
@@ -28,6 +23,13 @@ class mav_dynamics:
         self._state = np.array([MAV.pn0, MAV.pe0, MAV.pd0, MAV.u0, MAV.v0, MAV.w0,
                                 MAV.e0, MAV.e1, MAV.e2, MAV.e3, MAV.p0, MAV.q0, MAV.r0])
         self._state = self._state.reshape((13, 1))
+
+        #store the forces
+        self._forces = np.zeros((3, 1))
+        self._Va = MAV.u0
+        self._alpha = 0
+        self._beta = 0
+        #true state
         self.msg_true_state = StateMsg()
 
     ###################################
