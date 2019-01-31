@@ -24,41 +24,18 @@ data_view = data_viewer()
 sim_time = SIM.t0
 
 # main simulation loop
+print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
-    # Will need to set the initial state to check stuff
-    #-------vary forces to check viewer-------------
-    fx = 0
-    fy = 0
-    fz = 0
-    l = 0
-    m = 0
-    n = 0
-    if sim_time < 8.0:
-        fx = 50
-    elif sim_time < 16.0:
-        fy = 50
-        dyn._state[3] = 0
-    elif sim_time < 24.0:
-        fz = 50
-        dyn._state[4] = 0
-    elif sim_time < 32.0:
-        l = 0.01
-        dyn._state[5] = 0
-    elif sim_time < 40.0:
-        m = 0.05
-        dyn._state[10] = 0
-        dyn._state[12] = 0
-        if sim_time <= 32.02:
-            dyn._state[6:10] = np.array([1, 0, 0, 0]).reshape((4, 1))
-    elif sim_time < 48.0:
-        n = 0.01
-        dyn._state[11] = 0
-        if sim_time <= 40.02:
-            dyn._state[6:10] = np.array([1, 0, 0, 0]).reshape((4, 1))
+    #---- Will set deltas for rudder and stuff to calculate forces
+    delta_e = -0.2
+    delta_t = 0.5
+    delta_a = 0.0
+    delta_r = 0.005
+    delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T
 
-    U = np.array([fx, fy, fz, l, m, n])
+    #---Get the wind here
 
-    dyn.update_state(U)
+    dyn.update_state(delta)
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
@@ -69,4 +46,3 @@ while sim_time < SIM.t_end:
     #-------increment time-------------
     sim_time += SIM.ts_sim
 
-print("Press Ctrl-Q to exit...")
