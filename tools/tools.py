@@ -31,6 +31,19 @@ def Euler2Quaternion(phi, theta, psi):
 
     return quat
 
+def Quaternion2Rotation(e):
+    # This currently returns Ri_b
+    e0 = e.item(0)
+    ex = e.item(1)
+    ey = e.item(2)
+    ez = e.item(3)
+
+    R = np.array([[e0**2 + ex**2 - ey**2 - ez**2, 2*(ex*ey - e0*ez), 2*(ex*ez + e0*ey)],
+                  [2*(ex*ey + e0*ez), e0**2 - ex**2 + ey**2 - ez**2, 2*(ey*ez - e0*ex)],
+                  [2*(ex*ez - e0*ey), 2*(ey*ez + e0*ex), e0**2 - ex**2 - ey**2 + ez**2]]
+
+    return R
+
 if __name__ == "__main__":
     phi = np.pi/2.0
     theta = np.pi/6.0
