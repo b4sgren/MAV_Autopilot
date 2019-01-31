@@ -40,7 +40,7 @@ def Quaternion2Rotation(e):
 
     R = np.array([[e0**2 + ex**2 - ey**2 - ez**2, 2*(ex*ey - e0*ez), 2*(ex*ez + e0*ey)],
                   [2*(ex*ey + e0*ez), e0**2 - ex**2 + ey**2 - ez**2, 2*(ey*ez - e0*ex)],
-                  [2*(ex*ez - e0*ey), 2*(ey*ez + e0*ex), e0**2 - ex**2 - ey**2 + ez**2]]
+                  [2*(ex*ez - e0*ey), 2*(ey*ez + e0*ex), e0**2 - ex**2 - ey**2 + ez**2]])
 
     return R
 
