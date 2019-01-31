@@ -24,6 +24,8 @@ class mav_dynamics:
                                 MAV.e0, MAV.e1, MAV.e2, MAV.e3, MAV.p0, MAV.q0, MAV.r0])
         self._state = self._state.reshape((13, 1))
 
+        self._wind = np.zeros((3, 1))
+        self.updateVelocityData()
         #store the forces
         self._forces = np.zeros((3, 1))
         self._Va = MAV.u0
@@ -34,7 +36,7 @@ class mav_dynamics:
 
     ###################################
     # public functions
-    def update_state(self, forces_moments):
+    def update_state(self, deltas, wind):
         '''
 
             Integrate the differential equations defining dynamics.
@@ -135,3 +137,6 @@ class mav_dynamics:
         self.msg_true_state.p = self._state.item(10)
         self.msg_true_state.q = self._state.item(11)
         self.msg_true_state.r = self._state.item(12)
+
+    def updateVelocityData(self, wind=np.zeros((6, 1))):
+        debug = 1
