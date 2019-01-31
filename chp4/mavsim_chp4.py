@@ -36,8 +36,8 @@ while sim_time < SIM.t_end:
     delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T
 
     #---Get the wind here
-
-    dyn.update_state(delta)
+    current_wind = wind.update()
+    dyn.update_state(delta, current_wind)
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,

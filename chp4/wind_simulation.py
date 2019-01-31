@@ -34,7 +34,7 @@ class wind_simulation:
         # calculate wind gust using Dryden model.  Gust is defined in the body frame
         w = np.random.randn(3, 1)  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
-        self._gust_state += self._Ts * (self._A @ self._gust_state + self._B * w)
+        self._gust_state += self._Ts * (self._A @ self._gust_state + self._B @ w)
         # output the current gust: y[k] = C x[k]
         return np.zeros((3, 1)) # self._C @ self._gust_state
 
