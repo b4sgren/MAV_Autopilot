@@ -9,10 +9,9 @@ sys.path.append('..')
 
 # import viewers and video writer
 from mav_viewer import MAV_Viewer
-# from video_writer import video_writer
 
 #import the dynamics
-from chp3.mav_dynamics import mav_dynamics as Dynamics
+from mav_dynamics import mav_dynamics as Dynamics
 
 # import parameters
 import parameters.sim_params as SIM
@@ -28,14 +27,7 @@ state = StateMsg()  # instantiate state message
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 
-# initialize viewers and video
-VIDEO = False  # True==write video, False==don't write video
 mav_view = MAV_Viewer()
-
-if VIDEO == True:
-    video = video_writer(video_name="chap3_video.avi",
-                         bounding_box=(0, 0, 1000, 1000),
-                         output_rate=SIM.ts_video)
 
 # initialize the simulation time
 sim_time = SIM.t0
@@ -77,13 +69,10 @@ while sim_time < SIM.t_end:
 
     dyn.update_state(U)
     state = dyn.msg_true_state
-    #-------update viewer and video---------------
-    #the issue is on the following line when VIDEO == True. Right now I'm thinking of ditching the video writer
-    mav_view.update(state)
-    if VIDEO == True: video.update(sim_time)
+    #-------update viewer---------------
+   mav_view.update(state)
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
 
 print("Press Ctrl-Q to exit...")
-if VIDEO == True: video.close()
