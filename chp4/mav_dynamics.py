@@ -142,9 +142,28 @@ class mav_dynamics:
         self.msg_true_state.p = self._state.item(10)
         self.msg_true_state.q = self._state.item(11)
         self.msg_true_state.r = self._state.item(12)
+        self.msg_true_state.Va = self._Va
+        self.msg_true_state.alpha = self._alpha
+        self.msg_true_state.beta = self._beta
+        self.msg_true_state.Vg = np.norm(self._state[3:6]))
+        self.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
+        self.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u)
 
     def updateVelocityData(self, wind=np.zeros((6, 1))):
-        debug = 1
+        Rb_v = Quaternion2Rotation(self._state[6:10])
+        #wind in body frame
+        self._wind = Rb_v @ wind[0:3] + wind[3:]
+        V = self._state[3:6]
+
+        #Compute Va
+        Vr = V - self._wind
+        self._Va = np.norm(Vr)
+
+        #Compute alpha
+        self._alpha = np.arctan2(Vr.item(2), Vr.item(1))
+
+        #Compute beta
+        self._beta = np.asin(Vr.item(1), Va)
 
     def calcForcesAndMoments(self, delta):
         # Calculate gravitational forces in the body frame
