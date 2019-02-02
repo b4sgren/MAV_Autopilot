@@ -157,8 +157,36 @@ class mav_dynamics:
         fy, l, n = self.calcLateralForcesAndMoments(delta.item(2), delta.item(3))
 
         # Propeller force and moments
+        fp, mp = self.calcThrustForceAndMoment(delta.item(1))
+        fx += fp
+        m += mp
+
+        return np.array([fx, fy, fz, l, m, n])
+
+    def calcThrustForceAndMoment(self, dt):
+        rho = MAV.rho
+        D = MAV.D_prop
         Va = self.msg_true_state.Va
-        fp = 1/2.0 * MAV.rho * MAV.S_prop * MAV.C_prop * ((MAV.k_motor * delta.item(1))**2 - Va**2)
+
+        V_in = MAV.V_max * dt
+
+        #Do quadratic formula
+        a = (rho * (D**5))/((2 * np.pi)**2) * MAV.C_Q0
+        b = (rho * (D**4))/(2 * np.pi) * MAV.C_Q1 * Va + (MAV.KQ * MAV.K_V) / MAV.R_motor
+        c = rho * (D**3) * MAV.C_Q2 * (Va**2)  - (MAV.KQ/MAV.R_motor) * V_in + MAV.KQ * MAV.i0
+
+        Omega = (-b + np.sqrt(b**2 - 4.0 * a * c)) / (2.0 * a)
+
+        J = (2 * np.pi * Va) / (Omega * D)
+
+        CT = MAV.C_T2 * (J**2) + MAV.C_T1 * J + MAV.C_T0
+        CQ = MAV.C_Q2 * (J**2) + MAV.C_Q2 * J + MAV.C_Q0
+
+        n = Omega / (2 * np.pi)
+        Tp = rho * (n**2) *  (D**4) * CT
+        Qp = rho * (n**2) * (D**5) * CQ # These show += on the slides but that doesn't make sense
+
+        return Tp, Qp
 
     def calcLateralForcesAndMoments(self, da, dr):
         b = MAV.b
