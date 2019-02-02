@@ -162,6 +162,22 @@ class mav_dynamics:
         beta = self.msg_true_state.beta
         p = self.msg_true_state.p
         r = self.msg_true_state.r
+        rho = MAV.rho
+        S = MAV.S_wing
+
+        # Calculating fy
+        fy = 1/2.0 * rho * (Va**2) * S * (MAV.C_Y_0 + MAV.C_Y_beta * beta + MAV.C_Y_p * (b / (2*Va)) * p +..
+             MAV.C_Y_r * (b / (2 * Va)) * r + MAV.C_Y_delta_a * da + MAV.C_Y_delta_r * dr)
+
+        # Calculating l
+        l = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_ell_0 + MAV.C_ell_beta * beta + MAV.C_ell_p * (b/(2*Va)) * p +..
+            MAV.C_ell_r * (b/(2*Va)) * r + MAV.C_ell_delta_a * da + MAV.C_ell_delta_r * dr)
+
+        # Calculating n
+        n = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_n_0 + MAV.C_n_beta * beta + MAV.C_n_p * (b/(2*Va)) * p + ..
+            MAV.C_n_r * (b/(2*Va)) * r + MAV.C_n_delta_a * da + MAV.C_n_delta_r * dr)
+
+        return fy, l, n 
 
     def calcLongitudinalForcesAndMoments(self, de):
         M = MAV.M
