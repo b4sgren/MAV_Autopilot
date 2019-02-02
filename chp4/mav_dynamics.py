@@ -151,7 +151,17 @@ class mav_dynamics:
         fb_grav = Quaternion2Rotation(self._state[6:10]) @ np.array([[0, 0, MAV.mass * MAV.gravity]]).T
 
         # Calculating longitudinal forces and moments
-        fx, fy, m = self.calcLongitudinalForcesAndMoments(delta.item(0))
+        fx, fz, m = self.calcLongitudinalForcesAndMoments(delta.item(0))
+
+        # Calculating lateral forces and moments
+        fy, l, n = self.calcLateralForcesAndMoments(delta.item(2), delta.item(3))
+
+    def calcLateralForcesAndMoments(self, da, dr):
+        b = MAV.b
+        Va = self.msg_true_state.Va
+        beta = self.msg_true_state.beta
+        p = self.msg_true_state.p
+        r = self.msg_true_state.r
 
     def calcLongitudinalForcesAndMoments(self, de):
         M = MAV.M
@@ -160,13 +170,27 @@ class mav_dynamics:
         rho = MAV.rho
         Va = self.msg_true_state.Va
         S = MAV.S_wing
-        c = MAV.c
         q = self.msg_true_state.q
 
-        #Calc lift force
         sigma_alpha = (1 + np.exp(-M * (alpha - alpha0)) + np.exp(M * (alpha + alpha0))) /..
                       ((1 + np.exp(-M * (alpha 0 alpha0))) * (1 + np.exp(M * (alpha + alpha0))))
 
+        #Calc lift force
         CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha) + ..
                    sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
         F_lift = 1/2.0 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2 * Va)) * q + MAV.C_L_delta_e * de)
+
+        #Calc drag force
+        CD_alpha = MAV.C_D_p + ((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2 / (np.pi * MAV.e * MAV.AR))
+        F_drag = 1/2.0 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2 * Va)) * q + MAV.C_D_delta_e * de)
+
+        # Rotate forces from stability frame to body frame
+        calpha = np.cos(alpha)
+        salpha = np.sin(alpha)
+        fx_fz = np.array([[calpha, -salpha], [salpha, calpha]]) @ np.array([[-F_drag, -F_lift]]).T
+
+        #Calculate m
+        m = 1/2.0 * rho * (Va**2) * S * MAV.c * (MAV.C_m_0 + MAV.C_m_alpha + ..
+            MAV.C_m_q * (c / (2 * Va)) * q + MAV.C_m_delta_e * de)
+
+        return fx_fz.item(0), fx_fz.item(1), m
