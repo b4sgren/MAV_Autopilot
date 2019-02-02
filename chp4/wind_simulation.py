@@ -17,8 +17,8 @@ class wind_simulation:
         #   Dryden gust model parameters (pg 56 UAV book)
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
         # Could pass current Va into the gust function and recalculate A and B matrices.
-        Va = 17 
-        self._A = np.eye(3) # A and B are wrong but I'm not really sure what they should be
+        Va = 17
+        self._A = np.eye(3) # Create A and B from TF in the book. See slides online on Chp. 4
         self._B = np.eye(3) # Not sure how to fix the hack or what it means
         self._C = np.eye(3)
         self._gust_state = np.zeros((3, 1))
@@ -37,4 +37,3 @@ class wind_simulation:
         self._gust_state += self._Ts * (self._A @ self._gust_state + self._B @ w)
         # output the current gust: y[k] = C x[k]
         return np.zeros((3, 1)) # self._C @ self._gust_state
-
