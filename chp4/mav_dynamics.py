@@ -156,6 +156,10 @@ class mav_dynamics:
         # Calculating lateral forces and moments
         fy, l, n = self.calcLateralForcesAndMoments(delta.item(2), delta.item(3))
 
+        # Propeller force and moments
+        Va = self.msg_true_state.Va
+        fp = 1/2.0 * MAV.rho * MAV.S_prop * MAV.C_prop * ((MAV.k_motor * delta.item(1))**2 - Va**2)
+
     def calcLateralForcesAndMoments(self, da, dr):
         b = MAV.b
         Va = self.msg_true_state.Va
@@ -177,7 +181,7 @@ class mav_dynamics:
         n = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_n_0 + MAV.C_n_beta * beta + MAV.C_n_p * (b/(2*Va)) * p + ..
             MAV.C_n_r * (b/(2*Va)) * r + MAV.C_n_delta_a * da + MAV.C_n_delta_r * dr)
 
-        return fy, l, n 
+        return fy, l, n
 
     def calcLongitudinalForcesAndMoments(self, de):
         M = MAV.M
