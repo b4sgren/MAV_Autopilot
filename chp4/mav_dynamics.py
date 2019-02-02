@@ -38,11 +38,12 @@ class mav_dynamics:
     # public functions
     def update_state(self, deltas, wind):
         '''
-
             Integrate the differential equations defining dynamics.
             Inputs are the forces and moments on the aircraft.
             Ts is the time step between function calls.
         '''
+
+        forces_moments = self.calcForcesAndMoments(deltas)
 
         # Integrate ODE using Runge-Kutta RK4 algorithm
         time_step = self.ts_simulation
@@ -62,6 +63,9 @@ class mav_dynamics:
         self._state[7][0] = self._state.item(7)/normE
         self._state[8][0] = self._state.item(8)/normE
         self._state[9][0] = self._state.item(9)/normE
+
+        #update velocities
+        self.updateVelocityData(wind)
 
         # update the message class for the true state
         self._update_msg_true_state()
@@ -94,7 +98,8 @@ class mav_dynamics:
         m = forces_moments.item(4)
         n = forces_moments.item(5)
 
-        # position kinematics
+        # position kinematics 
+        # TODO Change the line below to use Quat2Rot
         Rv_b = np.array([[e1**2 + e0**2 - e2**2 - e3**2, 2*(e1*e2 - e3*e0), 2*(e1*e3 + e2*e0)],
                          [2*(e1*e2 + e3*e0), e2**2 + e0**2 - e1**2 - e3**2, 2*(e2*e3 - e1*e0)],
                          [2*(e1*e3 - e2*e0), 2*(e2*e3 + e1*e0), e3**2 + e0**2 - e1**2 - e2**2]])
@@ -140,3 +145,6 @@ class mav_dynamics:
 
     def updateVelocityData(self, wind=np.zeros((6, 1))):
         debug = 1
+
+    def calcForcesAndMoments(self, delta):
+        debut = 1
