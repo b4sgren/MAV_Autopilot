@@ -29,8 +29,8 @@ sim_time = SIM.t0
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
     #---- Will set deltas for rudder and stuff to calculate forces
-    delta_e = 0 #-0.2
-    delta_t = 0 #0.5
+    delta_e = 0.0
+    delta_t = 0.5
     delta_a = 0 #0.0
     delta_r = 0 #0.005
     delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T
