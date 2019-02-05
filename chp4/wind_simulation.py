@@ -25,7 +25,7 @@ class wind_simulation:
         #   Dryden gust model parameters (pg 56 UAV book)
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
         # Could pass current Va into the gust function and recalculate A and C matrices.
-        Va = 17
+        Va = MAV.u0
         self._A = np.array([[-Va/self.Lu, 0, 0, 0, 0],
                             [0, -2*(Va/self.Lv), -(Va/self.Lv)**2, 0, 0],
                             [0, 1, 0, 0, 0],
@@ -42,13 +42,21 @@ class wind_simulation:
         self._gust_state = np.zeros((5, 1))
         self._Ts = Ts
 
-    def update(self):
+    def update(self, Va):
         # returns a six vector.
         #   The first three elements are the steady state wind in the inertial frame
         #   The second three elements are the gust in the body frame
-        return np.concatenate(( self._steady_state, self._gust() ))
+        return np.concatenate(( self._steady_state, self._gust(Va) ))
 
-    def _gust(self):
+    def _gust(self, Va):
+        self._A = np.array([[-Va/self.Lu, 0, 0, 0, 0],
+                            [0, -2*(Va/self.Lv), -(Va/self.Lv)**2, 0, 0],
+                            [0, 1, 0, 0, 0],
+                            [0, 0, 0, -2*(Va/self.Lw), -(Va/self.Lw)**2],
+                            [0, 0, 0, 1, 0]])
+        self._C = np.array([[self.sigma_u * np.sqrt((2*Va)/self.Lu), 0, 0, 0, 0],
+                            [0, self.sigma_v * np.sqrt((3*Va)/self.Lv), np.sqrt((Va/self.Lv)**3), 0, 0],
+                            [0, 0, 0, self.sigma_w * np.sqrt((3*Va)/self.Lv), np.sqrt((Va/self.Lw)**3)]])
         # calculate wind gust using Dryden model.  Gust is defined in the body frame
         w = np.random.randn(3, 1)  # zero mean unit variance Gaussian (white noise)
         # propagate Dryden model (Euler method): x[k+1] = x[k] + Ts*( A x[k] + B w[k] )
