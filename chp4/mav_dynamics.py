@@ -247,11 +247,11 @@ class mav_dynamics:
         #Calc lift force
         CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha) + \
                    sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
-        F_lift = 1/2.0 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2 * Va)) * q + MAV.C_L_delta_e * de)
+        F_lift = 1/2.0 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2.0 * Va)) * q + MAV.C_L_delta_e * de)
 
         #Calc drag force
-        CD_alpha = MAV.C_D_p + ((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2 / (np.pi * MAV.e * MAV.AR))
-        F_drag = 1/2.0 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2 * Va)) * q + MAV.C_D_delta_e * de)
+        CD_alpha = MAV.C_D_p + (((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2) / (np.pi * MAV.e * MAV.AR))
+        F_drag = 1/2.0 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2.0 * Va)) * q + MAV.C_D_delta_e * de)
 
         # Rotate forces from stability frame to body frame
         calpha = np.cos(alpha)
@@ -259,7 +259,7 @@ class mav_dynamics:
         fx_fz = np.array([[calpha, -salpha], [salpha, calpha]]) @ np.array([[-F_drag, -F_lift]]).T
 
         #Calculate m
-        m = 1/2.0 * rho * (Va**2) * S * MAV.c * (MAV.C_m_0 + MAV.C_m_alpha + \
-            MAV.C_m_q * (c / (2 * Va)) * q + MAV.C_m_delta_e * de)
+        m = 1/2.0 * rho * (Va**2) * S * MAV.c * (MAV.C_m_0 + MAV.C_m_alpha * alpha + \
+            MAV.C_m_q * (c / (2.0 * Va)) * q + MAV.C_m_delta_e * de)
 
         return fx_fz.item(0), fx_fz.item(1), m
