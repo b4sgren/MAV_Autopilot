@@ -11,8 +11,8 @@ import parameters.aerosonde_parameters as MAV
 class wind_simulation:
     def __init__(self, Ts):
         # steady state wind defined in the inertial frame
-        self._steady_state = np.array([[0., 0., 0.]]).T
-        # self.steady_state = np.array([[3., 1., 0.]]).T
+        # self._steady_state = np.array([[0., 0., 0.]]).T
+        self._steady_state = np.array([[3., 1., 0.]]).T
 
         #   Dryden gust model parameters (pg 56 UAV book)
         # HACK:  Setting Va to a constant value is a hack.  We set a nominal airspeed for the gust model.
