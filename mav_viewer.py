@@ -71,8 +71,8 @@ class MAV_Viewer:
         rotated_pts = self.rotatePoints(self.points, R)
         trans_pts = self.translatePoints(rotated_pts, mav_position)
 
-        R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]) # Convert to ENU coordinates for rendering
-        trans_pts = R @ trans_pts
+        R2 = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]]) # Convert to ENU coordinates for rendering
+        trans_pts = R2 @ trans_pts
         mesh = self.pointsToMesh(trans_pts)
 
         if not self.plot_initialize:
