@@ -146,7 +146,7 @@ class mav_dynamics:
         self.msg_true_state.Va = self._Va
         self.msg_true_state.alpha = self._alpha
         self.msg_true_state.beta = self._beta
-        self.msg_true_state.Vg = np.linalg.norm(self._state[3:6])
+        self.msg_true_state.Vg = np.linalg.norm(self._state[3:6]) # Not sure about
         self.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
         self.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u)
 
@@ -161,7 +161,7 @@ class mav_dynamics:
         self._Va = np.linalg.norm(Vr)
 
         #Compute alpha
-        self._alpha = np.arctan2(Vr.item(2), Vr.item(1))
+        self._alpha = np.arctan2(Vr.item(2), Vr.item(0)) #the second input was Vr.item(1)
 
         #Compute beta
         self._beta = asin(Vr.item(1)/self._Va)
