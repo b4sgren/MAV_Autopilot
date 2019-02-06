@@ -180,8 +180,9 @@ class mav_dynamics:
         fy += fb_grav[1]
 
         # Propeller force and moments
-        fp, mp = self.calcThrustForceAndMoment(delta.item(1))
-        fx += fp
+        fp, mp = self.calcThrustForceAndMoment(delta.item(1)) #this is giving me a negative force
+        print(mp)
+        fx += -fp
         m += mp
 
         return np.array([fx, fy, fz, l, m, n])
