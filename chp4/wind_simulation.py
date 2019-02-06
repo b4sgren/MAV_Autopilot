@@ -11,8 +11,8 @@ import parameters.aerosonde_parameters as MAV
 class wind_simulation:
     def __init__(self, Ts):
         # steady state wind defined in the inertial frame
-        # self._steady_state = np.array([[0., 0., 0.]]).T
-        self._steady_state = np.array([[3., 1., 0.]]).T
+        self._steady_state = np.array([[0., 0., 0.]]).T
+        # self._steady_state = np.array([[3., 1., 0.]]).T
 
         #Dryden Parameters:
         self.Lu = 200.0
@@ -46,7 +46,8 @@ class wind_simulation:
         # returns a six vector.
         #   The first three elements are the steady state wind in the inertial frame
         #   The second three elements are the gust in the body frame
-        return np.concatenate(( self._steady_state, self._gust(Va) ))
+        # return np.concatenate(( self._steady_state, self._gust(Va) ))
+        return np.concatenate(( self._steady_state, np.zeros((3, 1)) ))
 
     def _gust(self, Va):
         self._A = np.array([[-Va/self.Lu, 0, 0, 0, 0],
