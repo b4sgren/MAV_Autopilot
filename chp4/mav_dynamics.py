@@ -184,8 +184,6 @@ class mav_dynamics:
         fx += fp
         l += mp
 
-        print(mp)
-
         return np.array([fx, fy, fz, l, m, n])
 
     def calcThrustForceAndMoment(self, dt):
