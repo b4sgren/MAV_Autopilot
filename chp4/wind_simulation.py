@@ -46,8 +46,8 @@ class wind_simulation:
         # returns a six vector.
         #   The first three elements are the steady state wind in the inertial frame
         #   The second three elements are the gust in the body frame
-        return np.concatenate(( self._steady_state, self._gust(Va) ))
-        # return np.concatenate(( self._steady_state, np.zeros((3, 1)) ))
+        # return np.concatenate(( self._steady_state, self._gust(Va) ))
+        return np.concatenate(( self._steady_state, np.zeros((3, 1)) ))
 
     def _gust(self, Va):
         self._A = np.array([[-Va/self.Lu, 0, 0, 0, 0],

@@ -181,8 +181,8 @@ class mav_dynamics:
 
         # Propeller force and moments
         fp, mp = self.calcThrustForceAndMoment(delta.item(1)) #this is giving me a negative force
-        print(mp)
-        fx += -fp
+        print(fp)
+        fx += fp
         m += mp
 
         return np.array([fx, fy, fz, l, m, n])
@@ -208,7 +208,7 @@ class mav_dynamics:
 
         n = Omega / (2 * np.pi)
         Tp = rho * (n**2) *  (D**4) * CT
-        Qp = rho * (n**2) * (D**5) * CQ # These show += on the slides but that doesn't make sense
+        Qp = rho * (n**2) * (D**5) * CQ
 
         return Tp, Qp
 
