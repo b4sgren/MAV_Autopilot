@@ -181,7 +181,8 @@ class mav_dynamics:
 
         # Propeller force and moments
         #These may act a little fast
-        # fp, mp = self.calcThrustForceAndMoment(delta.item(1))
+        fp, mp = self.calcThrustForceAndMoment(delta.item(1))
+        # print(fp)
         # fx += fp
         # l += mp
 
@@ -194,23 +195,20 @@ class mav_dynamics:
 
         V_in = MAV.V_max * dt
 
-        #Do quadratic formula
-        a = (rho * (D**5))/((2 * np.pi)**2) * MAV.C_Q0
-        b = (rho * (D**4))/(2 * np.pi) * MAV.C_Q1 * Va + (MAV.KQ * MAV.K_V) / MAV.R_motor
-        c = rho * (D**3) * MAV.C_Q2 * (Va**2)  - (MAV.KQ/MAV.R_motor) * V_in + MAV.KQ * MAV.i0
+        a = (rho * D**5) / ((2 * np.pi)**2) * MAV.C_Q0
+        b = (rho * (D**4) * MAV.C_Q1 * Va)/(2 * np.pi)  + (MAV.KQ * MAV.K_V)/MAV.R_motor
+        c = rho * (D**3) * MAV.C_Q2 * (Va**2) - (MAV.KQ * V_in)/MAV.R_motor + MAV.KQ * MAV.i0
 
-        Omega = (-b + np.sqrt(b**2 - 4.0 * a * c)) / (2.0 * a)
+        Omega_op = (-b + np.sqrt((b**2) - 4 * a * c)) / (2 * a)
+        J_op = (2 * np.pi * Va) / (Omega_op * D)
+        print(J_op)
 
-        J = (2 * np.pi * Va) / (Omega * D)
+        CT = MAV.C_T2 * (J_op**2) + MAV.C_T1 * J_op + MAV.C_T0
 
-        CT = MAV.C_T2 * (J**2) + MAV.C_T1 * J + MAV.C_T0
-        CQ = MAV.C_Q2 * (J**2) + MAV.C_Q2 * J + MAV.C_Q0
+        Qp = MAV.KQ * ((V_in - MAV.K_V * Omega_op)/MAV.R_motor - MAV.i0)
+        Fp = CT * (rho * (Omega_op**2) * (D**4)) / ((2 * np.pi)**2)
 
-        n = Omega / (2 * np.pi)
-        Tp = rho * (n**2) *  (D**4) * CT
-        Qp = rho * (n**2) * (D**5) * CQ
-
-        return Tp, Qp
+        return Fp, Qp
 
     def calcLateralForcesAndMoments(self, da, dr):
         b = MAV.b
