@@ -33,6 +33,16 @@ while sim_time < SIM.t_end:
     delta_t = 0.5
     delta_a = 0.0 #0.0
     delta_r = 0.0 #0.005
+
+    if sim_time < 15:
+        delta_r = 0.002
+    elif sim_time < 25:
+        delta_a = 0.025
+    elif sim_time < 29.5:
+        delta_a = -.025
+    else:
+        delta_t = 1.0
+
     delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T
 
     #---Get the wind here
