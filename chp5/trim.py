@@ -1,7 +1,7 @@
 """
-compute_trim 
+compute_trim
     - Chapter 5 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         2/5/2019 - RWB
 """
 import sys
@@ -12,8 +12,8 @@ from tools.tools import Euler2Quaternion
 
 def compute_trim(mav, Va, gamma):
     # define initial state and input
-    state0 =
-    delta0 =
+    state0 = np.array([[0., 0., 0., Va, 0., 0., 0., gamma, 0., 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
+    delta0 = np.array([0., 0., 0., 1.])
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
     cons = ({'type': 'eq',
@@ -49,4 +49,3 @@ def compute_trim(mav, Va, gamma):
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
   return J
-
