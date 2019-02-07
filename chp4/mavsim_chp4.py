@@ -20,7 +20,7 @@ dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 
 mav_view = MAV_Viewer()
-data_view = data_viewer()
+# data_view = data_viewer()
 
 # initialize the simulation time
 sim_time = SIM.t0
@@ -31,19 +31,19 @@ while sim_time < SIM.t_end:
     #---- Will set deltas for rudder and stuff to calculate forces
     delta_e = 0.0
     delta_t = 0.0
-    delta_a = 0 #0.0
-    delta_r = 0 #0.005
+    delta_a = 0.005 #0.0
+    delta_r = 0.0 #0.005
     delta = np.array([[delta_e, delta_t, delta_a, delta_r]]).T
 
     #---Get the wind here
-    current_wind = wind.update(dyn.msg_true_state.Va)
+    current_wind = wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
-    data_view.update(dyn.msg_true_state,
-                    dyn.msg_true_state,
-                    dyn.msg_true_state,
-                    SIM.ts_sim)
+    # data_view.update(dyn.msg_true_state,
+    #                 dyn.msg_true_state,
+    #                 dyn.msg_true_state,
+    #                 SIM.ts_sim)
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
