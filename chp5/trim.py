@@ -66,3 +66,6 @@ if __name__ == "__main__":
     gamma = 0.2
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
+
+    print("State: ", trim_state)
+    print("Inputs: ", trim_input)
