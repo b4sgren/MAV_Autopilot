@@ -9,12 +9,13 @@ sys.path.append('..')
 import numpy as np
 from scipy.optimize import minimize
 from tools.tools import Euler2Quaternion
+from mav_dynamics import mav_dynamics as Dynamics
 
 def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
-    state0 = np.array([[0., 0., 0., Va, 0., 0., e,item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
-    delta0 = np.array([0., 0., 0., 1.])
+    state0 = np.array([[0., 0., 0., Va, 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
+    delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
     cons = ({'type': 'eq',
@@ -50,11 +51,18 @@ def compute_trim(mav, Va, gamma):
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
     # Isn't psi_dot non zero? How to represent this in quaternion? Same with rdot
-    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
+    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
     delta = np.array([[0., 0.5, 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(delta)
-    f = mav.derivatives(xdot_star, f)
+    f = mav._derivatives(xdot_star, forces_moments)
 
     error = xdot_star - f
     J = error.T @ error
     return J
+
+if __name__ == "__main__":
+    mav = Dynamics(.02)
+    Va = 10.0
+    gamma = 0.2
+
+    trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
