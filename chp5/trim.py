@@ -14,7 +14,8 @@ from mav_dynamics import mav_dynamics as Dynamics
 def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
-    state0 = np.array([[0., 0., 0., Va, 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
+    state0 = np.array([[0., 0., 0., Va, 0., 0.,
+                        e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
     delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
@@ -50,14 +51,17 @@ def compute_trim(mav, Va, gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
+    #I'm missing something. Nothing changes between iterations. Need stuff to be a function of alpha, beta and phi
     # Isn't psi_dot non zero? How to represent this in quaternion? Same with rdot
-    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
-    delta = np.array([[0., 0.5, 0., 0.]]).T
+    e = Euler2Quaternion(0, 0, Va * np.cos(gamma)) # not sure if this is the right thing to get edot
+    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
+    delta = np.array([[0., 0., 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(delta)
-    f = mav._derivatives(xdot_star, forces_moments)
+    f = mav._derivatives(mav._state, forces_moments)
 
     error = xdot_star - f
     J = error.T @ error
+    print(J)
     return J
 
 if __name__ == "__main__":
