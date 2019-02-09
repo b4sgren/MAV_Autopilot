@@ -49,4 +49,12 @@ def compute_trim(mav, Va, gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
-  return J
+    # Isn't psi_dot non zero? How to represent this in quaternion? Same with rdot
+    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]])
+    delta = np.array([[0., 0.5, 0., 0.]]).T
+    forces_moments = mav.calcForcesAndMoments(delta)
+    f = mav.derivatives(xdot_star, f)
+
+    error = xdot_star - f
+    J = error.T @ error
+    return J
