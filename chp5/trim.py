@@ -12,7 +12,8 @@ from tools.tools import Euler2Quaternion
 
 def compute_trim(mav, Va, gamma):
     # define initial state and input
-    state0 = np.array([[0., 0., 0., Va, 0., 0., 0., gamma, 0., 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
+    e = Euler2Quaternion(0, gamma, 0)
+    state0 = np.array([[0., 0., 0., Va, 0., 0., e,item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
     delta0 = np.array([0., 0., 0., 1.])
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
