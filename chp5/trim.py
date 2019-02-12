@@ -8,14 +8,14 @@ import sys
 sys.path.append('..')
 import numpy as np
 from scipy.optimize import minimize
-from tools.tools import Euler2Quaternion
+from tools.tools import Euler2Quaternion, Quaternion2Rotation
 from mav_dynamics import mav_dynamics as Dynamics
 
 def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
     state0 = np.array([[0., 0., 0., Va, 0., 0.,
-                        e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T  # I need another 0 for the extra quaternion state
+                        e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.3]]).T  # r is non-zero
     delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
@@ -51,13 +51,18 @@ def compute_trim(mav, Va, gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
-    #I'm missing something. Nothing changes between iterations. Need stuff to be a function of alpha, beta and phi
-    # Isn't psi_dot non zero? How to represent this in quaternion? Same with rdot
-    e = Euler2Quaternion(0, 0, Va * np.cos(gamma)) # not sure if this is the right thing to get edot
+    q = Euler2Quaternion(0., gamma, 0.) # Is this the right way to get derivative of Euler Angles
+    w = np.array([0., 0., Va/50 * np.cos(gamma)]) # 50m radius? Not sure what to do without R
+    e = 0.5 * np.array([[-q.item(1) * w.item(0) - q.item(2) * w.item(1) - q.item(3) * w.item(2)],
+                  [q.item(0) * w.item(0) - q.item(3) * w.item(1) + q.item(2) * w.item(2)],
+                  [q.item(3) * w.item(0) - q.item(0) * w.item(1) + q.item(1) * w.item(2)],
+                  [q.item(2) * w.item(0) - q.item(1) * w.item(1) + q.item(0) * w.item(2)]])
+    # print('e:\n:', e)
+    # print('w:\n:', w)
+
     xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
-    # delta = np.array([[0., 0., 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(x[13:])
-    f = mav._derivatives(x[:13], forces_moments)
+    f = mav._derivatives(x[0:13], forces_moments)
 
     error = xdot_star - f
     J = error.T @ error
@@ -65,8 +70,9 @@ def trim_objective(x, mav, Va, gamma):
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 15.0
-    gamma = -0.2
+    Va = 10.0  # Currently nothing affects the inputs. Only the state
+    gamma = 0.0
+    # mav._Va = Va # not sure if I'm supposed to do this
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
 
