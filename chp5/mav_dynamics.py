@@ -195,16 +195,17 @@ class mav_dynamics:
         V_in = MAV.V_max * dt
 
         a = (rho * D**5) / ((2 * np.pi)**2) * MAV.C_Q0
-        b = (rho * (D**4) * MAV.C_Q1 * Va)/(2 * np.pi)  + (MAV.KQ **2)/MAV.R_motor
+        b = (rho * (D**4) * MAV.C_Q1 * Va)/(2 * np.pi)  + (MAV.KQ**2)/MAV.R_motor
         c = rho * (D**3) * MAV.C_Q2 * (Va**2) - (MAV.KQ * V_in)/MAV.R_motor + MAV.KQ * MAV.i0
 
-        Omega_op = (-b + np.sqrt((b**2) - 4 * a * c)) / (2 * a)
+        Omega_op = (-b + np.sqrt((b**2) - 4 * a * c)) / (2. * a)
         J_op = (2 * np.pi * Va) / (Omega_op * D)
 
         CT = MAV.C_T2 * (J_op**2) + MAV.C_T1 * J_op + MAV.C_T0
-        CQ = MAV.C_Q2 * (J_op**2) + MAV.C_Q1 * J_op + MAV.C_Q0
+        # CQ = MAV.C_Q2 * (J_op**2) + MAV.C_Q1 * J_op + MAV.C_Q0
 
-        Qp = rho * (Omega_op / (2 * np.pi))**2 * (D**5) * CQ
+        # Qp = rho * (Omega_op / (2 * np.pi))**2 * (D**5) * CQ
+        Qp = MAV.KQ * (1./MAV.R_motor * (V_in - MAV.KQ * Omega_op) - MAV.i0)
         Fp = CT * (rho * (Omega_op**2) * (D**4)) / ((2 * np.pi)**2)
 
         return Fp, Qp
@@ -212,23 +213,23 @@ class mav_dynamics:
     def calcLateralForcesAndMoments(self, da, dr):
         b = MAV.b
         Va = self._Va
-        beta = self.msg_true_state.beta
+        beta = self._beta
         p = self.msg_true_state.p
         r = self.msg_true_state.r
         rho = MAV.rho
         S = MAV.S_wing
 
         # Calculating fy
-        fy = 1/2.0 * rho * (Va**2) * S * (MAV.C_Y_0 + MAV.C_Y_beta * beta + MAV.C_Y_p * (b / (2*Va)) * p +\
-             MAV.C_Y_r * (b / (2 * Va)) * r + MAV.C_Y_delta_a * da + MAV.C_Y_delta_r * dr)
+        fy = 1/2.0 * rho * (Va**2) * S * (MAV.C_Y_0 + MAV.C_Y_beta * beta + MAV.C_Y_p * (b / (2.*Va)) * p +\
+             MAV.C_Y_r * (b / (2. * Va)) * r + MAV.C_Y_delta_a * da + MAV.C_Y_delta_r * dr)
 
         # Calculating l
-        l = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_ell_0 + MAV.C_ell_beta * beta + MAV.C_ell_p * (b/(2*Va)) * p +\
+        l = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_ell_0 + MAV.C_ell_beta * beta + MAV.C_ell_p * (b/(2.*Va)) * p +\
             MAV.C_ell_r * (b/(2*Va)) * r + MAV.C_ell_delta_a * da + MAV.C_ell_delta_r * dr)
 
         # Calculating n
-        n = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_n_0 + MAV.C_n_beta * beta + MAV.C_n_p * (b/(2*Va)) * p +\
-            MAV.C_n_r * (b/(2*Va)) * r + MAV.C_n_delta_a * da + MAV.C_n_delta_r * dr)
+        n = 1/2.0 * rho * (Va**2) * S * b * (MAV.C_n_0 + MAV.C_n_beta * beta + MAV.C_n_p * (b/(2.*Va)) * p +\
+            MAV.C_n_r * (b/(2.*Va)) * r + MAV.C_n_delta_a * da + MAV.C_n_delta_r * dr)
 
         return fy, l, n
 
@@ -247,12 +248,12 @@ class mav_dynamics:
         CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha * alpha) + \
                     sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
 
-        F_lift = 0.5 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2 * Va)) * q \
+        F_lift = 0.5 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2. * Va)) * q \
                  + MAV.C_L_delta_e * de)
 
         CD_alpha = MAV.C_D_p + ((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2) / (np.pi * MAV.e * MAV.AR)
 
-        F_drag = 0.5 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2 * Va)) * q \
+        F_drag = 0.5 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2. * Va)) * q \
                  + MAV.C_D_delta_e * de)
 
         Rb_s = np.array([[np.cos(alpha), -np.sin(alpha)],
@@ -260,6 +261,6 @@ class mav_dynamics:
         fx_fz = Rb_s @ np.array([[-F_drag, -F_lift]]).T
 
         m = 0.5 * rho * (Va**2) * S * c * (MAV.C_m_0 + MAV.C_m_alpha * alpha + \
-            MAV.C_m_q * (c / (2 * Va)) * q + MAV.C_m_delta_e * de)
+            MAV.C_m_q * (c / (2. * Va)) * q + MAV.C_m_delta_e * de)
 
         return fx_fz.item(0), fx_fz.item(1), m
