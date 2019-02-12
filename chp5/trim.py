@@ -65,8 +65,8 @@ def trim_objective(x, mav, Va, gamma):
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 10.0
-    gamma = 0.2
+    Va = 15.0
+    gamma = -0.2
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
 
