@@ -54,7 +54,7 @@ def trim_objective(x, mav, Va, gamma):
     xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
     delta = np.array([[0., 0.5, 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(delta)
-    f = mav._derivatives(mav._state, forces_moments)
+    f = mav._derivatives(x, forces_moments)
 
     error = xdot_star - f
     J = error.T @ error
