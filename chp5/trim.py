@@ -14,8 +14,8 @@ from mav_dynamics import mav_dynamics as Dynamics
 def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
-    state0 = np.array([[0., 0., 0., Va, 0., 0.,
-                        e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.3]]).T  # r is non-zero
+    state0 = np.array([[0., 0., -100., Va, 0., 0.1,
+                        1., 0., 0., 0., 0., 0., 0.]]).T
     delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
@@ -63,6 +63,7 @@ def trim_objective(x, mav, Va, gamma):
     xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(x[13:])
     f = mav._derivatives(x[0:13], forces_moments)
+    print('f\n', f)
 
     error = xdot_star - f
     J = error.T @ error
@@ -70,7 +71,7 @@ def trim_objective(x, mav, Va, gamma):
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 10.0  # Currently nothing affects the inputs. Only the state
+    Va = 25.0  # Currently nothing affects the inputs. Only the state
     gamma = 0.0
     # mav._Va = Va # not sure if I'm supposed to do this
 
