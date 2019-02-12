@@ -46,7 +46,7 @@ def compute_trim(mav, Va, gamma):
                    constraints=cons, options={'ftol': 1e-10, 'disp': True})
     # extract trim state and input and return
     trim_state = np.array([res.x[0:13]]).T
-    trim_input = np.array([res.x[13:17]]).T
+    trim_input = np.array([res.x[13:17]]).T #These inputs are the same. Do I need to recalculate them?
     return trim_state, trim_input
 
 # objective function to be minimized
@@ -61,7 +61,6 @@ def trim_objective(x, mav, Va, gamma):
 
     error = xdot_star - f
     J = error.T @ error
-    print(J)
     return J
 
 if __name__ == "__main__":
