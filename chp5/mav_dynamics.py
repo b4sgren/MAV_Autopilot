@@ -172,12 +172,12 @@ class mav_dynamics:
 
         # Calculating longitudinal forces and moments
         fx, fz, m = self.calcLongitudinalForcesAndMoments(delta.item(0))
-        fx += fb_grav[0]
-        fz += fb_grav[2]
+        fx += fb_grav.item(0)
+        fz += fb_grav.item(2)
 
         # Calculating lateral forces and moments
         fy, l, n = self.calcLateralForcesAndMoments(delta.item(2), delta.item(3))
-        fy += fb_grav[1]
+        fy += fb_grav.item(1)
 
         # Propeller force and moments
         #These may act a little fast
