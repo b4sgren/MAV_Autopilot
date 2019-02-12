@@ -101,9 +101,7 @@ class mav_dynamics:
 
         # position kinematics
         # TODO Change the line below to use Quat2Rot
-        Rv_b = np.array([[e1**2 + e0**2 - e2**2 - e3**2, 2*(e1*e2 - e3*e0), 2*(e1*e3 + e2*e0)],
-                         [2*(e1*e2 + e3*e0), e2**2 + e0**2 - e1**2 - e3**2, 2*(e2*e3 - e1*e0)],
-                         [2*(e1*e3 - e2*e0), 2*(e2*e3 + e1*e0), e3**2 + e0**2 - e1**2 - e2**2]])
+        Rv_b = Quaternion2Rotation(np.array([e0, e1, e2, e3]))
 
         pos_dot = Rv_b @ np.array([u, v, w]).T
         pn_dot = pos_dot.item(0)
