@@ -55,9 +55,9 @@ def trim_objective(x, mav, Va, gamma):
     # Isn't psi_dot non zero? How to represent this in quaternion? Same with rdot
     e = Euler2Quaternion(0, 0, Va * np.cos(gamma)) # not sure if this is the right thing to get edot
     xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
-    delta = np.array([[0., 0., 0., 0.]]).T
-    forces_moments = mav.calcForcesAndMoments(delta)
-    f = mav._derivatives(x, forces_moments)
+    # delta = np.array([[0., 0., 0., 0.]]).T
+    forces_moments = mav.calcForcesAndMoments(x[13:])
+    f = mav._derivatives(x[:13], forces_moments)
 
     error = xdot_star - f
     J = error.T @ error
