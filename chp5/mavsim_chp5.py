@@ -28,14 +28,15 @@ sim_time = SIM.t0
 
 #get trim input and states
 Va_star = 25.
-gamma_star = 0.1
+gamma_star = 0.0
 trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star)
+dyn._state = trim_state
 
 # main simulation loop
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
     #---Get the wind here
-    current_wind = wind.update(dyn._Va)
+    current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(trim_input, current_wind)
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)

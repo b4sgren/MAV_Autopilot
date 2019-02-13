@@ -57,24 +57,23 @@ def trim_objective(x, mav, Va, gamma):
                   [w.item(0), 0, w.item(2), -w.item(1)],
                   [w.item(1), -w.item(2), 0, w.item(0)],
                   [w.item(2), w.item(1), -w.item(0), 0]])
-    e = 0.5 * (W @ q)
+    q_dot = 0.5 * (W @ q)
 
-    xdot_star = np.array([[5, 5, Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
+    xdot_star = np.array([[Va, 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
 
     forces_moments = mav.calcForcesAndMoments(x[13:])
     f = mav._derivatives(x[0:13], forces_moments)
-    # print('f\n', f)
+    print('x\n', f)
 
     error = xdot_star - f
     J = error.T @ error
-    # print(J)
     return J
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
     Va = 25.0  # Currently nothing affects the inputs. Only the state
     gamma = 0.0
-    # mav._Va = Va # not sure if I'm supposed to do this
+    mav._Va = Va
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
 
