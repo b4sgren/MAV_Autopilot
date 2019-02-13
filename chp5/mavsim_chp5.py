@@ -27,7 +27,7 @@ mav_view = MAV_Viewer()
 sim_time = SIM.t0
 
 #get trim input and states
-Va_star = 10
+Va_star = 25.
 gamma_star = 0.1
 trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star)
 

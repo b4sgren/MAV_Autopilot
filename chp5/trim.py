@@ -15,7 +15,7 @@ def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
     state0 = np.array([[0., 0., -100., Va, 0., 0.1,
-                        1., 0., 0., 0., 0., 0., 0.]]).T
+                        e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
     delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
     # define equality constraints
@@ -51,19 +51,18 @@ def compute_trim(mav, Va, gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
-    q = Euler2Quaternion(0., gamma, 0.) # Is this the right way to get derivative of Euler Angles
-    w = np.array([0., 0., Va/50 * np.cos(gamma)]) # 50m radius? Not sure what to do without R
-    e = 0.5 * np.array([[-q.item(1) * w.item(0) - q.item(2) * w.item(1) - q.item(3) * w.item(2)],
-                  [q.item(0) * w.item(0) - q.item(3) * w.item(1) + q.item(2) * w.item(2)],
-                  [q.item(3) * w.item(0) - q.item(0) * w.item(1) + q.item(1) * w.item(2)],
-                  [q.item(2) * w.item(0) - q.item(1) * w.item(1) + q.item(0) * w.item(2)]])
-    # print('e:\n:', e)
-    # print('w:\n:', w)
+    q = Euler2Quaternion(0., gamma, 0.)
+    w = np.array([0., 0., 0.]) # 50m radius? Not sure what to do without R??? Va/50 * np.cos(gamma)
+    W = np.array([[0, -w.item(0), -w.item(1), -w.item(2)],
+                  [w.item(0), 0, w.item(2), -w.item(1)],
+                  [w.item(1), -w.item(2), 0, w.item(0)],
+                  [w.item(2), w.item(1), -w.item(0), 0]])
+    e = 0.5 * (W @ q)
 
-    xdot_star = np.array([[0., 0., Va * np.sin(gamma), 0., 0., 0., e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
+    xdot_star = np.array([[5, 5, Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
     forces_moments = mav.calcForcesAndMoments(x[13:])
     f = mav._derivatives(x[0:13], forces_moments)
-    print('f\n', f)
+    # print('f\n', f)
 
     error = xdot_star - f
     J = error.T @ error
