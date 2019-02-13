@@ -60,14 +60,15 @@ def trim_objective(x, mav, Va, gamma):
     mav.updateVelocityData()
     forces_moments = mav.calcForcesAndMoments(delta)
     f = mav._derivatives(mav._state, forces_moments)
+    print('f\n', f)
 
     temp = x_dot[2:] - f[2:]
-    J = temp.T @ temp
-    return J.item(0)
+    J = np.linalg.norm(temp)**2
+    return J
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 25.0  # Currently nothing affects the inputs. Only the state
+    Va = 25.0
     gamma = 0.0
     mav._Va = Va
 

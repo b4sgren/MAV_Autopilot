@@ -100,7 +100,6 @@ class mav_dynamics:
         n = forces_moments.item(5)
 
         # position kinematics
-        # TODO Change the line below to use Quat2Rot
         Rv_b = Quaternion2Rotation(np.array([e0, e1, e2, e3]))
 
         pos_dot = Rv_b @ np.array([u, v, w]).T
@@ -184,6 +183,10 @@ class mav_dynamics:
         fx += fp
         l += -qp
 
+        self._forces[0] = fx
+        self._forces[1] = fy
+        self._forces[2] = fz
+
         return np.array([fx, fy, fz, l, m, n])
 
     def calcThrustForceAndMoment(self, dt):
@@ -247,11 +250,11 @@ class mav_dynamics:
 
         c2V = c / (2. * Va)
         q_bar = 0.5 * rho * (Va**2) * S
-
         e_negM = exp(-M * (alpha - alpha0))
         e_posM = exp(M * (alpha + alpha0))
 
         sigma_alpha = (1 + e_negM + e_posM) / ((1 + e_negM)*(1 + e_posM))
+
         CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha * alpha) + \
                     sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
         F_lift = q_bar * (CL_alpha + MAV.C_L_q * c2V * q + MAV.C_L_delta_e * de)
