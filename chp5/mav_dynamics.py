@@ -245,24 +245,24 @@ class mav_dynamics:
         q = self._state.item(11)
         c = MAV.c
 
-        sigma_alpha = (1 + exp(-M * (alpha - alpha0)) + exp(M * (alpha + alpha0))) /\
-                      ((1 + exp(-M * (alpha - alpha0)))*(1 + exp(M * (alpha + alpha0))))
+        c2V = c / (2. * Va)
+        q_bar = 0.5 * rho * (Va**2) * S
+
+        e_negM = exp(-M * (alpha - alpha0))
+        e_posM = exp(M * (alpha + alpha0))
+
+        sigma_alpha = (1 + e_negM + e_posM) / ((1 + e_negM)*(1 + e_posM))
         CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha * alpha) + \
                     sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
-
-        F_lift = 0.5 * rho * (Va**2) * S * (CL_alpha + MAV.C_L_q * (c / (2. * Va)) * q \
-                 + MAV.C_L_delta_e * de)
+        F_lift = q_bar * (CL_alpha + MAV.C_L_q * c2V * q + MAV.C_L_delta_e * de)
 
         CD_alpha = MAV.C_D_p + ((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2) / (np.pi * MAV.e * MAV.AR)
-
-        F_drag = 0.5 * rho * (Va**2) * S * (CD_alpha + MAV.C_D_q * (c / (2. * Va)) * q \
-                 + MAV.C_D_delta_e * de)
+        F_drag = q_bar * (CD_alpha + MAV.C_D_q * c2V * q + MAV.C_D_delta_e * de)
 
         Rb_s = np.array([[np.cos(alpha), -np.sin(alpha)],
                          [np.sin(alpha), np.cos(alpha)]])
         fx_fz = Rb_s @ np.array([[-F_drag, -F_lift]]).T
 
-        m = 0.5 * rho * (Va**2) * S * c * (MAV.C_m_0 + MAV.C_m_alpha * alpha + \
-            MAV.C_m_q * (c / (2. * Va)) * q + MAV.C_m_delta_e * de)
+        m = q_bar * c * (MAV.C_m_0 + MAV.C_m_alpha * alpha + MAV.C_m_q * c2V * q + MAV.C_m_delta_e * de)
 
         return fx_fz.item(0), fx_fz.item(1), m
