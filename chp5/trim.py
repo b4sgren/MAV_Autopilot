@@ -51,29 +51,26 @@ def compute_trim(mav, Va, gamma):
 
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
-    q = Euler2Quaternion(0., gamma, 0.)
-    w = np.array([0., 0., 0.])
-    W = np.array([[0, -w.item(0), -w.item(1), -w.item(2)],
-                  [w.item(0), 0, w.item(2), -w.item(1)],
-                  [w.item(1), -w.item(2), 0, w.item(0)],
-                  [w.item(2), w.item(1), -w.item(0), 0]])
-    q_dot = 0.5 * (W @ q)
+    state = x[:13]
+    delta = x[13:]
 
-    xdot_star = np.array([[Va, 0., Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
+    x_dot = np.array([[0., 0., -Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
 
-    forces_moments = mav.calcForcesAndMoments(x[13:])
-    f = mav._derivatives(x[0:13], forces_moments)
-    print('x\n', f)
+    mav._state = state
+    mav.updateVelocityData()
+    forces_moments = mav.calcForcesAndMoments(delta)
+    f = mav._derivatives(state, forces_moments)
 
-    error = xdot_star - f
-    J = error.T @ error
-    return J
+    temp = x_dot[2:] - f[2:]
+    J = temp.T @ temp
+    return J.item(0)
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
     Va = 25.0  # Currently nothing affects the inputs. Only the state
     gamma = 0.0
     mav._Va = Va
+    # mav.updateVelocityData(np.zeros((6, 1)))
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
 

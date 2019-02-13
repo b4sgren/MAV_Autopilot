@@ -181,7 +181,7 @@ class mav_dynamics:
         #These may act a little fast
         fp, mp = self.calcThrustForceAndMoment(delta.item(1))
         fx += fp
-        l += mp
+        l += -mp
 
         return np.array([fx, fy, fz, l, m, n])
 

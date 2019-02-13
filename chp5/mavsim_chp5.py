@@ -21,7 +21,7 @@ dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 
 mav_view = MAV_Viewer()
-# data_view = data_viewer()
+data_view = data_viewer()
 
 # initialize the simulation time
 sim_time = SIM.t0
@@ -40,10 +40,10 @@ while sim_time < SIM.t_end:
     dyn.update_state(trim_input, current_wind)
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
-    # data_view.update(dyn.msg_true_state,
-    #                 dyn.msg_true_state,
-    #                 dyn.msg_true_state,
-    #                 SIM.ts_sim)
+    data_view.update(dyn.msg_true_state,
+                    dyn.msg_true_state,
+                    dyn.msg_true_state,
+                    SIM.ts_sim)
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
