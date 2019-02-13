@@ -52,7 +52,7 @@ def compute_trim(mav, Va, gamma):
 # objective function to be minimized
 def trim_objective(x, mav, Va, gamma):
     q = Euler2Quaternion(0., gamma, 0.)
-    w = np.array([0., 0., 0.]) # 50m radius? Not sure what to do without R??? Va/50 * np.cos(gamma)
+    w = np.array([0., 0., 0.])
     W = np.array([[0, -w.item(0), -w.item(1), -w.item(2)],
                   [w.item(0), 0, w.item(2), -w.item(1)],
                   [w.item(1), -w.item(2), 0, w.item(0)],
@@ -60,12 +60,14 @@ def trim_objective(x, mav, Va, gamma):
     e = 0.5 * (W @ q)
 
     xdot_star = np.array([[5, 5, Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
+
     forces_moments = mav.calcForcesAndMoments(x[13:])
     f = mav._derivatives(x[0:13], forces_moments)
     # print('f\n', f)
 
     error = xdot_star - f
     J = error.T @ error
+    # print(J)
     return J
 
 if __name__ == "__main__":
