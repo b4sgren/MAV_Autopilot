@@ -1,7 +1,7 @@
 """
 compute_ss_model
     - Chapter 5 assignment for Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         2/4/2019 - RWB
 """
 import sys
@@ -9,12 +9,25 @@ sys.path.append('..')
 import numpy as np
 from scipy.optimize import minimize
 from tools.tools import Euler2Quaternion, Quaternion2Euler
-from tools.transfer_function import transfer_function
+from control import TransferFunction as TF
 import parameters.aerosonde_parameters as MAV
-from parameters.simulation_parameters import ts_simulation as Ts
+from parameters.sim_params import ts_sim as Ts
+from mav_dynamics import mav_dynamics as Dynamics
+
+from mav_dynamics import mav_dynamics as Dynamics
+from trim import compute_trim
 
 def compute_tf_model(mav, trim_state, trim_input):
+    rho = MAV.rho
+    S = MAV.S_wing
+    Va = mav._Va
+    b = MAV.b
+
     # trim values
+    b2Va = b/(2 * Va)
+    a_phi_1 = 0.5 * rho * (Va**2) * S * b * MAV.C_p_p * b2Va
+    a_phi_2 = 0.5 * rho * (Va**2) * S * b * MAV.C_p_delta_a
+    T_phi_delta_a = TF(np.array([a_phi_2]), np.array([1, a_phi_1, 0]))
 
     return T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r
 
@@ -51,3 +64,13 @@ def dT_dVa(mav, Va, delta_t):
 def dT_ddelta_t(mav, Va, delta_t):
     # returns the derivative of motor thrust with respect to delta_t
     return dThrust
+
+if __name__ == "__main__":
+    mav = Dynamics(Ts)
+    Va = 25.0
+    gamma = 0.0
+    mav._Va = Va
+
+    trim_state, trim_input = compute_trim(mav, Va, gamma)
+
+    T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r = compute_tf_model(mav, trim_state, trim_input)
