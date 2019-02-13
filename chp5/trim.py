@@ -59,7 +59,7 @@ def trim_objective(x, mav, Va, gamma):
     mav._state = state
     mav.updateVelocityData()
     forces_moments = mav.calcForcesAndMoments(delta)
-    f = mav._derivatives(state, forces_moments)
+    f = mav._derivatives(mav._state, forces_moments)
 
     temp = x_dot[2:] - f[2:]
     J = temp.T @ temp

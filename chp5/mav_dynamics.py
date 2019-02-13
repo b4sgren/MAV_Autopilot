@@ -213,8 +213,8 @@ class mav_dynamics:
         b = MAV.b
         Va = self._Va
         beta = self._beta
-        p = self.msg_true_state.p
-        r = self.msg_true_state.r
+        p = self._state.item(10)
+        r = self._state.item(12)
         rho = MAV.rho
         S = MAV.S_wing
 
@@ -239,7 +239,7 @@ class mav_dynamics:
         rho = MAV.rho
         Va = self._Va
         S = MAV.S_wing
-        q = self.msg_true_state.q
+        q = self._state.item(11)
         c = MAV.c
 
         sigma_alpha = (1 + exp(-M * (alpha - alpha0)) + exp(M * (alpha + alpha0))) /\
