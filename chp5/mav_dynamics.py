@@ -149,7 +149,7 @@ class mav_dynamics:
         self.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u)
 
     def updateVelocityData(self, wind=np.zeros((6, 1))):
-        Rb_v = Quaternion2Rotation(self._state[6:10])
+        Rb_v = Quaternion2Rotation(self._state[6:10]).T
         #wind in body frame
         self._wind = Rb_v @ wind[0:3] + wind[3:]
         V = self._state[3:6]
@@ -166,7 +166,8 @@ class mav_dynamics:
 
     def calcForcesAndMoments(self, delta):
         # Calculate gravitational forces in the body frame
-        fb_grav = Quaternion2Rotation(self._state[6:10]).T @ np.array([[0, 0, MAV.mass * MAV.gravity]]).T
+        Rb_v = Quaternion2Rotation(self._state[6:10]).T
+        fb_grav = Rb_v @ np.array([[0, 0, MAV.mass * MAV.gravity]]).T
 
         # Calculating longitudinal forces and moments
         fx, fz, m = self.calcLongitudinalForcesAndMoments(delta.item(0))
