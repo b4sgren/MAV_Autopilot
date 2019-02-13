@@ -179,9 +179,9 @@ class mav_dynamics:
 
         # Propeller force and moments
         #These may act a little fast
-        fp, mp = self.calcThrustForceAndMoment(delta.item(1))
+        fp, qp = self.calcThrustForceAndMoment(delta.item(1))
         fx += fp
-        l += -mp
+        l += -qp
 
         return np.array([fx, fy, fz, l, m, n])
 
