@@ -70,7 +70,6 @@ if __name__ == "__main__":
     Va = 25.0  # Currently nothing affects the inputs. Only the state
     gamma = 0.0
     mav._Va = Va
-    # mav.updateVelocityData(np.zeros((6, 1)))
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
 
