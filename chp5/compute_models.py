@@ -22,6 +22,7 @@ def compute_tf_model(mav, trim_state, trim_input):
     S = MAV.S_wing
     Va = mav._Va
     b = MAV.b
+    beta = mav._beta
 
     # Transfer Function Models
     b2Va = b/(2 * Va)
@@ -29,14 +30,19 @@ def compute_tf_model(mav, trim_state, trim_input):
     a_phi_2 = 0.5 * rho * (Va**2) * S * b * MAV.C_p_delta_a
     T_phi_delta_a = TF(np.array([a_phi_2]), np.array([1, a_phi_1, 0]))
 
-    T_chi_phi = TF(np.array([MAV.gravity/mav._Va]), np.array([1, 0]))
+    T_chi_phi = TF(np.array([MAV.gravity/Va]), np.array([1, 0]))  #Va should be Vg
+
+    betadr = (-rho * Va * S) / (2. * MAV.mass * np.cos(beta))
+    a_beta1 = betadr * MAV.C_Y_beta
+    a_beta2 = betadr * MAV.C_Y_delta_r
+    T_beta_delta_r = TF(np.array([a_beta2]), np.array([1, a_beta1]))
+    print(T_beta_delta_r)
 
     T_theta_delta_e = 0
     T_h_theta = 0
     T_h_Va = 0
     T_Va_delta_t = 0
     T_Va_theta = 0
-    T_beta_delta_r = 0
 
     return [T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r]
 
