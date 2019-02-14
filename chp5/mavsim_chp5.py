@@ -15,6 +15,7 @@ from data_viewer import data_viewer
 from wind_simulation import wind_simulation
 from trim import compute_trim
 import numpy as np
+from tools.tools import Quaternion2Euler
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
@@ -27,10 +28,12 @@ data_view = data_viewer()
 sim_time = SIM.t0
 
 #get trim input and states
-Va_star = 25.
-gamma_star = 0.2
+Va_star = 15.
+gamma_star = 0.
 trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star)
 dyn._state = trim_state
+phi, theta, psi = Quaternion2Euler(trim_state[6:10])
+dyn._alpha = theta  #this helped but didn't fix
 
 # main simulation loop
 print("Press Ctrl-Q to exit...")
@@ -47,3 +50,4 @@ while sim_time < SIM.t_end:
 
     #-------increment time-------------
     sim_time += SIM.ts_sim
+input("Press Enter to Close")

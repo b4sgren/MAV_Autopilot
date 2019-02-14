@@ -159,6 +159,7 @@ class mav_dynamics:
 
         #Compute alpha
         self._alpha = np.arctan2(Vr.item(2), Vr.item(0))
+        print(self._alpha)
 
         #Compute beta
         self._beta = asin(Vr.item(1)/self._Va)

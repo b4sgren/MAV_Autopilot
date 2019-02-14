@@ -8,13 +8,13 @@ import sys
 sys.path.append('..')
 import numpy as np
 from scipy.optimize import minimize
-from tools.tools import Euler2Quaternion, Quaternion2Rotation
+from tools.tools import Euler2Quaternion, Quaternion2Rotation, Quaternion2Euler
 from mav_dynamics import mav_dynamics as Dynamics
 
 def compute_trim(mav, Va, gamma):
     # define initial state and input
     e = Euler2Quaternion(0, gamma, 0)
-    state0 = np.array([[0., 0., -100., Va, 0., 0.1,
+    state0 = np.array([[0., 0., -100., Va, 0., 0.,
                         e.item(0), e.item(1), e.item(2), e.item(3), 0., 0., 0.]]).T
     delta0 = np.array([[0., 0.5, 0., 0.]]).T
     x0 = np.concatenate((state0, delta0), axis=0)
@@ -67,11 +67,11 @@ def trim_objective(x, mav, Va, gamma):
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 25.0
+    Va = 15.0
     gamma = 0.0
     mav._Va = Va
 
-    # x = np.array([[0., 0., -100., Va, 0., 0.1,
+    # x = np.array([[0., 0., -100., Va, 0., 0.1, # last element is 0.1 for f and 0 for f_m
     #                1., 0., 0., 0., 0., 0., 0.]]).T
     # delta = np.array([[0., 0.5, 0., 0.]]).T
     # mav._state = x
@@ -82,5 +82,9 @@ if __name__ == "__main__":
     # print(f)
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
+    phi, theta, psi = Quaternion2Euler(trim_state[6:10])
+    print('Phi: ', phi)
+    print('Theta: ', theta)
+    print('Psi: ', psi)
     print("State: ", trim_state)
     print("Inputs: ", trim_input)
