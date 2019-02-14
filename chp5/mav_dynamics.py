@@ -186,7 +186,6 @@ class mav_dynamics:
         self._forces[0] = fx
         self._forces[1] = fy
         self._forces[2] = fz
-
         return np.array([fx, fy, fz, l, m, n])
 
     def calcThrustForceAndMoment(self, dt):

@@ -60,7 +60,6 @@ def trim_objective(x, mav, Va, gamma):
     mav.updateVelocityData()
     forces_moments = mav.calcForcesAndMoments(delta)
     f = mav._derivatives(mav._state, forces_moments)
-    print('f\n', f)
 
     temp = x_dot[2:] - f[2:]
     J = np.linalg.norm(temp)**2
@@ -72,7 +71,16 @@ if __name__ == "__main__":
     gamma = 0.0
     mav._Va = Va
 
-    trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
+    # x = np.array([[0., 0., -100., Va, 0., 0.1,
+    #                1., 0., 0., 0., 0., 0., 0.]]).T
+    # delta = np.array([[0., 0.5, 0., 0.]]).T
+    # mav._state = x
+    # mav.updateVelocityData()
+    # f_m = mav.calcForcesAndMoments(delta)
+    # f = mav._derivatives(mav._state, f_m)
+    # print(f_m)
+    # print(f)
 
+    trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
     print("State: ", trim_state)
     print("Inputs: ", trim_input)
