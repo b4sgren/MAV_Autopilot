@@ -23,6 +23,8 @@ def compute_tf_model(mav, trim_state, trim_input):
     Va = mav._Va
     b = MAV.b
     beta = mav._beta
+    c = MAV.c
+    Jy = MAV.Jy
 
     # Transfer Function Models
     b2Va = b/(2 * Va)
@@ -36,15 +38,20 @@ def compute_tf_model(mav, trim_state, trim_input):
     a_beta1 = betadr * MAV.C_Y_beta
     a_beta2 = betadr * MAV.C_Y_delta_r
     T_beta_delta_r = TF(np.array([a_beta2]), np.array([1, a_beta1]))
-    print(T_beta_delta_r)
 
-    T_theta_delta_e = 0
+    thetade = (rho * (Va**2) * c * S) / (2. * Jy)
+    a_theta1 = -thetade * MAV.C_m_q * (c / (2. * Va))
+    a_theta2 = - thetade * MAV.C_m_alpha
+    a_theta3 = thetade * MAV.C_m_delta_e
+    T_theta_delta_e = TF(np.array([a_theta3]), np.array([1, a_theta1, a_theta2]))
+    print(T_theta_delta_e)
+
     T_h_theta = 0
     T_h_Va = 0
     T_Va_delta_t = 0
     T_Va_theta = 0
 
-    return [T_phi_delta_a, T_chi_phi, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta, T_beta_delta_r]
+    return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
 def compute_ss_model(mav, trim_state, trim_input):
      return A_lon, B_lon, A_lat, B_lat
