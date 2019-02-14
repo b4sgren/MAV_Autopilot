@@ -202,7 +202,7 @@ class mav_dynamics:
         J_op = (2 * np.pi * Va) / (Omega_op * D)
 
         CT = MAV.C_T2 * (J_op**2) + MAV.C_T1 * J_op + MAV.C_T0
-        # CQ = MAV.C_Q2 * (J_op**2) + MAV.C_Q1 * J_op + MAV.C_Q0
+        CQ = MAV.C_Q2 * (J_op**2) + MAV.C_Q1 * J_op + MAV.C_Q0
 
         # Qp = rho * (Omega_op / (2 * np.pi))**2 * (D**5) * CQ
         Qp = MAV.KQ * (1./MAV.R_motor * (V_in - MAV.KQ * Omega_op) - MAV.i0)

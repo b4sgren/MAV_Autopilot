@@ -52,11 +52,14 @@ def compute_tf_model(mav, trim_state, trim_input):
     T_h_Va = TF(np.array([theta]), np.array([1, 0]))
 
     C_vals = (MAV.C_D_0 + MAV.C_D_alpha * alpha + MAV.C_D_delta_e * trim_input.item(0))
-    a_V1 = (rho * Va * S) / MAV.mass * C_vals - dT_dVa(mav, Va, trim_input.item(1))
+    a_V1 = (rho * Va * S * C_vals) / MAV.mass - dT_dVa(mav, Va, trim_input.item(1))
     a_V2 = dT_ddelta_t(mav, Va, trim_input.item(1))
     a_V3 = MAV.gravity
     T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
     T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
+
+    print('T_Va_delta_t: \n',T_Va_delta_t) # no match
+    print('T_Va_theta: \n',T_Va_theta) #no match
 
     return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
