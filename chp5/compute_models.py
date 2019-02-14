@@ -44,9 +44,9 @@ def compute_tf_model(mav, trim_state, trim_input):
     a_theta2 = - thetade * MAV.C_m_alpha
     a_theta3 = thetade * MAV.C_m_delta_e
     T_theta_delta_e = TF(np.array([a_theta3]), np.array([1, a_theta1, a_theta2]))
-    print(T_theta_delta_e)
 
-    T_h_theta = 0
+    T_h_theta = TF(np.array([Va]), np.array([1, 0]))
+    
     T_h_Va = 0
     T_Va_delta_t = 0
     T_Va_theta = 0
