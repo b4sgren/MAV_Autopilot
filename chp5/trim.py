@@ -57,6 +57,7 @@ def trim_objective(x, mav, Va, gamma):
     x_dot = np.array([[0., 0., -Va * np.sin(gamma), 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]).T
 
     mav._state = state
+    mav._state = mav._state.reshape((13, 1))
     mav.updateVelocityData()
     forces_moments = mav.calcForcesAndMoments(delta)
     f = mav._derivatives(mav._state, forces_moments)
@@ -67,24 +68,24 @@ def trim_objective(x, mav, Va, gamma):
 
 if __name__ == "__main__":
     mav = Dynamics(.02)
-    Va = 15.0
+    Va = 25.0
     gamma = 0.0
     mav._Va = Va
 
-    # x = np.array([[0., 0., -100., Va, 0., 0.1, # last element is 0.1 for f and 0 for f_m
+    # x = np.array([[0., 0., -100., Va, 0., 0., # last element is 0.1 for f and 0 for f_m, Va is 25 and gamma is 0
     #                1., 0., 0., 0., 0., 0., 0.]]).T
     # delta = np.array([[0., 0.5, 0., 0.]]).T
     # mav._state = x
     # mav.updateVelocityData()
     # f_m = mav.calcForcesAndMoments(delta)
     # f = mav._derivatives(mav._state, f_m)
-    # print(f_m)
-    # print(f)
+    # print(delta)
+    # # print(f)
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
     phi, theta, psi = Quaternion2Euler(trim_state[6:10])
-    print('Phi: ', phi)
-    print('Theta: ', theta)
-    print('Psi: ', psi)
+    # print('Phi: ', phi)
+    # print('Theta: ', theta)
+    # print('Psi: ', psi)
     print("State: ", trim_state)
     print("Inputs: ", trim_input)

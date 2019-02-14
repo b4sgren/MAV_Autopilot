@@ -31,9 +31,6 @@ sim_time = SIM.t0
 Va_star = 15.
 gamma_star = 0.
 trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star)
-dyn._state = trim_state
-phi, theta, psi = Quaternion2Euler(trim_state[6:10])
-dyn._alpha = theta  #this helped but didn't fix
 
 # main simulation loop
 print("Press Ctrl-Q to exit...")
