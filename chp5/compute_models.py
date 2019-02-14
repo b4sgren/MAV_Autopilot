@@ -23,6 +23,7 @@ def compute_tf_model(mav, trim_state, trim_input):
     Va = mav._Va
     b = MAV.b
     beta = mav._beta
+    alpha = mav._alpha
     c = MAV.c
     Jy = MAV.Jy
 
@@ -46,10 +47,16 @@ def compute_tf_model(mav, trim_state, trim_input):
     T_theta_delta_e = TF(np.array([a_theta3]), np.array([1, a_theta1, a_theta2]))
 
     T_h_theta = TF(np.array([Va]), np.array([1, 0]))
-    
-    T_h_Va = 0
-    T_Va_delta_t = 0
-    T_Va_theta = 0
+
+    _, theta, _ = Quaternion2Euler(trim_state[6:10])
+    T_h_Va = TF(np.array([theta]), np.array([1, 0]))
+
+    C_vals = (MAV.C_D_0 + MAV.C_D_alpha * alpha + MAV.C_D_delta_e * trim_input.item(0))
+    a_V1 = (rho * Va * S) / MAV.mass * C_vals - dT_dVa(mav, Va, trim_input.item(1))
+    a_V2 = dT_ddelta_t(mav, Va, trim_input.item(1))
+    a_V3 = MAV.gravity
+    T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
+    T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
 
     return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
@@ -81,10 +88,20 @@ def df_du(mav, x_euler, delta):
 
 def dT_dVa(mav, Va, delta_t):
     # returns the derivative of motor thrust with respect to Va
+    epsilon = 0.01
+    Tp1, _ = mav.calcThrustForceAndMoment(delta_t, Va - epsilon)
+    Tp2, _ = mav.calcThrustForceAndMoment(delta_t, Va + epsilon)
+
+    dThrust = (Tp2 - Tp1) / (2. * epsilon)
     return dThrust
 
 def dT_ddelta_t(mav, Va, delta_t):
     # returns the derivative of motor thrust with respect to delta_t
+    epsilon = 0.001
+    Tp1, _ = mav.calcThrustForceAndMoment(delta_t - epsilon, Va)
+    Tp2, _ = mav.calcThrustForceAndMoment(delta_t + epsilon, Va)
+
+    dThrust = (Tp2 - Tp1) / (2. * epsilon)
     return dThrust
 
 if __name__ == "__main__":
