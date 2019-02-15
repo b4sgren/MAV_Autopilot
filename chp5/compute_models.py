@@ -132,8 +132,8 @@ if __name__ == "__main__":
     trim_state, trim_input = compute_trim(mav, Va, gamma)
     tf_list = compute_tf_model(mav, trim_state, trim_input)
 
-    x_e = np.array([[10., 10., 0., 1., 2., 3., 0., 0., 0., 1., 2., 3.]]).T
+    x_e = np.array([[10., 10., 0., 1., 2., 3., 0., np.pi/6, 0., 1., 2., 3.]]).T
     x_q = quaternion_state(x_e)
-    print(x_q)
+    print('xq:\n', x_q)
     x_e = euler_state(x_q)
-    print(x_e)
+    print('xe:\n', x_e)
