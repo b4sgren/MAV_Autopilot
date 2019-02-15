@@ -140,22 +140,26 @@ def f_euler(mav, x_euler, input):
 
 def df_dx(mav, x_euler, input):
     # take partial of f_euler with respect to x_euler
+    x_quat = quaternion_state(x_euler)
     dT = dT_dxquat(x_euler)
+    dTinv = dT_inv(x_euler)
     forces_moments = mav.calcForcesAndMoments(input)
-    eps = 0.01
+    eps = 0.005
     A = np.zeros((12, 12))
-    A_quat = np.zeros((13, 12))
-    fxu = mav._derivatives(quaternion_state(x_euler), forces_moments)
+    A_quat = np.zeros((13, 13))
+    fxu = mav._derivatives(x_quat, forces_moments)
 
-    for i in range(12):
-        x_eps = np.copy(x_euler)
-        x_eps[i][0] += eps
-        f_eps = mav._derivatives(quaternion_state(x_eps), forces_moments)
+    for i in range(13):
+        x_eps = np.copy(x_quat)
+        x_eps[i][0] +=  eps
+        f_eps = mav._derivatives(x_eps, forces_moments)
+        # print('f_eps - fxu:\n', f_eps - fxu)
         dfdx = (f_eps - fxu) / eps
-        A_quat[:,i] = dfdx[:,0]
+        A_quat[:, i] = dfdx[:,0]
 
-    A = dT @ A_quat
+    A = dT @ A_quat @ dTinv
     return A
+
 
 def df_du(mav, x_euler, delta):
     # take partial of f_euler with respect to delta
@@ -233,6 +237,39 @@ def dTheta_dq(x):
                        [dpsi1, dpsi2, dpsi3, dpsi4]])
     return dTheta
 
+def dT_inv(x):
+    dT_inv = np.zeros((13, 12))
+    dT_inv[:6, :6] = np.eye(6)
+    dT_inv[10:, 9:] = np.eye(3)
+
+    dT_inv[6:10, 6:9] = dQ_de(x)
+    return dT_inv
+
+def dQ_de(x):
+    phi = x.item(6)
+    theta = x.item(7)
+    psi = x.item(8)
+    eps = 0.01
+
+    e = Euler2Quaternion(phi, theta, psi)
+
+    e_phi = Euler2Quaternion(phi + eps, theta, psi)
+    e_the = Euler2Quaternion(phi, theta + eps, psi)
+    e_psi = Euler2Quaternion(phi, theta, psi + eps)
+
+    de_phi = (e_phi - e)/eps
+    de_the = (e_the - e)/eps
+    de_psi = (e_psi - e)/eps
+
+    dQ = np.empty((4, 3))
+    dQ[:,0] = de_phi[:,0]
+    dQ[:,1] = de_the[:,0]
+    dQ[:,2] = de_psi[:,0]
+    print(dQ)
+
+    return dQ
+
+
 if __name__ == "__main__":
     mav = Dynamics(0.02)
     Va = 25.0
@@ -242,14 +279,14 @@ if __name__ == "__main__":
     trim_state, trim_input = compute_trim(mav, Va, gamma)
     tf_list = compute_tf_model(mav, trim_state, trim_input)
 
-    print('T_phi_delta_a\n', tf_list[0])
-    print('T_chi_phi\n', tf_list[1])
-    print('T_beta_delta_r\n', tf_list[2])
-    print('T_theta_delta_e\n', tf_list[3])
-    print('T_h_theta\n', tf_list[4])
-    print('T_h_Va\n', tf_list[5])
-    print('T_Va_delta_t\n',tf_list[6])
-    print('T_Va_theta\n', tf_list[7])
+    # print('T_phi_delta_a\n', tf_list[0])
+    # print('T_chi_phi\n', tf_list[1])
+    # print('T_beta_delta_r\n', tf_list[2])
+    # print('T_theta_delta_e\n', tf_list[3])
+    # print('T_h_theta\n', tf_list[4])
+    # print('T_h_Va\n', tf_list[5])
+    # print('T_Va_delta_t\n',tf_list[6])
+    # print('T_Va_theta\n', tf_list[7])
 
     x_e = np.array([[10., 10., 0., 1., 2., 3., 0., np.pi/6, 0., 1., 2., 3.]]).T
     x_q = quaternion_state(x_e)
@@ -272,7 +309,7 @@ if __name__ == "__main__":
     # print('B_lon:\n', B_lon)
     # print('A_lat:\n', A_lat)
     # print('B_lat:\n', B_lat)
-    #
+
     # eig_lon, _ = np.linalg.eig(A_lon)
     # eig_lat, _ = np.linalg.eig(A_lat)
     # print('Eig A_lon:\n', eig_lon)
