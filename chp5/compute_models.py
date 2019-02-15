@@ -94,11 +94,11 @@ def quaternion_state(x_euler):
 
 def f_euler(mav, x_euler, input):
     # return 12x1 dynamics (as if state were Euler state)
-    # compute f at euler_state
     return f_euler_
 
 def df_dx(mav, x_euler, input):
     # take partial of f_euler with respect to x_euler
+    dT = dT_dxquat(Euler2Quaternion())
     return A
 
 def df_du(mav, x_euler, delta):
@@ -123,6 +123,51 @@ def dT_ddelta_t(mav, Va, delta_t):
     dThrust = (Tp2 - Tp1) / (2. * epsilon)
     return dThrust
 
+def dT_dxquat(q):
+    dT = np.zeros((12, 13))
+    dT[0:6, 0:6] = np.eye(6)
+    dT[9:, 10:] = np.eye(3)
+
+    dTheta = dTheta_dq(q)
+
+    dphi1, dth1, dpsi1 = Quaternion2Euler(q + np.array([[.01, 0, 0, 0]]).T)
+    dphi2, dth2, dpsi2 = Quaternion2Euler(q + np.array([[0, .01, 0, 0]]).T)
+    dphi3, dth3, dpsi3 = Quaternion2Euler(q + np.array([[0, 0, .01, 0]]).T)
+    dphi4, dth4, dpsi4 = Quaternion2Euler(q + np.array([[0, 0, 0, .01]]).T)
+
+    dT[6:9, 6:10] = np.array([[dphi1, dphi2, dphi3, dphi4],
+                              [ dth1, dth2, dth3, dth4],
+                              [dpsi1, dpsi2, dpsi3, dpsi4]])
+
+    return dT
+
+def dTheta_dq(q):
+    phi, theta, psi = Quaternion2Euler(q)
+    eps = 0.01
+
+    phi1, th1, psi1 = Quaternion2Euler(q + np.array([[eps, 0, 0, 0]]).T)
+    phi2, th2, psi2 = Quaternion2Euler(q + np.array([[0, eps, 0, 0]]).T)
+    phi3, th3, psi3 = Quaternion2Euler(q + np.array([[0, 0, eps, 0]]).T)
+    phi4, th4, psi4 = Quaternion2Euler(q + np.array([[0, 0, 0, eps]]).T)
+
+    dphi1 = (phi1 - phi)/eps
+    dphi2 = (phi2 - phi)/eps
+    dphi3 = (phi3 - phi)/eps
+    dphi4 = (phi4 - phi)/eps
+    dth1 = (th1 - theta)/eps
+    dth2 = (th2 - theta)/eps
+    dth3 = (th3 - theta)/eps
+    dth4 = (th4 - theta)/eps
+    dpsi1 = (psi1 - psi)/eps
+    dpsi2 = (psi2 - psi)/eps
+    dpsi3 = (psi3 - psi)/eps
+    dpsi4 = (psi4 - psi)/eps
+
+    dTheta = np.array([[dphi1, dphi2, dphi3, dphi4],
+                       [dth1, dth2, dth3, dth4],
+                       [dpsi1, dpsi2, dpsi3, dpsi4]])
+    return dTheta
+
 if __name__ == "__main__":
     mav = Dynamics(0.02)
     Va = 25.0
@@ -134,6 +179,10 @@ if __name__ == "__main__":
 
     x_e = np.array([[10., 10., 0., 1., 2., 3., 0., np.pi/6, 0., 1., 2., 3.]]).T
     x_q = quaternion_state(x_e)
-    print('xq:\n', x_q)
+    # print('xq:\n', x_q)
     x_e = euler_state(x_q)
-    print('xe:\n', x_e)
+    # print('xe:\n', x_e)
+
+    q = np.array([[1, 0, 0, 0]]).T
+    dT = dT_dxquat(q)
+    print(dT)
