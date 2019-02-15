@@ -31,7 +31,7 @@ def compute_tf_model(mav, trim_state, trim_input):
     b2Va = b/(2 * Va)
     a_phi_1 = 0.5 * rho * (Va**2) * S * b * MAV.C_p_p * b2Va
     a_phi_2 = 0.5 * rho * (Va**2) * S * b * MAV.C_p_delta_a
-    T_phi_delta_a = TF(np.array([a_phi_2]), np.array([1, a_phi_1, 0]))
+    T_phi_delta_a = TF(np.array([a_phi_2]), np.array([1, -a_phi_1, 0]))
 
     T_chi_phi = TF(np.array([MAV.gravity/Va]), np.array([1, 0]))  #Va should be Vg
 
