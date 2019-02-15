@@ -58,9 +58,6 @@ def compute_tf_model(mav, trim_state, trim_input):
     T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
     T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
 
-    print('T_Va_delta_t: \n',T_Va_delta_t) # no match
-    print('T_Va_theta: \n',T_Va_theta) #no match
-
     return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
 def compute_ss_model(mav, trim_state, trim_input):
@@ -78,7 +75,7 @@ def euler_state(x_quat):
     x_euler[6:9] = np.array([[phi, theta, psi]]).T
     x_euler[9:] = x_quat[10:]
 
-     return x_euler
+    return x_euler
 
 def quaternion_state(x_euler):
     # convert state x_euler with attitude represented by Euler angles
@@ -92,7 +89,7 @@ def quaternion_state(x_euler):
     x_quat[:6] = x_euler[:6]
     x_quat[6:10] = e
     x_quat[10:] = x_euler[9:]
-    
+
     return x_quat
 
 def f_euler(mav, x_euler, input):
@@ -133,5 +130,10 @@ if __name__ == "__main__":
     mav._Va = Va
 
     trim_state, trim_input = compute_trim(mav, Va, gamma)
-
     tf_list = compute_tf_model(mav, trim_state, trim_input)
+
+    x_e = np.array([[10., 10., 0., 1., 2., 3., 0., 0., 0., 1., 2., 3.]]).T
+    x_q = quaternion_state(x_e)
+    print(x_q)
+    x_e = euler_state(x_q)
+    print(x_e)

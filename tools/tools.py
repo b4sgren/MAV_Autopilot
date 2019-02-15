@@ -23,7 +23,7 @@ def Euler2Quaternion(phi, theta, psi):
     c_psi2 = np.cos(psi/2.0)
     s_psi2 = np.sin(psi/2.0)
 
-    quat = np.empty(4)
+    quat = np.empty((4,1))
     quat[0] = c_psi2 * c_theta2 * c_phi2 + s_psi2 * s_theta2 * s_phi2  # e0
     quat[1] = c_psi2 * c_theta2 * s_phi2 - s_psi2 * s_theta2 * c_phi2  # ex
     quat[2] = c_psi2 * s_theta2 * c_phi2 + s_psi2 * c_theta2 * s_phi2  # ey
