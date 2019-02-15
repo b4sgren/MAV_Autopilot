@@ -7,8 +7,6 @@ def Quaternion2Euler(quat):
     ey = quat[2]
     ez = quat[3]
 
-    euler = np.empty(3)
-
     phi = math.atan2(2 * (e0*ex + ey*ez), e0**2 + ez**2 - ex**2 - ey**2) # phi
     theta = math.asin(2 * (e0*ey - ex*ez)) # theta
     psi = math.atan2(2*(e0*ez + ex*ey), e0**2 + ex**2 - ey**2 - ez**2) # psi
