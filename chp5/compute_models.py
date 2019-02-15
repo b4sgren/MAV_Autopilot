@@ -118,6 +118,21 @@ def df_dx(mav, x_euler, input):
 def df_du(mav, x_euler, delta):
     # take partial of f_euler with respect to delta
     dT = dT_dxquat(x_euler)
+    forces_moments = mav.calcForcesAndMoments(delta)
+    eps = 0.01
+    B = np.zeros((12, 4))
+    B_quat = np.zeros((13, 4))
+    fxu = mav._derivatives(quaternion_state(x_euler), forces_moments)
+
+    for i in range(4):
+        d_eps = np.copy(delta)
+        d_eps[i][0] +=  eps
+        forces_moments = mav.calcForcesAndMoments(d_eps)
+        f_eps = mav._derivatives(quaternion_state(x_euler), forces_moments)
+        dfdu = (f_eps - fxu) / eps
+        B_quat[:, i] = dfdu[:,0]
+
+    B = dT @ B_quat
     return B
 
 def dT_dVa(mav, Va, delta_t):
@@ -197,4 +212,6 @@ if __name__ == "__main__":
     # print(dT.shape)
 
     A = df_dx(mav, euler_state(trim_state), trim_input)
-    print(A)
+    print('A:\n', A)
+    B = df_du(mav, euler_state(trim_state), trim_input)
+    print('B:\n', B)
