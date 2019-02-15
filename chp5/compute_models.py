@@ -161,7 +161,7 @@ def df_du(mav, x_euler, delta):
     # take partial of f_euler with respect to delta
     dT = dT_dxquat(x_euler)
     forces_moments = mav.calcForcesAndMoments(delta)
-    eps = 0.01
+    eps = 0.005
     B = np.zeros((12, 4))
     B_quat = np.zeros((13, 4))
     fxu = mav._derivatives(quaternion_state(x_euler), forces_moments)
@@ -263,3 +263,8 @@ if __name__ == "__main__":
     print('B_lon:\n', B_lon)
     print('A_lat:\n', A_lat)
     print('B_lat:\n', B_lat)
+
+    eig_lon, _ = np.linalg.eig(A_lon)
+    eig_lat, _ = np.linalg.eig(A_lat)
+    print('Eig A_lon:\n', eig_lon)
+    print('Eig A_lat:\n', eig_lat)
