@@ -98,11 +98,26 @@ def f_euler(mav, x_euler, input):
 
 def df_dx(mav, x_euler, input):
     # take partial of f_euler with respect to x_euler
-    dT = dT_dxquat(Euler2Quaternion())
+    dT = dT_dxquat(x_euler)
+    forces_moments = mav.calcForcesAndMoments(input)
+    eps = 0.01
+    A = np.zeros((12, 12))
+    A_quat = np.zeros((13, 12))
+    fxu = mav._derivatives(quaternion_state(x_euler), forces_moments)
+
+    for i in range(12):
+        x_eps = np.copy(x_euler)
+        x_eps[i][0] += eps
+        f_eps = mav._derivatives(quaternion_state(x_eps), forces_moments)
+        dfdx = (f_eps - fxu) / eps
+        A_quat[:,i] = dfdx[:,0]
+
+    A = dT @ A_quat
     return A
 
 def df_du(mav, x_euler, delta):
     # take partial of f_euler with respect to delta
+    dT = dT_dxquat(x_euler)
     return B
 
 def dT_dVa(mav, Va, delta_t):
@@ -123,25 +138,18 @@ def dT_ddelta_t(mav, Va, delta_t):
     dThrust = (Tp2 - Tp1) / (2. * epsilon)
     return dThrust
 
-def dT_dxquat(q):
+def dT_dxquat(x_euler):
     dT = np.zeros((12, 13))
     dT[0:6, 0:6] = np.eye(6)
     dT[9:, 10:] = np.eye(3)
 
-    dTheta = dTheta_dq(q)
+    dTheta = dTheta_dq(quaternion_state(x_euler))
 
-    dphi1, dth1, dpsi1 = Quaternion2Euler(q + np.array([[.01, 0, 0, 0]]).T)
-    dphi2, dth2, dpsi2 = Quaternion2Euler(q + np.array([[0, .01, 0, 0]]).T)
-    dphi3, dth3, dpsi3 = Quaternion2Euler(q + np.array([[0, 0, .01, 0]]).T)
-    dphi4, dth4, dpsi4 = Quaternion2Euler(q + np.array([[0, 0, 0, .01]]).T)
-
-    dT[6:9, 6:10] = np.array([[dphi1, dphi2, dphi3, dphi4],
-                              [ dth1, dth2, dth3, dth4],
-                              [dpsi1, dpsi2, dpsi3, dpsi4]])
-
+    dT[6:9, 6:10] = dTheta
     return dT
 
-def dTheta_dq(q):
+def dTheta_dq(x):
+    q = x[6:10]
     phi, theta, psi = Quaternion2Euler(q)
     eps = 0.01
 
@@ -183,6 +191,10 @@ if __name__ == "__main__":
     x_e = euler_state(x_q)
     # print('xe:\n', x_e)
 
-    q = np.array([[1, 0, 0, 0]]).T
-    dT = dT_dxquat(q)
-    print(dT)
+    x_e = np.array([[1, 1, -10, 25, 0, 0, 0, 0, 0, 0, 0, 0]]).T
+    dT = dT_dxquat(x_e)
+    # print(dT)
+    # print(dT.shape)
+
+    A = df_dx(mav, euler_state(trim_state), trim_input)
+    print(A)
