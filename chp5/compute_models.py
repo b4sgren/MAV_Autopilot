@@ -35,8 +35,8 @@ def compute_tf_model(mav, trim_state, trim_input):
 
     T_chi_phi = TF(np.array([MAV.gravity/Va]), np.array([1, 0]))  #Va should be Vg
 
-    betadr = (-rho * Va * S) / (2. * MAV.mass * np.cos(beta))
-    a_beta1 = betadr * MAV.C_Y_beta
+    betadr = (rho * Va * S) / (2. * MAV.mass * np.cos(beta))
+    a_beta1 = -betadr * MAV.C_Y_beta
     a_beta2 = betadr * MAV.C_Y_delta_r
     T_beta_delta_r = TF(np.array([a_beta2]), np.array([1, a_beta1]))
 
