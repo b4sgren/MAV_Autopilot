@@ -52,8 +52,8 @@ def compute_tf_model(mav, trim_state, trim_input):
     T_h_Va = TF(np.array([theta]), np.array([1, 0]))
 
     C_vals = (MAV.C_D_0 + MAV.C_D_alpha * alpha + MAV.C_D_delta_e * trim_input.item(0))
-    a_V1 = (rho * Va * S * C_vals) / MAV.mass - dT_dVa(mav, Va, trim_input.item(1))
-    a_V2 = dT_ddelta_t(mav, Va, trim_input.item(1))
+    a_V1 = ((rho * Va * S * C_vals) - dT_dVa(mav, Va, trim_input.item(1))) / MAV.mass
+    a_V2 = dT_ddelta_t(mav, Va, trim_input.item(1)) / MAV.mass
     a_V3 = MAV.gravity * np.cos(theta - alpha)
     T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
     T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
@@ -242,6 +242,15 @@ if __name__ == "__main__":
     trim_state, trim_input = compute_trim(mav, Va, gamma)
     tf_list = compute_tf_model(mav, trim_state, trim_input)
 
+    print('T_phi_delta_a\n', tf_list[0])
+    print('T_chi_phi\n', tf_list[1])
+    print('T_beta_delta_r\n', tf_list[2])
+    print('T_theta_delta_e\n', tf_list[3])
+    print('T_h_theta\n', tf_list[4])
+    print('T_h_Va\n', tf_list[5])
+    print('T_Va_delta_t\n',tf_list[6])
+    print('T_Va_theta\n', tf_list[7])
+
     x_e = np.array([[10., 10., 0., 1., 2., 3., 0., np.pi/6, 0., 1., 2., 3.]]).T
     x_q = quaternion_state(x_e)
     # print('xq:\n', x_q)
@@ -259,12 +268,12 @@ if __name__ == "__main__":
     # print('B:\n', B)
 
     A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
-    print('A_lon:\n', A_lon)
-    print('B_lon:\n', B_lon)
-    print('A_lat:\n', A_lat)
-    print('B_lat:\n', B_lat)
-
-    eig_lon, _ = np.linalg.eig(A_lon)
-    eig_lat, _ = np.linalg.eig(A_lat)
-    print('Eig A_lon:\n', eig_lon)
-    print('Eig A_lat:\n', eig_lat)
+    # print('A_lon:\n', A_lon)
+    # print('B_lon:\n', B_lon)
+    # print('A_lat:\n', A_lat)
+    # print('B_lat:\n', B_lat)
+    #
+    # eig_lon, _ = np.linalg.eig(A_lon)
+    # eig_lat, _ = np.linalg.eig(A_lat)
+    # print('Eig A_lon:\n', eig_lon)
+    # print('Eig A_lat:\n', eig_lat)
