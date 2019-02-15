@@ -61,9 +61,51 @@ def compute_tf_model(mav, trim_state, trim_input):
     return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
 def compute_ss_model(mav, trim_state, trim_input):
-    #convert trim_state to euler state
-    #get
-     return A_lon, B_lon, A_lat, B_lat
+    x_euler = euler_state(trim_state)
+    A = df_dx(mav, x_euler, trim_input)
+    B = df_du(mav, x_euler, trim_input)
+
+    #indexing each state
+    h = 2
+    u = 3
+    v = 4
+    w = 5
+    phi = 6
+    theta = 7
+    psi = 8
+    p = 9
+    q = 10
+    r = 11
+
+    #indexing each input
+    de = 0
+    dt = 1
+    da = 2
+    dr = 3
+
+    A_lat = np.array([[A[v,v], A[v,p], A[v,r], A[v,phi], A[v,psi]],
+                      [A[p,v], A[p,p], A[p,r], A[p,phi], A[p,psi]],
+                      [A[r,v], A[r,p], A[r,r], A[r,phi], A[r,psi]],
+                      [A[phi,v], A[phi,p], A[phi,r], A[phi,phi], A[phi,psi]],
+                      [A[psi,v], A[psi,p], A[psi,r], A[psi,phi], A[psi,psi]]])
+    B_lat = np.array([[B[v,da], B[v,dr]],
+                      [B[p,da], B[p,dr]],
+                      [B[r,da], B[r,dr]],
+                      [B[phi,da], B[phi,dr]],
+                      [B[psi,da], B[psi,dr]]])
+
+    A_lon = np.array([[A[u,u], A[u,w], A[u,q], A[u,theta], A[u,h]],
+                      [A[w,u], A[w,w], A[w,q], A[w,theta], A[w,h]],
+                      [A[q,u], A[q,w], A[q,q], A[q,theta], A[q,h]],
+                      [A[theta,u], A[theta,w], A[theta,q], A[theta,theta], A[theta,h]],
+                      [A[h,u], A[h,w], A[h,q], A[h,theta], A[h,h]]])
+    B_lon = np.array([[B[u,de], B[u,dt]],
+                      [B[w,de], B[w,dt]],
+                      [B[q,de], B[q,dt]],
+                      [B[theta,de], B[theta,dt]],
+                      [B[h,de], B[h,dt]]])
+
+    return A_lon, B_lon, A_lat, B_lat
 
 def euler_state(x_quat):
     # convert state x with attitude represented by quaternion
@@ -212,6 +254,12 @@ if __name__ == "__main__":
     # print(dT.shape)
 
     A = df_dx(mav, euler_state(trim_state), trim_input)
-    print('A:\n', A)
+    # print('A:\n', A)
     B = df_du(mav, euler_state(trim_state), trim_input)
-    print('B:\n', B)
+    # print('B:\n', B)
+
+    A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
+    print('A_lon:\n', A_lon)
+    print('B_lon:\n', B_lon)
+    print('A_lat:\n', A_lat)
+    print('B_lat:\n', B_lat)
