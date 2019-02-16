@@ -101,7 +101,7 @@ def compute_ss_model(mav, trim_state, trim_input):
 
     # Note: The function below was written to calc A_lat and A_lon for level flight (attitude rates = 0, v = 0)
     #It will not work for any general trim calculation
-    # A_lat, A_lon = getAMatrices(mav, trim_state, trim_input)
+    A_lat = getAMatrices(mav, trim_state, trim_input)
 
     return A_lon, B_lon, A_lat, B_lat
 
@@ -144,48 +144,7 @@ def getAMatrices(mav, trim_state, trim_input):
                       [0., 1, np.cos(phi)*np.tan(theta), 0., 0.],
                       [0., 0., np.cos(phi) / np.cos(theta), 0., 0.]])
 
-    #Params for A_lon
-    e_negM = exp(-M * (alpha - alpha0))
-    e_posM = exp(M * (alpha + alpha0))
-    sigma_alpha = (1 + e_negM + e_posM) / ((1 + e_negM)*(1 + e_posM))
-
-    CL_alpha = (1 - sigma_alpha) * (MAV.C_L_0 + MAV.C_L_alpha * alpha) + \
-                sigma_alpha * (2 * np.sign(alpha) * (np.sin(alpha)**2) * np.cos(alpha))
-    CD_alpha = MAV.C_D_p + ((MAV.C_L_0 + MAV.C_L_alpha * alpha)**2) / (np.pi * MAV.e * MAV.AR)
-
-    CX_alpha = -CD_alpha * np.cos(alpha) + CL_alpha * np.sin(alpha)
-    CX_q = -MAV.C_D_q * np.cos(alpha) + MAV.C_L_q * np.sin(alpha)
-    CX_de = -MAV.C_D_delta_e * np.cos(alpha) + MAV.C_L_delta_e * np.sin(alpha)
-    CX_0 = -MAV.C_D_0 * np.cos(alpha) + MAV.C_L_0 * np.sin(alpha)
-    CX = CX_0 + CX_alpha * alpha + CX_de * de
-
-    CZ_alpha = -CD_alpha * np.sin(alpha) - CL_alpha * np.cos(alpha)
-    CZ_q = -MAV.C_D_q * np.sin(alpha) - MAV.C_L_q * np.cos(alpha)
-    CZ_de = -MAV.C_D_delta_e * np.sin(alpha) - MAV.C_L_delta_e * np.cos(alpha)
-    CZ_0 = -MAV.C_D_0 * np.sin(alpha) - MAV.C_L_0 * np.cos(alpha)
-    CZ = CZ_0 + CZ_alpha * alpha + CZ_de * de
-
-    Cm = MAV.C_m_0 + MAV.C_m_alpha * alpha + MAV.C_m_delta_e * de
-
-    #A_lon
-    frac2 = (rho * S * c) / MAV.Jy
-    lon00 = (2 * frac * u) * CX - frac * w * CX_alpha - (rho * S_prop * C_prop * u) / m
-    lon01 = (2 * w * frac) * CX + frac * u * CX_alpha - (rho * S_prop * C_prop * w) / m
-    lon02 = -w + (frac * Va * CX_q * c) / 2
-    lon10 = 2 * frac * u * CZ  - frac * CZ_alpha * w
-    lon11 = 2 * frac * w * CZ + frac * CZ_alpha * u
-    lon12 = u + (frac * Va * CZ_q * c) / 2
-    lon20 = u * frac2 * Cm - (frac2 * w * MAV.C_m_alpha) / 2
-    lon21 = w * frac2 * Cm + (frac2 * u * MAV.C_m_alpha) / 2
-    lon22 = (frac2 * Va * c * MAV.C_m_q) / 4
-
-    A_lon = np.array([[lon00, lon01, lon02, -g * np.cos(theta), 0],
-                      [lon10, lon11, lon12, -g * np.sin(theta), 0],
-                      [lon20, lon21, lon22, 0, 0],
-                      [0, 0, 1, 0, 0],
-                      [np.sin(theta), -np.cos(theta), 0, u * np.cos(theta) + w * np.sin(theta), 0]])
-
-    return A_lat, A_lon
+    return A_lat
 
 def euler_state(x_quat):
     # convert state x with attitude represented by quaternion
