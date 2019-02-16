@@ -89,27 +89,15 @@ def compute_ss_model(mav, trim_state, trim_input):
     da = 2
     dr = 3
 
-    A_lat = np.array([[A[v,v], A[v,p], A[v,r], A[v,phi], A[v,psi]],
-                      [A[p,v], A[p,p], A[p,r], A[p,phi], A[p,psi]],
-                      [A[r,v], A[r,p], A[r,r], A[r,phi], A[r,psi]],
-                      [A[phi,v], A[phi,p], A[phi,r], A[phi,phi], A[phi,psi]],
-                      [A[psi,v], A[psi,p], A[psi,r], A[psi,phi], A[psi,psi]]])
-    B_lat = np.array([[B[v,da], B[v,dr]],
-                      [B[p,da], B[p,dr]],
-                      [B[r,da], B[r,dr]],
-                      [B[phi,da], B[phi,dr]],
-                      [B[psi,da], B[psi,dr]]])
+    A_lat = A[(v, p, r, phi, psi), :]
+    A_lat = A_lat[:, (v, p, r, phi, psi)]
+    B_lat = B[(v, p, r, phi, psi), :]
+    B_lat = B_lat[:, (da, dr)]
 
-    A_lon = np.array([[A[u,u], A[u,w], A[u,q], A[u,theta], A[u,h]],
-                      [A[w,u], A[w,w], A[w,q], A[w,theta], A[w,h]],
-                      [A[q,u], A[q,w], A[q,q], A[q,theta], A[q,h]],
-                      [A[theta,u], A[theta,w], A[theta,q], A[theta,theta], A[theta,h]],
-                      [A[h,u], A[h,w], A[h,q], A[h,theta], A[h,h]]])
-    B_lon = np.array([[B[u,de], B[u,dt]],
-                      [B[w,de], B[w,dt]],
-                      [B[q,de], B[q,dt]],
-                      [B[theta,de], B[theta,dt]],
-                      [B[h,de], B[h,dt]]])
+    A_lon = A[(u, w, q, theta, h), :]
+    A_lon = A_lon[:, (u, w, q, theta, h)]
+    B_lon = B[(u, w, q, theta, h),:]
+    B_lon = B[:, (de, dt)]
 
     # Note: The function below was written to calc A_lat and A_lon for level flight (attitude rates = 0, v = 0)
     A_lat, A_lon = getAMatrices(mav, trim_state, trim_input)
@@ -394,19 +382,19 @@ if __name__ == "__main__":
     # print('B:\n', B)
 
     A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
-    # print('A_lon:\n', A_lon)
-    # print('B_lon:\n', B_lon)
-    # print('A_lat:\n', A_lat)
-    # print('B_lat:\n', B_lat)
+    print('A_lon:\n', A_lon)
+    print('B_lon:\n', B_lon)
+    print('A_lat:\n', A_lat)
+    print('B_lat:\n', B_lat)
     #
     # eig_lon, _ = np.linalg.eig(A_lon)
     # eig_lat, _ = np.linalg.eig(A_lat)
     # print('Eig A_lon:\n', eig_lon)
     # print('Eig A_lat:\n', eig_lat)
 
-    data = []
-    with open("trim_conditions.pkl", 'rb') as f:
-        data = pkl.load(f)
-
-    for i in range(9):
-        print('Data[i]\n', data[i])
+    # data = []
+    # with open("trim_conditions.pkl", 'rb') as f:
+    #     data = pkl.load(f)
+    #
+    # for i in range(9):
+    #     print('Data[i]\n', data[i])
