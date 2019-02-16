@@ -99,7 +99,7 @@ def compute_ss_model(mav, trim_state, trim_input):
     B_lon = B[(u, w, q, theta, h),:]
     B_lon = B_lon[:, (de, dt)]
 
-    # Note: The function below was written to calc A_lat and A_lon for level flight (attitude rates = 0, v = 0)
+    # Note: The function below was written to calc A_lat for level flight (attitude rates = 0, v = 0)
     #It will not work for any general trim calculation
     A_lat = getAMatrices(mav, trim_state, trim_input)
 
