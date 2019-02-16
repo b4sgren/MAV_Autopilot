@@ -224,7 +224,7 @@ def df_dx(mav, x_euler, input):
     dT = dT_dxquat(x_euler)
     dTinv = dT_inv(x_euler)
     forces_moments = mav.calcForcesAndMoments(input)
-    eps = 0.01
+    eps = 0.005
     A_quat = np.zeros((13, 13))
     fxu = mav._derivatives(x_quat, forces_moments)
 
@@ -389,11 +389,11 @@ if __name__ == "__main__":
     print('B_lon:\n', B_lon)
     print('A_lat:\n', A_lat)
     print('B_lat:\n', B_lat)
-    #
-    # eig_lon, _ = np.linalg.eig(A_lon)
-    # eig_lat, _ = np.linalg.eig(A_lat)
-    # print('Eig A_lon:\n', eig_lon)
-    # print('Eig A_lat:\n', eig_lat)
+
+    eig_lon, _ = np.linalg.eig(A_lon)
+    eig_lat, _ = np.linalg.eig(A_lat)
+    print('Eig A_lon:\n', eig_lon)
+    print('Eig A_lat:\n', eig_lat)
 
     # data = []
     # with open("trim_conditions.pkl", 'rb') as f:

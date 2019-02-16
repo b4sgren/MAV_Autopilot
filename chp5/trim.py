@@ -84,8 +84,5 @@ if __name__ == "__main__":
 
     trim_state, trim_input = compute_trim(mav, Va, gamma) # Why don't I need R??
     phi, theta, psi = Quaternion2Euler(trim_state[6:10])
-    # print('Phi: ', phi)
-    # print('Theta: ', theta)
-    # print('Psi: ', psi)
     print("State: ", trim_state)
     print("Inputs: ", trim_input)
