@@ -235,7 +235,6 @@ def df_dx(mav, x_euler, input):
         mav.updateVelocityData()
         forces_moments = mav.calcForcesAndMoments(input)
         f_eps = mav._derivatives(x_eps, forces_moments)
-        # print('f_eps - fxu:\n', f_eps - fxu)
         dfdx = (f_eps - fxu) / eps
         A_quat[:, i] = dfdx[:,0]
 
