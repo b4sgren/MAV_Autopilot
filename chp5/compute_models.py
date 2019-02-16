@@ -409,4 +409,4 @@ if __name__ == "__main__":
         data = pkl.load(f)
 
     for i in range(9):
-        print(data[i])
+        print('Data[i]\n', data[i])
