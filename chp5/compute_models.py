@@ -97,10 +97,11 @@ def compute_ss_model(mav, trim_state, trim_input):
     A_lon = A[(u, w, q, theta, h), :]
     A_lon = A_lon[:, (u, w, q, theta, h)]
     B_lon = B[(u, w, q, theta, h),:]
-    B_lon = B[:, (de, dt)]
+    B_lon = B_lon[:, (de, dt)]
 
     # Note: The function below was written to calc A_lat and A_lon for level flight (attitude rates = 0, v = 0)
-    A_lat, A_lon = getAMatrices(mav, trim_state, trim_input)
+    #It will not work for any general trim calculation
+    # A_lat, A_lon = getAMatrices(mav, trim_state, trim_input)
 
     return A_lon, B_lon, A_lat, B_lat
 
@@ -223,13 +224,16 @@ def df_dx(mav, x_euler, input):
     dT = dT_dxquat(x_euler)
     dTinv = dT_inv(x_euler)
     forces_moments = mav.calcForcesAndMoments(input)
-    eps = 0.005
+    eps = 0.01
     A_quat = np.zeros((13, 13))
     fxu = mav._derivatives(x_quat, forces_moments)
 
     for i in range(13):
         x_eps = np.copy(x_quat)
         x_eps[i][0] +=  eps
+        mav._state = x_eps
+        mav.updateVelocityData()
+        forces_moments = mav.calcForcesAndMoments(input)
         f_eps = mav._derivatives(x_eps, forces_moments)
         # print('f_eps - fxu:\n', f_eps - fxu)
         dfdx = (f_eps - fxu) / eps
