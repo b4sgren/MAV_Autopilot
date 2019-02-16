@@ -265,7 +265,6 @@ def dQ_de(x):
     dQ[:,0] = de_phi[:,0]
     dQ[:,1] = de_the[:,0]
     dQ[:,2] = de_psi[:,0]
-    print(dQ)
 
     return dQ
 
@@ -305,12 +304,12 @@ if __name__ == "__main__":
     # print('B:\n', B)
 
     A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
-    print('A_lon:\n', A_lon)
-    print('B_lon:\n', B_lon)
-    print('A_lat:\n', A_lat)
-    print('B_lat:\n', B_lat)
-
-    eig_lon, _ = np.linalg.eig(A_lon)
-    eig_lat, _ = np.linalg.eig(A_lat)
-    print('Eig A_lon:\n', eig_lon)
-    print('Eig A_lat:\n', eig_lat)
+    # print('A_lon:\n', A_lon)
+    # print('B_lon:\n', B_lon)
+    # print('A_lat:\n', A_lat)
+    # print('B_lat:\n', B_lat)
+    #
+    # eig_lon, _ = np.linalg.eig(A_lon)
+    # eig_lat, _ = np.linalg.eig(A_lat)
+    # print('Eig A_lon:\n', eig_lon)
+    # print('Eig A_lat:\n', eig_lat)
