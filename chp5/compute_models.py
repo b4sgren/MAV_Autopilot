@@ -14,6 +14,7 @@ import parameters.aerosonde_parameters as MAV
 from parameters.sim_params import ts_sim as Ts
 from mav_dynamics import mav_dynamics as Dynamics
 from math import exp
+import pickle as pkl
 
 from mav_dynamics import mav_dynamics as Dynamics
 from trim import compute_trim
@@ -58,6 +59,10 @@ def compute_tf_model(mav, trim_state, trim_input):
     a_V3 = MAV.gravity * np.cos(theta - alpha)
     T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
     T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
+
+    with open("trim_conditions.pkl", 'wb') as f:
+        data = [trim_state, trim_input, a_phi_1, a_phi_2, a_beta1, a_beta2, a_theta1, a_theta2, a_theta3]
+        pkl.dump(data, f)
 
     return [T_phi_delta_a, T_chi_phi, T_beta_delta_r, T_theta_delta_e, T_h_theta, T_h_Va, T_Va_delta_t, T_Va_theta]
 
@@ -389,12 +394,19 @@ if __name__ == "__main__":
     # print('B:\n', B)
 
     A_lon, B_lon, A_lat, B_lat = compute_ss_model(mav, trim_state, trim_input)
-    print('A_lon:\n', A_lon)
-    print('B_lon:\n', B_lon)
-    print('A_lat:\n', A_lat)
-    print('B_lat:\n', B_lat)
+    # print('A_lon:\n', A_lon)
+    # print('B_lon:\n', B_lon)
+    # print('A_lat:\n', A_lat)
+    # print('B_lat:\n', B_lat)
+    #
+    # eig_lon, _ = np.linalg.eig(A_lon)
+    # eig_lat, _ = np.linalg.eig(A_lat)
+    # print('Eig A_lon:\n', eig_lon)
+    # print('Eig A_lat:\n', eig_lat)
 
-    eig_lon, _ = np.linalg.eig(A_lon)
-    eig_lat, _ = np.linalg.eig(A_lat)
-    print('Eig A_lon:\n', eig_lon)
-    print('Eig A_lat:\n', eig_lat)
+    data = []
+    with open("trim_conditions.pkl", 'rb') as f:
+        data = pkl.load(f)
+
+    for i in range(9):
+        print(data[i])
