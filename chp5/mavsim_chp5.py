@@ -37,12 +37,18 @@ delta = np.copy(trim_input)
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
     #---Get the wind here
+    # if sim_time >= 10.0 and sim_time <=10.2:
+    #     delta[3,0] = -0.75
+    # elif sim_time > 10.2 and sim_time <= 10.4:
+    #     delta[3,0] = 0.75
+    # else:
+    #     delta[3, 0] = trim_input.item(3)
+
     if sim_time >= 10.0 and sim_time <=10.2:
-        delta[3,0] = -0.75
-    elif sim_time > 10.2 and sim_time <= 10.4:
-        delta[3,0] = 0.75
+        delta[0,0] = -0.75
     else:
-        delta[3, 0] = trim_input.item(3)
+        delta[0, 0] = trim_input.item(0)
+
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     #-------update viewer---------------
