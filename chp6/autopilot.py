@@ -14,37 +14,38 @@ from message_types.msg_state import msg_state
 
 class autopilot:
     def __init__(self, ts_control):
+        #Can i just use the PID control class with 0 for certain gain?
         # instantiate lateral controllers
         self.roll_from_aileron = pd_control_with_rate(
                         kp=AP.roll_kp,
                         kd=AP.roll_kd,
                         limit=np.radians(45))
-        self.course_from_roll = pi_control(
+        self.course_from_roll = pid_control( # was pi
                         kp=AP.course_kp,
                         ki=AP.course_ki,
                         Ts=ts_control,
                         limit=np.radians(30))
-        self.sideslip_from_rudder = pi_control(
+        self.sideslip_from_rudder = pid_control( # was pi
                         kp=AP.sideslip_kp,
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
                         limit=np.radians(45))
-        self.yaw_damper = transfer_function(
+        self.yaw_damper = transfer_function( #need to copy this class over from templates
                         num=np.array([[AP.yaw_damper_kp, 0]]),
                         den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
                         Ts=ts_control)
 
         # instantiate lateral controllers
-        self.pitch_from_elevator = pd_control_with_rate(
+        self.pitch_from_elevator = pid_control_with_rate( # was pd
                         kp=AP.pitch_kp,
                         kd=AP.pitch_kd,
                         limit=np.radians(45))
-        self.altitude_from_pitch = pi_control(
+        self.altitude_from_pitch = pid_control( # was pi
                         kp=AP.altitude_kp,
                         ki=AP.altitude_ki,
                         Ts=ts_control,
                         limit=np.radians(30))
-        self.airspeed_from_throttle = pi_control(
+        self.airspeed_from_throttle = pid_control( # was pi
                         kp=AP.airspeed_throttle_kp,
                         ki=AP.airspeed_throttle_ki,
                         Ts=ts_control,
