@@ -8,7 +8,7 @@ import sys
 import numpy as np
 sys.path.append('..')
 import parameters.control_parameters as AP
-from chap6.pid_control import pid_control, pi_control, pd_control_with_rate
+from pid_control import pid_control  # , pi_control, pd_control_with_rate
 from message_types.msg_state import msg_state
 
 
@@ -16,7 +16,7 @@ class autopilot:
     def __init__(self, ts_control):
         #Can i just use the PID control class with 0 for certain gain?
         # instantiate lateral controllers
-        self.roll_from_aileron = pd_control_with_rate(
+        self.roll_from_aileron = pid( #was pd_control_with_rate
                         kp=AP.roll_kp,
                         kd=AP.roll_kd,
                         limit=np.radians(45))

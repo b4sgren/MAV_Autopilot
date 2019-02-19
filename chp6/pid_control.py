@@ -70,45 +70,45 @@ class pid_control:
             u_sat = u
         return u_sat
 
-class pi_control: # I don't think I need this
-    def __init__(self, kp=0.0, ki=0.0, Ts=0.01, limit=1.0):
-        self.kp = kp
-        self.ki = ki
-        self.Ts = Ts
-        self.limit = limit
-        self.integrator = 0.0
-        self.error_delay_1 = 0.0
+# class pi_control: # I don't think I need this
+#     def __init__(self, kp=0.0, ki=0.0, Ts=0.01, limit=1.0):
+#         self.kp = kp
+#         self.ki = ki
+#         self.Ts = Ts
+#         self.limit = limit
+#         self.integrator = 0.0
+#         self.error_delay_1 = 0.0
+#
+#     def update(self, y_ref, y):
+#         return u_sat
+#
+#     def _saturate(self, u):
+#         # saturate u at +- self.limit
+#         if u >= self.limit:
+#             u_sat = self.limit
+#         elif u <= -self.limit:
+#             u_sat = -self.limit
+#         else:
+#             u_sat = u
+#         return u_sat
 
-    def update(self, y_ref, y):
-        return u_sat
-
-    def _saturate(self, u):
-        # saturate u at +- self.limit
-        if u >= self.limit:
-            u_sat = self.limit
-        elif u <= -self.limit:
-            u_sat = -self.limit
-        else:
-            u_sat = u
-        return u_sat
-
-class pd_control_with_rate: # Not sure I need this either
-    # PD control with rate information
-    # u = kp*(yref-y) - kd*ydot
-    def __init__(self, kp=0.0, kd=0.0, limit=1.0):
-        self.kp = kp
-        self.kd = kd
-        self.limit = limit
-
-    def update(self, y_ref, y, ydot):
-        return u_sat
-
-    def _saturate(self, u):
-        # saturate u at +- self.limit
-        if u >= self.limit:
-            u_sat = self.limit
-        elif u <= -self.limit:
-            u_sat = -self.limit
-        else:
-            u_sat = u
-        return u_sat
+# class pd_control_with_rate: # Not sure I need this either
+#     # PD control with rate information
+#     # u = kp*(yref-y) - kd*ydot
+#     def __init__(self, kp=0.0, kd=0.0, limit=1.0):
+#         self.kp = kp
+#         self.kd = kd
+#         self.limit = limit
+#
+#     def update(self, y_ref, y, ydot):
+#         return u_sat
+#
+#     def _saturate(self, u):
+#         # saturate u at +- self.limit
+#         if u >= self.limit:
+#             u_sat = self.limit
+#         elif u <= -self.limit:
+#             u_sat = -self.limit
+#         else:
+#             u_sat = u
+#         return u_sat
