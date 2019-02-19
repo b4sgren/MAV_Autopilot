@@ -101,7 +101,7 @@ def compute_ss_model(mav, trim_state, trim_input):
 
     # Note: The function below was written to calc A_lat for level flight (attitude rates = 0, v = 0)
     #It will not work for any general trim calculation
-    A_lat = getAMatrices(mav, trim_state, trim_input)
+    # A_lat = getAMatrices(mav, trim_state, trim_input)
 
     return A_lon, B_lon, A_lat, B_lat
 
