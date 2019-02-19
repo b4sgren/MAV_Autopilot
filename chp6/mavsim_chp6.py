@@ -6,6 +6,7 @@ mavsim
 """
 import sys
 sys.path.append('..')
+import numpy as np
 
 from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
@@ -14,8 +15,9 @@ from messages.state_msg import StateMsg
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
 from trim import compute_trim
-import numpy as np
 from tools.tools import Quaternion2Euler
+from autopilot import autopilot
+# from tools.signals import signals
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
@@ -43,7 +45,7 @@ while sim_time < SIM.t_end:
     #     delta[3,0] = 0.75
     # else:
     #     delta[3, 0] = trim_input.item(3)
-    # 
+    #
     # if sim_time >= 10.0 and sim_time <=10.2:
     #     delta[3,0] = -0.75
     # elif sim_time > 10.2 and sim_time <= 10.4:

@@ -60,7 +60,7 @@ def compute_tf_model(mav, trim_state, trim_input):
     T_Va_delta_t = TF(np.array([a_V2]), np.array([1, a_V1]))
     T_Va_theta = TF(np.array([-a_V3]), np.array([1, a_V1]))
 
-    with open("trim_conditions.pkl", 'wb') as f:
+    with open("../trim_conditions.pkl", 'wb') as f:
         data = [trim_state, trim_input, a_phi_1, a_phi_2, a_beta1, a_beta2, a_theta1, a_theta2, a_theta3]
         pkl.dump(data, f)
 
@@ -405,7 +405,7 @@ if __name__ == "__main__":
     # print('Eig A_lat:\n', eig_lat)
 
     data = []
-    with open("trim_conditions.pkl", 'rb') as f:
+    with open("../trim_conditions.pkl", 'rb') as f:
         data = pkl.load(f)
 
     for i in range(9):
