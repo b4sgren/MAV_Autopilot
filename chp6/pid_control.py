@@ -30,7 +30,7 @@ class pid_control:
         self.differentiate(y)
 
         u_unsat = self.kP * error + self.ki * integrator - self.kd * self.y_dot
-        u_sat = self.saturate(u_unsat)
+        u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
             self.antiwindUp(u_unsat, u)
@@ -42,7 +42,7 @@ class pid_control:
         self.integrateError(error)
 
         u_unsat = self.kP * error + self.ki * integrator - self.kd * ydot
-        u_sat = self.saturate(u_unsat)
+        u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
             self.antiwindUp(u_unsat, u)

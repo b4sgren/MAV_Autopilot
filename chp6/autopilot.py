@@ -35,7 +35,7 @@ class autopilot:
                         den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
                         Ts=ts_control)
 
-        # instantiate lateral controllers
+        # instantiate longitudinal controllers
         self.pitch_from_elevator = pid_control_with_rate( # was pd
                         kp=AP.pitch_kp,
                         kd=AP.pitch_kd,
@@ -66,7 +66,7 @@ class autopilot:
         delta_t =
 
         # construct output and commanded states
-        delta = np.array([[delta_e], [delta_a], [delta_r], [delta_t]])
+        delta = np.array([[delta_e], [delta_t], [delta_a], [delta_t]]) # reorder to e, t, a, r
         self.commanded_state.h = cmd.altitude_command
         self.commanded_state.Va = cmd.airspeed_command
         self.commanded_state.phi = phi_c

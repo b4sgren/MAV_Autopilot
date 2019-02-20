@@ -19,15 +19,21 @@ a_theta3 = data[8]
 
 gravity = 9.8
 sigma =
-Va0 =
+Va0 = np.linalg.norm(trim_state[3:6])
 
 #----------roll loop-------------
-roll_kp =
-roll_kd =
+zeta_phi = 0.707 # tuning parameters
+wn_phi = 10.0
+
+roll_kp = wn_phi ** 2 / a_phi2
+roll_kd = (2 * zeta_phi * wn_phi - a_phi1) / a_phi2
 
 #----------course loop-------------
-course_kp =
-course_ki =
+zeta_chi = 0.707
+wn_chi = 1.0
+
+course_kp = (2 * zeta_chi * wn_chi * Va0) / gravity
+course_ki = (Va0 * wn_chi**2) / gravity
 
 #----------sideslip loop-------------
 sideslip_ki =
