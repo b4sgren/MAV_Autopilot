@@ -11,6 +11,7 @@ import parameters.control_parameters as AP
 from pid_control import pid_control  # , pi_control, pd_control_with_rate
 from messages.state_msg import StateMsg
 from tools.tools import Quaternion2Euler
+from tools.transfer_function import transfer_function
 
 
 class autopilot:
@@ -56,9 +57,8 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c = 20 * np.pi / 180.  # cmd.phi_feedforward
-        phi, _, _, = Quaternion2Euler(state[6:10])
-        delta_a = self.roll_from_aileron.update_with_rate(phi_c, phi, state.item(10))  # AP.trim_input.item(2)
+        phi_c =   self.course_from_roll.update(cmd.course_command, state.chi)  #20 * np.pi / 180.
+        delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)  # AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 
         # longitudinal autopilot

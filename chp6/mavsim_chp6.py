@@ -40,7 +40,7 @@ sim_time = SIM.t0
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
     #-------controller-------------
-    estimated_state = dyn._state  # uses true states in the control
+    estimated_state = dyn.msg_true_state  # uses true states in the control
     commands.airspeed_command = Va_command.square(sim_time)
     commands.course_command = chi_command.square(sim_time)
     commands.altitude_command = h_command.square(sim_time)
