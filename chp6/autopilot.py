@@ -10,6 +10,7 @@ sys.path.append('..')
 import parameters.control_parameters as AP
 from pid_control import pid_control  # , pi_control, pd_control_with_rate
 from messages.state_msg import StateMsg
+from tools.tools import Quaternion2Euler
 
 
 class autopilot:
@@ -55,13 +56,14 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c = 0.0
-        delta_a = AP.trim_input.item(2)
+        phi_c = 20 * np.pi / 180.  # cmd.phi_feedforward
+        phi, _, _, = Quaternion2Euler(state[6:10])
+        delta_a = self.roll_from_aileron.update_with_rate(phi_c, phi, state.item(10))  # AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 
         # longitudinal autopilot
-        h_c = 0
-        theta_c =0
+        h_c = 0.0
+        theta_c = 0.0
         delta_e = AP.trim_input.item(0)
         delta_t = AP.trim_input.item(1)
 

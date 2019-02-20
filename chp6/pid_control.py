@@ -16,8 +16,8 @@ class pid_control:
         self.Ts = Ts
         self.limit = limit
         self.integrator = 0.0
-        self.error_delay_1 = 0.0 # Do I need to differentiate error?
-        self.error_dot_delay_1 = 0.0 # Do we need to differentiate error?
+        self.e_delay_1 = 0.0
+        self.error_dot_delay_1 = 0.0
         self.y_delay_1 = 0.0
         self.y_dot = 0.0
         # gains for differentiator
@@ -29,7 +29,7 @@ class pid_control:
         self.integrateError(error)
         self.differentiate(y)
 
-        u_unsat = self.kP * error + self.ki * integrator - self.kd * self.y_dot
+        u_unsat = self.kp * error + self.ki * integrator - self.kd * self.y_dot
         u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
@@ -41,7 +41,7 @@ class pid_control:
         error = y_ref - y
         self.integrateError(error)
 
-        u_unsat = self.kP * error + self.ki * integrator - self.kd * ydot
+        u_unsat = self.kp * error + self.ki * self.integrator - self.kd * ydot
         u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
