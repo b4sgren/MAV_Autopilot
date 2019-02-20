@@ -9,14 +9,14 @@ import numpy as np
 sys.path.append('..')
 import parameters.control_parameters as AP
 from pid_control import pid_control  # , pi_control, pd_control_with_rate
-from message_types.msg_state import msg_state
+from messages.state_msg import StateMsg
 
 
 class autopilot:
     def __init__(self, ts_control):
         #Can i just use the PID control class with 0 for certain gain?
         # instantiate lateral controllers
-        self.roll_from_aileron = pid( #was pd_control_with_rate
+        self.roll_from_aileron = pid_control( #was pd_control_with_rate
                         kp=AP.roll_kp,
                         kd=AP.roll_kd,
                         limit=np.radians(45))
@@ -30,13 +30,13 @@ class autopilot:
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
                         limit=np.radians(45))
-        self.yaw_damper = transfer_function( #need to copy this class over from templates
-                        num=np.array([[AP.yaw_damper_kp, 0]]),
-                        den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
-                        Ts=ts_control)
+        # self.yaw_damper = transfer_function(
+        #                 num=np.array([[AP.yaw_damper_kp, 0]]),
+        #                 den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
+        #                 Ts=ts_control)
 
         # instantiate longitudinal controllers
-        self.pitch_from_elevator = pid_control_with_rate( # was pd
+        self.pitch_from_elevator = pid_control( # was pd_control with rate
                         kp=AP.pitch_kp,
                         kd=AP.pitch_kd,
                         limit=np.radians(45))
@@ -50,23 +50,23 @@ class autopilot:
                         ki=AP.airspeed_throttle_ki,
                         Ts=ts_control,
                         limit=1.0)
-        self.commanded_state = msg_state()
+        self.commanded_state = StateMsg()
 
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c =
-        delta_a =
-        delta_r =
+        phi_c = 0.0
+        delta_a = AP.trim_input.item(2)
+        delta_r = AP.trim_input.item(3)
 
         # longitudinal autopilot
-        h_c =
-        theta_c =
-        delta_e =
-        delta_t =
+        h_c = 0
+        theta_c =0
+        delta_e = AP.trim_input.item(0)
+        delta_t = AP.trim_input.item(1)
 
         # construct output and commanded states
-        delta = np.array([[delta_e], [delta_t], [delta_a], [delta_t]]) # reorder to e, t, a, r
+        delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])
         self.commanded_state.h = cmd.altitude_command
         self.commanded_state.Va = cmd.airspeed_command
         self.commanded_state.phi = phi_c
