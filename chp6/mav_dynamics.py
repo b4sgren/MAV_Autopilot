@@ -144,8 +144,8 @@ class mav_dynamics:
         self.msg_true_state.alpha = self._alpha  # see line 164 updateVelocityData
         self.msg_true_state.beta = self._beta  # see line 167 updateVelocityData
         self.msg_true_state.Vg = np.linalg.norm(self._state[3:6])
-        self.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
-        self.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u)
+        self.msg_true_state.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
+        self.msg_true_state.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u) Not sure this is right
 
     def updateVelocityData(self, wind=np.zeros((6, 1))):
         Rb_v = Quaternion2Rotation(self._state[6:10]).T
