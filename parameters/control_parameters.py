@@ -60,7 +60,8 @@ K_theta_DC = (pitch_kp * a_theta3) / (wn_theta**2)
 
 #----------altitude loop-------------
 zeta_h = 0.707
-wn_h = 1.0/10.0 * wn_theta #10.0 is a tuning parameter
+W_h = 2.0
+wn_h = 1.0/W_h * wn_theta
 
 altitude_kp = (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
 altitude_ki = (wn_h**2) / (K_theta_DC  * Va0)
