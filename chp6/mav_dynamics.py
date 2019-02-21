@@ -173,10 +173,17 @@ class mav_dynamics:
         self._Va = np.linalg.norm(Vr)
 
         #Compute alpha
-        self._alpha = np.arctan2(Vr.item(2), Vr.item(0))
+        if Vr.item(0) == 0:
+            self._alpha = np.sign(Vr.item(2)) * np.pi/2.0
+        else:
+            self._alpha = np.arctan2(Vr.item(2), Vr.item(0))
 
         #Compute beta
-        self._beta = asin(Vr.item(1)/self._Va)
+        temp = np.sqrt(Vr.item(0)**2 + Vr.item(2)**2)
+        if temp == 0:
+            self._beta = np.sign(Vr.item(1)) * np.pi/2.0
+        else:
+            self._beta = asin(Vr.item(1)/self._Va)
 
     def calcForcesAndMoments(self, delta):
         # Calculate gravitational forces in the body frame
