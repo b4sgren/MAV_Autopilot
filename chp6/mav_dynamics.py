@@ -7,7 +7,7 @@ mav_dynamics
 import sys
 sys.path.append('..')
 import numpy as np
-from math import asin, exp
+from math import asin, exp, acos
 
 # load message types
 from messages.state_msg import StateMsg
@@ -144,8 +144,27 @@ class mav_dynamics:
         self.msg_true_state.alpha = self._alpha  # see line 164 updateVelocityData
         self.msg_true_state.beta = self._beta  # see line 167 updateVelocityData
         self.msg_true_state.Vg = np.linalg.norm(self._state[3:6])
-        self.msg_true_state.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
-        self.msg_true_state.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u) Not sure this is right
+        self.calcGammaAndChi()
+        # self.msg_true_state.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
+        # self.msg_true_state.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u) Not sure this is right
+
+    def calcGammaAndChi(self):
+        Rv_b = Quaternion2Rotation(self._state[6:10])
+        Vg = Rv_b @ self._state[3:6]
+
+        gamma = asin(-Vg.item(2)/np.linalg.norm(Vg)) #negative because h_dot = Vg sin(gamma)
+        self.msg_true_state.gamma = gamma
+
+        Vg_horz = Vg * np.cos(gamma)
+        e1 = np.array([[1, 0, 0]]).T
+
+        chi = acos(np.dot(e1.T, Vg_horz) / np.linalg.norm(Vg_horz))
+        if(Vg_horz.item(1) < 0):
+            chi *= -1
+        # if(chi <= -np.pi):
+        #     chi += 2 * np.pi
+        self.msg_true_state.chi = chi
+
 
     def updateVelocityData(self, wind=np.zeros((6, 1))):
         Rb_v = Quaternion2Rotation(self._state[6:10]).T

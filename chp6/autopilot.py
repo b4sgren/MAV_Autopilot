@@ -58,7 +58,7 @@ class autopilot:
 
         # lateral autopilot
         phi_c =   self.course_from_roll.update(cmd.course_command, state.chi)  #20 * np.pi / 180.
-        print(phi_c)
+        print(state.chi)
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)  # AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 
