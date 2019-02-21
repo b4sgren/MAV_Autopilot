@@ -43,7 +43,7 @@ while sim_time < SIM.t_end:
     estimated_state = dyn.msg_true_state  # uses true states in the control
     commands.airspeed_command = Va_command.square(sim_time)
     # commands.course_command = chi_command.square(sim_time)
-    commands.course_command = np.deg2rad(180)
+    commands.course_command = np.deg2rad(179)
     commands.altitude_command = h_command.square(sim_time)
     delta, commanded_state = ctrl.update(commands, estimated_state)
 

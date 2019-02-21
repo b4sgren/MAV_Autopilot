@@ -57,8 +57,8 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        phi_c =   self.course_from_roll.update(cmd.course_command, state.chi)  #20 * np.pi / 180.
-        print(state.chi)
+        # Course loop is a little bouncy for when hovering near 180deg
+        phi_c =   self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)  #20 * np.pi / 180.
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)  # AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 

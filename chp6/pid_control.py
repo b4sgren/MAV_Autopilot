@@ -24,8 +24,14 @@ class pid_control:
         self.a1 = (2.0 * sigma - Ts) / (2.0 * sigma + Ts)
         self.a2 = 2.0 / (2.0 * sigma + Ts)
 
-    def update(self, y_ref, y, reset_flag=False):
+    def update(self, y_ref, y, rad_flag=False):
         error = y_ref - y
+        if(rad_flag):
+            if(error > np.pi):
+                error -= 2 * np.pi
+            if(error <= -np.pi):
+                error += 2 * np.pi
+        
         self.integrateError(error)
         self.differentiate(y)
 

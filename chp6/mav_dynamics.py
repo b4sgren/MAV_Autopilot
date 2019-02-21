@@ -145,8 +145,6 @@ class mav_dynamics:
         self.msg_true_state.beta = self._beta  # see line 167 updateVelocityData
         self.msg_true_state.Vg = np.linalg.norm(self._state[3:6])
         self.calcGammaAndChi()
-        # self.msg_true_state.gamma = np.arctan2(-self._state.item(5), self._state.item(3)) # is this right atan2(-w, u)
-        # self.msg_true_state.chi = np.arctan2(self._state.item(4), self._state.item(3)) + psi # atan2(v, u) Not sure this is right
 
     def calcGammaAndChi(self):
         Rv_b = Quaternion2Rotation(self._state[6:10])
@@ -161,8 +159,6 @@ class mav_dynamics:
         chi = acos(np.dot(e1.T, Vg_horz) / np.linalg.norm(Vg_horz))
         if(Vg_horz.item(1) < 0):
             chi *= -1
-        # if(chi <= -np.pi):
-        #     chi += 2 * np.pi
         self.msg_true_state.chi = chi
 
 
