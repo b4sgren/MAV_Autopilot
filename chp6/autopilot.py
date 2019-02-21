@@ -64,9 +64,9 @@ class autopilot:
 
         # longitudinal autopilot
         h_c = 0.0
-        theta_c = 0.0
-        delta_e = AP.trim_input.item(0)
-        delta_t = AP.trim_input.item(1)
+        theta_c = np.radians(20)
+        delta_e =  AP.trim_input.item(0) #self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])
