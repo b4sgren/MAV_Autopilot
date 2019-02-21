@@ -57,16 +57,22 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        # Course loop is a little bouncy for when hovering near 180deg
-        phi_c =   self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)  #np.radians(20).
-        delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)  # AP.trim_input.item(2)
+        # Course loop is a little bouncy when hovering near 180deg
+        phi_c = self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
+        delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)
         delta_r = AP.trim_input.item(3)
 
         # longitudinal autopilot
         h_c = 0.0
         theta_c = np.radians(20)
-        delta_e =  AP.trim_input.item(0) #self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
+        delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va)
+
+        #for tuning
+        # delta_e = AP.trim_input.item(0)
+        delta_t = AP.trim_input.item(1)
+        # delta_a = AP.trim_input.item(2)
+        delta_r = AP.trim_input.item(3)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])

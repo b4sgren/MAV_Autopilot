@@ -25,15 +25,16 @@ sigma = 0.05
 Va0 = np.linalg.norm(trim_state[3:6])
 
 #----------roll loop-------------
-zeta_phi = 0.707 # tuning parameters
+zeta_phi = 0.8 # tuning parameters
 wn_phi = 10.0
 
 roll_kp = wn_phi ** 2 / a_phi2
 roll_kd = (2 * zeta_phi * wn_phi - a_phi1) / a_phi2
 
 #----------course loop-------------
-zeta_chi = 0.707
-wn_chi = 1.0/10.0 * wn_phi  # 10.0 is a tuning parameter
+zeta_chi = 0.8
+W = 8.0
+wn_chi = 1.0/W * wn_phi
 
 course_kp = (2 * zeta_chi * wn_chi * Va0) / gravity
 course_ki = (Va0 * wn_chi**2) / gravity
@@ -48,9 +49,12 @@ yaw_damper_kp = 0
 
 #----------pitch loop-------------
 zeta_theta = 0.707
-wn_theta = 5.0
+e_theta_max = np.radians(10)
 
-pitch_kp = (wn_theta**2 - a_theta2)/a_theta3
+de_max = 1.0
+
+pitch_kp = de_max/e_theta_max * np.sign(a_theta3)
+wn_theta = np.sqrt(a_theta2 * pitch_kp * a_theta3)
 pitch_kd = (2 * zeta_theta * wn_theta - a_theta1) / a_theta3
 K_theta_DC = (pitch_kp * a_theta3) / (wn_theta**2)
 
@@ -63,8 +67,8 @@ altitude_ki = (wn_h**2) / (K_theta_DC  * Va0)
 altitude_zone = 5.0  # This is in meters
 
 #---------airspeed hold using throttle---------------
-zeta_V = 0.707
-wn_V = 2.0
+zeta_V = 1.5
+wn_V = 8
 
 airspeed_throttle_kp = (wn_V**2) / a_V2
 airspeed_throttle_ki = (2 * zeta_V * wn_V - a_V1) / a_V2
