@@ -39,7 +39,7 @@ class MAV_Viewer:
                            [-5.0, -3.0,0.0],
                            [-5.0, 0.0, 0.0],
                            [-7.0, 0.0, -3.0]]).T
-        scale = 5
+        scale = 2.5
         points = scale * points
 
         red = np.array([1.0, 0.0, 0.0, 1])
