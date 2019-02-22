@@ -32,10 +32,10 @@ class autopilot:
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
                         limit=np.radians(45))
-        # self.yaw_damper = transfer_function(
-        #                 num=np.array([[AP.yaw_damper_kp, 0]]),
-        #                 den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
-        #                 Ts=ts_control)
+        self.yaw_damper = transfer_function(
+                        num=np.array([[AP.yaw_damper_kp, 0]]),
+                        den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
+                        Ts=ts_control)
 
         # instantiate longitudinal controllers
         self.pitch_from_elevator = pid_control( # was pd_control with rate
@@ -57,20 +57,20 @@ class autopilot:
     def update(self, cmd, state):
 
         # lateral autopilot
-        # Course loop is a little bouncy when hovering near 180deg
-        phi_c = self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
-        delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)
-        delta_r = AP.trim_input.item(3)
+        #add phi_feedforward to phi_c?
+        phi_c = np.radians(0) # self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
+        delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p) #try this second
+        delta_r = AP.trim_input.item(3) #use yaw damper for this
 
         # longitudinal autopilot
         h_c = cmd.altitude_command
-        theta_c = self.altitude_from_pitch.update(h_c, state.h)
+        theta_c = np.radians(20) #self.altitude_from_pitch.update(h_c, state.h)
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
-        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va)
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
 
         #for tuning
-        # delta_e = AP.trim_input.item(0)
-        delta_t = AP.trim_input.item(1)
+        delta_e = AP.trim_input.item(0)
+        # delta_t = AP.trim_input.item(1)
         # delta_a = AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 

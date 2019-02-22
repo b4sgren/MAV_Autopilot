@@ -40,16 +40,17 @@ course_kp = (2 * zeta_chi * wn_chi * Va0) / gravity
 course_ki = (Va0 * wn_chi**2) / gravity
 
 #----------sideslip loop-------------
+#I don't think I will be using these
 sideslip_ki = 0
 sideslip_kp = 0
 
 #----------yaw damper-------------
-yaw_damper_tau_r = 0
-yaw_damper_kp = 0
+yaw_damper_tau_r = 0.1
+yaw_damper_kp = 0.5
 
 #----------pitch loop-------------
 zeta_theta = 0.707
-e_theta_max = np.radians(10)
+e_theta_max = np.radians(45)
 
 de_max = 1.0
 
@@ -59,7 +60,7 @@ pitch_kd = (2 * zeta_theta * wn_theta - a_theta1) / a_theta3
 K_theta_DC = (pitch_kp * a_theta3) / (wn_theta**2)
 
 #----------altitude loop-------------
-zeta_h = 0.707
+zeta_h = 1.0
 W_h = 2.0
 wn_h = 1.0/W_h * wn_theta
 
@@ -68,8 +69,8 @@ altitude_ki = (wn_h**2) / (K_theta_DC  * Va0)
 altitude_zone = 5.0  # This is in meters
 
 #---------airspeed hold using throttle---------------
-zeta_V = 1.5
-wn_V = 8
+zeta_V = 1.0
+wn_V = 6
 
 airspeed_throttle_kp = (wn_V**2) / a_V2
 airspeed_throttle_ki = (2 * zeta_V * wn_V - a_V1) / a_V2

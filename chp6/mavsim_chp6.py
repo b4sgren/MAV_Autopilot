@@ -59,7 +59,7 @@ while sim_time < SIM.t_end:
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
                     dyn.msg_true_state,
-                    dyn.msg_true_state,
+                    commanded_state,
                     SIM.ts_sim)
 
     #-------increment time-------------
