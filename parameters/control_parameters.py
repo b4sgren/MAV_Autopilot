@@ -70,7 +70,7 @@ altitude_zone = 5.0  # This is in meters
 
 #---------airspeed hold using throttle---------------
 zeta_V = 1.0
-wn_V = 6
+wn_V = .6
 
 airspeed_throttle_kp = (wn_V**2) / a_V2
 airspeed_throttle_ki = (2 * zeta_V * wn_V - a_V1) / a_V2
