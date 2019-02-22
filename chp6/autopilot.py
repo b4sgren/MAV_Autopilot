@@ -70,7 +70,7 @@ class autopilot:
 
         #for tuning
         delta_e = AP.trim_input.item(0)
-        delta_t = AP.trim_input.item(1)
+        # delta_t = AP.trim_input.item(1)
         # delta_a = AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
 
