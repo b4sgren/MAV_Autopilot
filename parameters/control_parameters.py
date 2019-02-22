@@ -36,8 +36,8 @@ zeta_chi = 0.8
 W = 8.0
 wn_chi = 1.0/W * wn_phi
 
-course_kp = (2 * zeta_chi * wn_chi * Va0) / gravity
-course_ki = (Va0 * wn_chi**2) / gravity
+course_kp = 3.5714  #(2 * zeta_chi * wn_chi * Va0) / gravity
+course_ki = 1.4531  #(Va0 * wn_chi**2) / gravity
 
 #----------sideslip loop-------------
 #I don't think I will be using these
@@ -64,8 +64,8 @@ zeta_h = 1.0
 W_h = 2.0
 wn_h = 1.0/W_h * wn_theta
 
-altitude_kp = (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
-altitude_ki = (wn_h**2) / (K_theta_DC  * Va0)
+altitude_kp = .4  # (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
+altitude_ki = 0.1  # (wn_h**2) / (K_theta_DC  * Va0)
 altitude_zone = 5.0  # This is in meters
 
 #---------airspeed hold using throttle---------------

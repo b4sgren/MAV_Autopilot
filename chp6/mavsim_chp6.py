@@ -44,7 +44,7 @@ while sim_time < SIM.t_end:
     # commands.airspeed_command = Va_command.square(sim_time)
     commands.airspeed_command = 25
     # commands.course_command = chi_command.square(sim_time)
-    commands.course_command = np.radians(0)
+    commands.course_command = np.radians(145)
     # commands.altitude_command = h_command.square(sim_time)
     commands.altitude_command = 100
     delta, commanded_state = ctrl.update(commands, estimated_state)
