@@ -54,10 +54,10 @@ e_theta_max = np.radians(45)
 
 de_max = 1.0
 
-pitch_kp = de_max/e_theta_max * np.sign(a_theta3)
+pitch_kp = -1.573  #de_max/e_theta_max * np.sign(a_theta3)
 wn_theta = np.sqrt(a_theta2 * pitch_kp * a_theta3)
-pitch_kd = (2 * zeta_theta * wn_theta - a_theta1) / a_theta3
-K_theta_DC = (pitch_kp * a_theta3) / (wn_theta**2)
+pitch_kd = -2.507  #(2 * zeta_theta * wn_theta - a_theta1) / a_theta3
+K_theta_DC = (pitch_kp * a_theta3) / (a_theta2 + pitch_kp * a_theta3)
 
 #----------altitude loop-------------
 zeta_h = 1.0

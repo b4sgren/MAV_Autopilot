@@ -69,7 +69,7 @@ class autopilot:
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
 
         #for tuning
-        delta_e = AP.trim_input.item(0)
+        # delta_e = AP.trim_input.item(0)
         # delta_t = AP.trim_input.item(1)
         # delta_a = AP.trim_input.item(2)
         delta_r = AP.trim_input.item(3)
