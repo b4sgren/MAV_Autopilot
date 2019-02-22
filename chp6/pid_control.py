@@ -39,7 +39,7 @@ class pid_control:
         u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
-            self.antiwindUp(u_unsat, u_unsat)
+            self.antiwindUp(u_unsat, u_sat)
 
         return u_sat
 
@@ -51,7 +51,7 @@ class pid_control:
         u_sat = self._saturate(u_unsat)
 
         if self.ki != 0:
-            self.antiwindUp(u_unsat, u)
+            self.antiwindUp(u_unsat, u_sat)
 
         return u_sat
 
