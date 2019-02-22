@@ -56,7 +56,7 @@ class pid_control:
         return u_sat
 
     def integrateError(self, e):
-        self.integrator += self.Ts / 2.0 * (e - self.e_delay_1)
+        self.integrator += self.Ts / 2.0 * (e + self.e_delay_1)
         self.e_delay_1 = e
 
     def differentiate(self, y):
