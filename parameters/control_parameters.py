@@ -64,7 +64,7 @@ zeta_h = 1.0
 W_h = 2.0
 wn_h = 1.0/W_h * wn_theta
 
-altitude_kp = .4  # (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
+altitude_kp = 1.4  # (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
 altitude_ki = 0.1  # (wn_h**2) / (K_theta_DC  * Va0)
 altitude_zone = 5.0  # This is in meters
 

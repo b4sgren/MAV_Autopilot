@@ -60,7 +60,7 @@ class autopilot:
         #add phi_feedforward to phi_c?
         phi_c = self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p) #try this second
-        delta_r = AP.trim_input.item(3) #use yaw damper for this
+        delta_r = self.yaw_damper.update(state.r)
 
         # longitudinal autopilot
         h_c = cmd.altitude_command
@@ -69,10 +69,10 @@ class autopilot:
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
 
         #for tuning
-        delta_e = AP.trim_input.item(0)
-        delta_t = AP.trim_input.item(1)
+        # delta_e = AP.trim_input.item(0)
+        # delta_t = AP.trim_input.item(1)
         # delta_a = AP.trim_input.item(2)
-        delta_r = AP.trim_input.item(3)
+        # delta_r = AP.trim_input.item(3)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])
