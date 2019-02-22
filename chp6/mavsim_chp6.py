@@ -11,7 +11,6 @@ import numpy as np
 from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
 import parameters.sim_params as SIM
-import parameters.control_parameters as AP
 from messages.state_msg import StateMsg
 from messages.msg_autopilot import msg_autopilot
 from data_viewer import data_viewer
@@ -24,7 +23,6 @@ from tools.signals import signals
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 ctrl = autopilot(SIM.ts_sim)
-dyn._state = AP.trim_state
 
 # autopilot commands
 commands = msg_autopilot()
