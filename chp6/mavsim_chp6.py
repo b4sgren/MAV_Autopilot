@@ -46,7 +46,7 @@ while sim_time < SIM.t_end:
     # commands.course_command = chi_command.square(sim_time)
     commands.course_command = np.radians(0)
     # commands.altitude_command = h_command.square(sim_time)
-    commands.altitude_command = 130
+    commands.altitude_command = 110
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #---Get the wind here
