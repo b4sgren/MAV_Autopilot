@@ -45,7 +45,7 @@ sideslip_ki = 0
 sideslip_kp = 0
 
 #----------yaw damper-------------
-yaw_damper_tau_r = 0.1
+yaw_damper_tau_r = 0.05
 yaw_damper_kp = 0.5
 
 #----------pitch loop-------------

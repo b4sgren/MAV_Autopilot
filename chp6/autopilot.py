@@ -77,7 +77,7 @@ class autopilot:
         # delta_e = AP.trim_input.item(0)
         # delta_t = AP.trim_input.item(1)
         # delta_a = AP.trim_input.item(2)
-        delta_r = AP.trim_input.item(3)
+        # delta_r = AP.trim_input.item(3)
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])
