@@ -151,7 +151,6 @@ class mav_dynamics:
         Vg = Rv_b @ self._state[3:6]
 
         gamma = asin(-Vg.item(2)/np.linalg.norm(Vg)) #negative because h_dot = Vg sin(gamma)
-        # gamma = np.arctan2(Vg.item(1), Vg.item(0))
         self.msg_true_state.gamma = gamma
 
         Vg_horz = Vg * np.cos(gamma)
@@ -160,7 +159,6 @@ class mav_dynamics:
         chi = acos(np.dot(e1.T, Vg_horz) / np.linalg.norm(Vg_horz))
         if(Vg_horz.item(1) < 0):
             chi *= -1
-        # chi = np.arctan2(Vg_horz.item(1), Vg_horz.item(0))
         self.msg_true_state.chi = chi
 
 
