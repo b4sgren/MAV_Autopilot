@@ -63,7 +63,7 @@ class autopilot:
     def update(self, cmd, state):
         # lateral autopilot
         #add phi_feedforward to phi_c?
-        phi_c = np.radians(0) #self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
+        phi_c = self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p) #try this second
         delta_r = self.yaw_damper.update(state.r)
 
