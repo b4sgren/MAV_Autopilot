@@ -9,12 +9,13 @@ import numpy as np
 sys.path.append('..')
 
 class pid_control:
-    def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.01, sigma=0.05, limit=1.0):
+    def __init__(self, kp=0.0, ki=0.0, kd=0.0, Ts=0.01, sigma=0.05, limit_h=1.0, limit_l=0.0):
         self.kp = kp
         self.ki = ki
         self.kd = kd
         self.Ts = Ts
-        self.limit = limit
+        self.limit_h = limit_h
+        self.limit_l = limit_l
         self.integrator = 0.0
         self.e_delay_1 = 0.0
         self.error_dot_delay_1 = 0.0
@@ -69,10 +70,10 @@ class pid_control:
     def _saturate(self, u):
         # saturate u at +- self.limit
         # modify for upper and lower limit
-        if u >= self.limit:
-            u_sat = self.limit
-        elif u <= -self.limit:
-            u_sat = -self.limit
+        if u >= self.limit_h:
+            u_sat = self.limit_h
+        elif u <= self.limit_l:
+            u_sat = self.limit_l
         else:
             u_sat = u
         return u_sat

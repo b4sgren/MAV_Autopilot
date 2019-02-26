@@ -21,17 +21,20 @@ class autopilot:
         self.roll_from_aileron = pid_control( #was pd_control_with_rate
                         kp=AP.roll_kp,
                         kd=AP.roll_kd,
-                        limit=np.radians(45))
+                        limit_h=np.radians(45),
+                        limit_l=-np.radians(45))
         self.course_from_roll = pid_control( # was pi
                         kp=AP.course_kp,
                         ki=AP.course_ki,
                         Ts=ts_control,
-                        limit=np.radians(30))
+                        limit_h=np.radians(30),
+                        limit_l=-np.radians(30))
         self.sideslip_from_rudder = pid_control( # was pi
                         kp=AP.sideslip_kp,
                         ki=AP.sideslip_ki,
                         Ts=ts_control,
-                        limit=np.radians(45))
+                        limit_h=np.radians(45),
+                        limit_l=-np.radians(45))
         self.yaw_damper = transfer_function(
                         num=np.array([[AP.yaw_damper_kp, 0]]),
                         den=np.array([[1, 1/AP.yaw_damper_tau_r]]),
@@ -41,21 +44,23 @@ class autopilot:
         self.pitch_from_elevator = pid_control( # was pd_control with rate
                         kp=AP.pitch_kp,
                         kd=AP.pitch_kd,
-                        limit=np.radians(45))
+                        limit_h=np.radians(45),
+                        limit_l=-np.radians(45))
         self.altitude_from_pitch = pid_control( # was pi
                         kp=AP.altitude_kp,
                         ki=AP.altitude_ki,
                         Ts=ts_control,
-                        limit=np.radians(30))
+                        limit_h=np.radians(30),
+                        limit_l=-np.radians(30))
         self.airspeed_from_throttle = pid_control( # was pi
                         kp=AP.airspeed_throttle_kp,
                         ki=AP.airspeed_throttle_ki,
                         Ts=ts_control,
-                        limit=1.0)
+                        limit_h=1.0,
+                        limit_l=0.0)
         self.commanded_state = StateMsg()
 
     def update(self, cmd, state):
-
         # lateral autopilot
         #add phi_feedforward to phi_c?
         phi_c = np.radians(0) #self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)

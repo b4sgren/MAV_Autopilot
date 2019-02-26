@@ -42,11 +42,11 @@ while sim_time < SIM.t_end:
     #-------controller-------------
     estimated_state = dyn.msg_true_state  # uses true states in the control
     # commands.airspeed_command = Va_command.square(sim_time)
-    commands.airspeed_command = 26
+    commands.airspeed_command = 25
     # commands.course_command = chi_command.square(sim_time)
     commands.course_command = np.radians(0)
     # commands.altitude_command = h_command.square(sim_time)
-    commands.altitude_command = 130
+    commands.altitude_command = 50 # doesn't work with going down right now
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #---Get the wind here
