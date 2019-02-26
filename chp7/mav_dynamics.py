@@ -11,15 +11,15 @@ from math import asin, exp, acos
 
 # load message types
 from messages.state_msg import StateMsg
+from messages.msg_sensors import msg_sensors
 
 import parameters.aerosonde_parameters as MAV
+import parameters.sensor_parameters as SENSOR
 from tools.tools import Quaternion2Euler, Quaternion2Rotation
 
 class mav_dynamics:
     def __init__(self, Ts):
         self.ts_simulation = Ts
-        # set initial states based on parameter file
-        # _state is the 13x1 internal state of the aircraft that is being propagated:
         # _state = [pn, pe, pd, u, v, w, e0, e1, e2, e3, p, q, r]
         self._state = np.array([MAV.pn0, MAV.pe0, MAV.pd0, MAV.u0, MAV.v0, MAV.w0,
                                 MAV.e0, MAV.e1, MAV.e2, MAV.e3, MAV.p0, MAV.q0, MAV.r0])
@@ -34,6 +34,12 @@ class mav_dynamics:
         self._beta = 0
         #true state
         self.msg_true_state = StateMsg()
+
+        self.sensors = msg_sensors()
+        self._gps_eta_n = 0.0
+        self._gps_eta_e = 0.0
+        self._gps_eta_h = 0.0
+        self._t_gps = 999. #timer so that gps only updates every ts_gps seconds
 
     ###################################
     # public functions
@@ -70,6 +76,29 @@ class mav_dynamics:
 
         # update the message class for the true state
         self._update_msg_true_state()
+
+    def updateSensors(self):
+        self.sensors.gyro_x =
+        self.sensors.gyro_y =
+        self.sensors.gjyr_z =
+        self.sensors.accel_x =
+        self.sensors.accel_y =
+        self.sensors.accel_z =
+        self.sensors.static_pressure =
+        self.sensors.diff_pressure = 0
+
+        if self._t_gps >= SENSOR.ts_gps:
+            self._gps_eta_n =
+            self._gps_eta_e =
+            self._gps_eta_h =
+            self.sensors.gps_n =
+            self.sensors.gps_e =
+            self.sensors.gps_h =
+            self.sensors.gps_Vg =
+            self.sensors.gps_course =
+            self._t_gps = 0.0
+        else:
+            self._t_gps += self.ts_sim
 
     ###################################
     # private functions
