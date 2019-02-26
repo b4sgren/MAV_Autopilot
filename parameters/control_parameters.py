@@ -64,13 +64,13 @@ zeta_h = 1.0
 W_h = 2.0
 wn_h = 1.0/W_h * wn_theta
 
-altitude_kp = 0.01  # (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
-altitude_ki = 0.005 # (wn_h**2) / (K_theta_DC  * Va0)
+altitude_kp = 0.05  # (2 * zeta_h * wn_h) / (K_theta_DC * Va0)
+altitude_ki = 0.009 # (wn_h**2) / (K_theta_DC  * Va0)
 altitude_zone = 2.0  # This is in meters
 
 #---------airspeed hold using throttle---------------
 zeta_V = 1.3 #2.0
 wn_V = .7 #.7
 
-airspeed_throttle_kp = .1 #(wn_V**2) / a_V2   .189
-airspeed_throttle_ki = 0.01  #(2 * zeta_V * wn_V - a_V1) / a_V2  0.1
+airspeed_throttle_kp = .2 #(wn_V**2) / a_V2   .189
+airspeed_throttle_ki = 0.1  #(2 * zeta_V * wn_V - a_V1) / a_V2  0.1
