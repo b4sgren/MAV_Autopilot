@@ -82,16 +82,18 @@ class mav_dynamics:
         phi = self.msg_true_state.phi
         g = MAV.gravity
         m = MAV.mass
+        rho = MAV.rho
         sigma_a = SENSOR.accel_sigma
+        sigma_g = SENSOR.gyro_sigma
 
-        # self.sensors.gyro_x =
-        # self.sensors.gyro_y =
-        # self.sensors.gjyr_z =
+        self.sensors.gyro_x = self.msg_true_state.p + SENSOR.gyro_x_bias + np.random.randn() * sigma_g
+        self.sensors.gyro_y = self.msg_true_state.q + SENSOR.gyro_y_bias + np.random.randn() * sigma_g
+        self.sensors.gjyr_z = self.msg_true_state.r + SENSOR.gyro_z_bias + np.random.randn() * sigma_g
         self.sensors.accel_x = self._forces.item(0)/m  + g * np.sin(theta) + np.random.randn() * sigma_a
         self.sensors.accel_y = self._forces.item(1)/m - g * np.cos(theta) * np.sin(phi) + np.random.randn() * sigma_a
         self.sensors.accel_z = self._forces.item(2)/m - g * np.cos(theta) * np.cos(phi) + np.random.randn() * sigma_a
-        # self.sensors.static_pressure =
-        # self.sensors.diff_pressure = 0
+        self.sensors.static_pressure = rho * g * self.msg_true_state.h + np.random.randn() * SENSOR.static_pres_sigma
+        self.sensors.diff_pressure = (rho * self.msg_true_state.Va**2)/g + np.random.randn() * SENSOR.diff_pres_sigma
 
         # if self._t_gps >= SENSOR.ts_gps:
         #     self._gps_eta_n =
