@@ -94,19 +94,23 @@ class mav_dynamics:
         self.sensors.accel_z = self._forces.item(2)/m - g * np.cos(theta) * np.cos(phi) + np.random.randn() * sigma_a
         self.sensors.static_pressure = rho * g * self.msg_true_state.h + np.random.randn() * SENSOR.static_pres_sigma
         self.sensors.diff_pressure = (rho * self.msg_true_state.Va**2)/g + np.random.randn() * SENSOR.diff_pres_sigma
+        #Note: What to do with magnetometer
 
-        # if self._t_gps >= SENSOR.ts_gps:
-        #     self._gps_eta_n =
-        #     self._gps_eta_e =
-        #     self._gps_eta_h =
-        #     self.sensors.gps_n =
-        #     self.sensors.gps_e =
-        #     self.sensors.gps_h =
-        #     self.sensors.gps_Vg =
-        #     self.sensors.gps_course =
-        #     self._t_gps = 0.0
-        # else:
-        #     self._t_gps += self.ts_sim
+        if self._t_gps >= SENSOR.ts_gps:
+            k_gps = 1.0 / SENSOR.gps_beta
+            Ts = SENSOR.ts_gps
+
+            self._gps_eta_n = np.exp(k_gps * Ts) * self._gps_eta_n + np.random.randn() * SENSOR.gps_n_sigma
+            self._gps_eta_e = np.exp(k_gps * Ts) * self._gps_eta_e + np.random.randn() * SENSOR.gps_e_sigma
+            self._gps_eta_h = np.exp(k_gps * Ts) * self._gps_eta_h + np.random.randn() * SENSOR.gps_h_sigma
+            self.sensors.gps_n = self.msg_true_state.pn + self._gps_eta_n
+            self.sensors.gps_e = self.msg_true_state.pe + self._gps_eta_e
+            self.sensors.gps_h = self.msg_true_state.h + self._gps_eta_h
+            # self.sensors.gps_Vg =
+            # self.sensors.gps_course =
+            self._t_gps = 0.0
+        else:
+            self._t_gps += self.ts_sim
 
     ###################################
     # private functions
