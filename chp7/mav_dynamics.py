@@ -78,27 +78,33 @@ class mav_dynamics:
         self._update_msg_true_state()
 
     def updateSensors(self):
-        self.sensors.gyro_x =
-        self.sensors.gyro_y =
-        self.sensors.gjyr_z =
-        self.sensors.accel_x =
-        self.sensors.accel_y =
-        self.sensors.accel_z =
-        self.sensors.static_pressure =
-        self.sensors.diff_pressure = 0
+        theta = self.msg_true_state.theta
+        phi = self.msg_true_state.phi
+        g = MAV.gravity
+        m = MAV.mass
+        sigma_a = SENSOR.accel_sigma
 
-        if self._t_gps >= SENSOR.ts_gps:
-            self._gps_eta_n =
-            self._gps_eta_e =
-            self._gps_eta_h =
-            self.sensors.gps_n =
-            self.sensors.gps_e =
-            self.sensors.gps_h =
-            self.sensors.gps_Vg =
-            self.sensors.gps_course =
-            self._t_gps = 0.0
-        else:
-            self._t_gps += self.ts_sim
+        # self.sensors.gyro_x =
+        # self.sensors.gyro_y =
+        # self.sensors.gjyr_z =
+        self.sensors.accel_x = self._forces.item(0)/m  + g * np.sin(theta) + np.random.randn() * sigma_a
+        self.sensors.accel_y = self._forces.item(1)/m - g * np.cos(theta) * np.sin(phi) + np.random.randn() * sigma_a
+        self.sensors.accel_z = self._forces.item(2)/m - g * np.cos(theta) * np.cos(phi) + np.random.randn() * sigma_a
+        # self.sensors.static_pressure =
+        # self.sensors.diff_pressure = 0
+
+        # if self._t_gps >= SENSOR.ts_gps:
+        #     self._gps_eta_n =
+        #     self._gps_eta_e =
+        #     self._gps_eta_h =
+        #     self.sensors.gps_n =
+        #     self.sensors.gps_e =
+        #     self.sensors.gps_h =
+        #     self.sensors.gps_Vg =
+        #     self.sensors.gps_course =
+        #     self._t_gps = 0.0
+        # else:
+        #     self._t_gps += self.ts_sim
 
     ###################################
     # private functions
