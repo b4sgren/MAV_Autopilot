@@ -99,9 +99,9 @@ class mav_dynamics:
             k_gps = SENSOR.gps_beta
             Ts = SENSOR.ts_gps
 
-            self._gps_eta_n = np.exp(k_gps * Ts) * self._gps_eta_n + np.random.randn() * SENSOR.gps_n_sigma
-            self._gps_eta_e = np.exp(k_gps * Ts) * self._gps_eta_e + np.random.randn() * SENSOR.gps_e_sigma
-            self._gps_eta_h = np.exp(k_gps * Ts) * self._gps_eta_h + np.random.randn() * SENSOR.gps_h_sigma
+            self._gps_eta_n = np.exp(-k_gps * Ts) * self._gps_eta_n + np.random.randn() * SENSOR.gps_n_sigma
+            self._gps_eta_e = np.exp(-k_gps * Ts) * self._gps_eta_e + np.random.randn() * SENSOR.gps_e_sigma
+            self._gps_eta_h = np.exp(-k_gps * Ts) * self._gps_eta_h + np.random.randn() * SENSOR.gps_h_sigma
             self.sensors.gps_n = self.msg_true_state.pn + self._gps_eta_n
             self.sensors.gps_e = self.msg_true_state.pe + self._gps_eta_e
             self.sensors.gps_h = self.msg_true_state.h + self._gps_eta_h
