@@ -49,7 +49,7 @@ while sim_time < SIM.t_end:
     #---Get the wind here
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
-    # dyn.updatSensors()
+    dyn.updateSensors()
 
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
