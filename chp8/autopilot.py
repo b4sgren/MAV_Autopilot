@@ -71,7 +71,7 @@ class autopilot:
         h_c = cmd.altitude_command
         theta_c = self.altitude_from_pitch.update(h_c, state.h)
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
-        dcdelta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
 
         #for tuning
         # delta_e = AP.trim_input.item(0)
