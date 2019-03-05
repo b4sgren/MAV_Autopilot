@@ -8,15 +8,17 @@ import sys
 sys.path.append('..')
 import numpy as np
 
-from mav_viewer import MAV_Viewer
-from mav_dynamics import mav_dynamics as Dynamics
-import parameters.sim_params as SIM
 from messages.state_msg import StateMsg
 from messages.msg_autopilot import msg_autopilot
+
+import parameters.sim_params as SIM
+
+from mav_viewer import MAV_Viewer
+from mav_dynamics import mav_dynamics as Dynamics
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
-from tools.tools import Quaternion2Euler
 from autopilot import autopilot
+from oberver import observer
 from tools.signals import signals
 
 # initialize dynamics object
@@ -39,14 +41,17 @@ sim_time = SIM.t0
 # main simulation loop
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
-    #-------controller-------------
-    estimated_state = dyn.msg_true_state  # uses true states in the control
+    #-------autopilot commands-------------
     commands.airspeed_command = Va_command.square(sim_time)
     commands.course_command = chi_command.square(sim_time)
     commands.altitude_command = h_command.square(sim_time)
+
+    #-----controller-----------------
+    measurements = dyn.sensors
+    # estimated_state = obsv.update(measurements)  # uses true states in the control
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
-    #---Get the wind here
+    #---Update physical system ------------------
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()

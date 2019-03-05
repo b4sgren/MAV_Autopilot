@@ -8,9 +8,9 @@ import sys
 import numpy as np
 sys.path.append('..')
 import parameters.control_parameters as CTRL
-import parameters.simulation_parameters as SIM
+import parameters.sim_params as SIM
 import parameters.sensor_parameters as SENSOR
-from tools.rotations import Euler2Rotation
+from tools.tools import Euler2Rotation #Need to write this
 
 from message_types.msg_state import msg_state
 
@@ -205,7 +205,7 @@ class ekf_position:
                 Ci =
                 L =
                 self.P =
-                self.xhat = 
+                self.xhat =
             # update stored GPS signals
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e
