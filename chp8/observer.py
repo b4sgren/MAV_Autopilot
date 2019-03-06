@@ -138,7 +138,7 @@ class ekf_position:
         self.Q = np.diag([0.1, 0.1, 0.1, 0.1])
         self.R = = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
                             SENSORS.gps_course_sigma**2, SENSORS.gps_Vg_sigma**2])
-        self.N = 10  # number of prediction step per sample
+        self.N = 100  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
         self.xhat = np.array([0.0, 0.0, 0.0, 0.0])  #Not sure all of these should start at 0
         self.P = np.eye(4) * 0.1
