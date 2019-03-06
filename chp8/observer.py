@@ -94,7 +94,10 @@ class ekf_attitude:
 
     def f(self, x, state):
         # system dynamics for propagation model: xdot = f(x, u)
-        _f =
+        S = np.array([[1.0, np.sin(x[0]) * np.tan(x[1]), np.cos(x[0]) * np.tan(x[1])],
+                      [0.0, np.cos(x[0]), -np.sin(x[0])]])
+        u = np.array([state.p, state.q, state.r])
+        _f = S @ u
         return _f
 
     def h(self, x, state):
@@ -106,7 +109,7 @@ class ekf_attitude:
         # model propagation
         for i in range(0, self.N):
              # propagate model
-            self.xhat =
+            self.xhat = self.x_hat + self.Ts * _f(self.x_hat, state);
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
