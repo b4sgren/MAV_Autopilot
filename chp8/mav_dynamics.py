@@ -88,7 +88,7 @@ class mav_dynamics:
 
         self.sensors.gyro_x = self.msg_true_state.p + SENSOR.gyro_x_bias + np.random.randn() * sigma_g
         self.sensors.gyro_y = self.msg_true_state.q + SENSOR.gyro_y_bias + np.random.randn() * sigma_g
-        self.sensors.gjyr_z = self.msg_true_state.r + SENSOR.gyro_z_bias + np.random.randn() * sigma_g
+        self.sensors.gyro_z = self.msg_true_state.r + SENSOR.gyro_z_bias + np.random.randn() * sigma_g
         self.sensors.accel_x = self._forces.item(0)/m  + g * np.sin(theta) + np.random.randn() * sigma_a
         self.sensors.accel_y = self._forces.item(1)/m - g * np.cos(theta) * np.sin(phi) + np.random.randn() * sigma_a
         self.sensors.accel_z = self._forces.item(2)/m - g * np.cos(theta) * np.cos(phi) + np.random.randn() * sigma_a

@@ -10,6 +10,7 @@ sys.path.append('..')
 import parameters.control_parameters as CTRL
 import parameters.simulation_parameters as SIM
 import parameters.sensor_parameters as SENSOR
+import parameters.aerosonde_parameters as MAV
 from tools.rotations import Euler2Rotation
 
 from message_types.msg_state import msg_state
@@ -36,13 +37,15 @@ class observer:
     def update(self, measurements):
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
-        self.estimated_state.p =
-        self.estimated_state.q =
-        self.estimated_state.r =
+        self.estimated_state.p = self.lpf_gyro_y.update(measurements.gyro_x) - SENSOR.gyro_x_bias
+        self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y) - SENSOR.gyro_y_bias
+        self.estimated_state.r = self.lpg_gyro_z.update(measurements.gyro_z) - SENSOR.gyro_z_bias
 
         # invert sensor model to get altitude and airspeed
-        self.estimated_state.h =
-        self.estimated_state.Va =
+        g = MAV.gravity
+        rho = MAV.rho
+        self.estimated_state.h = measurements.static_pressure / (rho * gravity)
+        self.estimated_state.Va = np.sqrt((measurements.diff_pressure * g) / rho)
 
         # estimate phi and theta with simple ekf
         self.attitude_ekf.update(self.estimated_state, measurements)
@@ -50,12 +53,13 @@ class observer:
         # estimate pn, pe, Vg, chi, wn, we, psi
         self.position_ekf.update(self.estimated_state, measurements)
 
-        # not estimating these
+        # not estimating these. Why not?
         self.estimated_state.alpha = self.estimated_state.theta
         self.estimated_state.beta = 0.0
         self.estimated_state.bx = 0.0
         self.estimated_state.by = 0.0
         self.estimated_state.bz = 0.0
+        
         return self.estimated_state
 
 class alpha_filter:
@@ -75,7 +79,7 @@ class ekf_attitude:
         self.Q =
         self.Q_gyro =
         self.R_accel =
-        self.N =   # number of prediction step per sample
+        self.N = 10  # number of prediction step per sample
         self.xhat =  # initial state: phi, theta
         self.P =
         self.Ts = SIM.ts_control/self.N

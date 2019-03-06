@@ -23,7 +23,7 @@ mag_sigma = np.radians(0.03)
 
 #-------- GPS --------
 ts_gps = 1.0
-gps_beta = 1.0 / 1100.0  # 1 / s
+gps_beta = 1.0 / 1100.0
 gps_n_sigma = 0.21
 gps_e_sigma = 0.21
 gps_h_sigma = 0.40
