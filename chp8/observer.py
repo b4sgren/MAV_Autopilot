@@ -37,9 +37,11 @@ class observer:
     def update(self, measurements):
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
-        self.estimated_state.p = self.lpf_gyro_y.update(measurements.gyro_x) - SENSOR.gyro_x_bias
-        self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y) - SENSOR.gyro_y_bias
-        self.estimated_state.r = self.lpg_gyro_z.update(measurements.gyro_z) - SENSOR.gyro_z_bias
+        self.estimated_state.p = self.lpf_gyro_y.update(measurements.gyro_x - self.estimated_state.bx)
+        self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y - self.estimated_state.by)
+        self.estimated_state.r = self.lpg_gyro_z.update(measurements.gyro_z - self.estimated_state.bz)
+
+        #If I have time, try to implement the full state EKF instead of everything below
 
         # invert sensor model to get altitude and airspeed
         g = MAV.gravity
@@ -59,7 +61,7 @@ class observer:
         self.estimated_state.bx = 0.0
         self.estimated_state.by = 0.0
         self.estimated_state.bz = 0.0
-        
+
         return self.estimated_state
 
 class alpha_filter:
@@ -76,12 +78,12 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q =
-        self.Q_gyro =
-        self.R_accel =
+        self.Q = np.diag([0.1, 0.1]) # This is a tuning parameter
+        self.Q_gyro = SENSOR.gyro_sigma**2  # Is this actually R_gyro
+        self.R_accel = SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
-        self.xhat =  # initial state: phi, theta
-        self.P =
+        self.xhat = np.array([0.0, 0.0])  # initial state: phi, theta
+        self.P = np.eye(2) * 0.1  # Represents uncertainty in initial conditions
         self.Ts = SIM.ts_control/self.N
 
     def update(self, state, measurement):
@@ -133,12 +135,13 @@ class ekf_attitude:
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
-        self.Q =
-        self.R =
-        self.N =   # number of prediction step per sample
+        self.Q = np.diag([0.1, 0.1, 0.1, 0.1])
+        self.R = = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
+                            SENSORS.gps_course_sigma**2, SENSORS.gps_Vg_sigma**2])
+        self.N = 10  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
-        self.xhat =
-        self.P =
+        self.xhat = np.array([0.0, 0.0, 0.0, 0.0])  #Not sure all of these should start at 0
+        self.P = np.eye(4) * 0.1
         self.gps_n_old = 9999
         self.gps_e_old = 9999
         self.gps_Vg_old = 9999
