@@ -66,7 +66,7 @@ class alpha_filter:
         self.y = y0  # initial condition
 
     def update(self, u):
-        self.y =
+        self.y = self.alpha * self.y + (1.0 - alpha) * u
         return self.y
 
 class ekf_attitude:
@@ -124,7 +124,7 @@ class ekf_attitude:
                 Ci =
                 L =
                 self.P =
-                self.xhat =
+                self.xhat =0.0
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
@@ -205,7 +205,7 @@ class ekf_position:
                 Ci =
                 L =
                 self.P =
-                self.xhat = 
+                self.xhat =
             # update stored GPS signals
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e
