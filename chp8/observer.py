@@ -29,6 +29,7 @@ class observer:
         # use alpha filters to low pass filter static and differential pressure
         self.lpf_static = alpha_filter(alpha=0.9)
         self.lpf_diff = alpha_filter(alpha=0.5)
+
         # ekf for phi and theta
         # self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
@@ -46,8 +47,8 @@ class observer:
         # invert sensor model to get altitude and airspeed
         g = MAV.gravity
         rho = MAV.rho
-        self.estimated_state.h = measurements.static_pressure / (rho * g)
-        self.estimated_state.Va = np.sqrt((measurements.diff_pressure * g) / rho)
+        # self.estimated_state.h = measurements.static_pressure / (rho * g)
+        # self.estimated_state.Va = np.sqrt((measurements.diff_pressure * g) / rho)
 
         # estimate phi and theta with simple ekf
         # self.attitude_ekf.update(self.estimated_state, measurements)

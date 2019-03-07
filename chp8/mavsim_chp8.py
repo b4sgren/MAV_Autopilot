@@ -13,7 +13,7 @@ import parameters.sim_params as SIM
 from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
 from messages.msg_autopilot import msg_autopilot
-from messages.state_msg import StateMsg 
+from messages.state_msg import StateMsg
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
 from autopilot import autopilot
@@ -49,20 +49,20 @@ while sim_time < SIM.t_end:
     commands.altitude_command = h_command.square(sim_time)
 
     #-----------controller---------------------
+    dyn.updateSensors()
     measurements = dyn.sensors
     estimated_state =obsv.update(measurements)
     temp = dyn.msg_true_state
     temp.p = estimated_state.p
     temp.q = estimated_state.q
     temp.r = estimated_state.r
-    temp.h = estimated_state.h
-    temp.Va = estimated_state.Va
+    # temp.h = estimated_state.h
+    # temp.Va = estimated_state.Va
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
-    dyn.updateSensors()
 
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
