@@ -55,7 +55,7 @@ class observer:
         self.estimated_state.Va = np.sqrt((diff_p * g) / rho)
 
         # estimate phi and theta with simple ekf
-        # self.attitude_ekf.update(self.estimated_state, measurements)
+        self.attitude_ekf.update(self.estimated_state, measurements)
 
         # estimate pn, pe, Vg, chi, wn, we, psi
         # self.position_ekf.update(self.estimated_state, measurements)
@@ -103,7 +103,7 @@ class ekf_attitude:
         theta = x.item(1)
         S = np.array([[1.0, np.sin(phi) * np.tan(theta), np.cos(phi) * np.tan(theta)],
                       [0.0, np.cos(phi), -np.sin(phi)]])
-        u = np.array([state.p, state.q, state.r])
+        u = np.array([[state.p, state.q, state.r]]).T
 
         _f = S @ u
         return _f
@@ -115,7 +115,7 @@ class ekf_attitude:
         theta = x.item(1)
         phi = x.item(0)
         _h = np.array([state.q * Va * np.sin(theta) + g * np.sin(theta),
-                       state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * sin(phi),
+                       state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * np.sin(phi),
                        -state.q * Va * np.cos(theta) - g * np.cos(theta) * np.cos(phi)])
         return _h
 
@@ -136,7 +136,7 @@ class ekf_attitude:
             A_d = np.eye(2) + A * self.Ts + A**2 * (self.Ts**2)/2
             G_d = self.Ts * G
             # update P with discrete time model
-            self.P = A_d @ self.P & A_d.T + G_d @ self.Q_gyro @ G_d.T + slef.Q * self.Ts**2  # Is this last part necessary
+            self.P = A_d @ self.P @ A_d.T + G_d @ self.Q_gyro @ G_d.T + self.Q * self.Ts**2  # Is this last part necessary
 
     def measurement_update(self, state, measurement):
         # measurement updates
