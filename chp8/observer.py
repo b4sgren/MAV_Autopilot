@@ -35,16 +35,11 @@ class observer:
         self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
         # self.position_ekf = ekf_position()
-        self.bool = False
 
     def update(self, measurements):
         #probably want to do the lpf on accel  and pressure here
         static_p = self.lpf_static.update(measurements.static_pressure)
         diff_p = self.lpf_diff.update(measurements.diff_pressure)
-
-        if not self.bool:
-            print(diff_p)
-            self.bool = True
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
         self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x - self.estimated_state.bx)
