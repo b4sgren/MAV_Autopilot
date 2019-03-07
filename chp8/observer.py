@@ -32,7 +32,7 @@ class observer:
         self.lpf_diff = alpha_filter(alpha=0.5)
 
         # ekf for phi and theta
-        # self.attitude_ekf = ekf_attitude()
+        self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
         # self.position_ekf = ekf_position()
 
@@ -84,10 +84,10 @@ class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
         self.Q = np.diag([0.1, 0.1]) # This is a tuning parameter
-        self.Q_gyro = np.diag([0.1, 0.1])
+        self.Q_gyro = np.eye(3) * SENSOR.gyro_sigma**2
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
-        self.xhat = np.array([0.0, 0.0])  # initial state: phi, theta
+        self.xhat = np.array([[0.0], [0.0]])  # initial state: phi, theta
         self.P = np.eye(2) * 0.1  # Represents uncertainty in initial conditions
         self.Ts = SIM.ts_control/self.N
 
@@ -99,8 +99,10 @@ class ekf_attitude:
 
     def f(self, x, state):
         # system dynamics for propagation model: xdot = f(x, u)
-        S = np.array([[1.0, np.sin(x[0]) * np.tan(x[1]), np.cos(x[0]) * np.tan(x[1])],
-                      [0.0, np.cos(x[0]), -np.sin(x[0])]])
+        phi = x.item(0)
+        theta = x.item(1)
+        S = np.array([[1.0, np.sin(phi) * np.tan(theta), np.cos(phi) * np.tan(theta)],
+                      [0.0, np.cos(phi), -np.sin(phi)]])
         u = np.array([state.p, state.q, state.r])
 
         _f = S @ u
@@ -108,18 +110,25 @@ class ekf_attitude:
 
     def h(self, x, state):
         # measurement model y
-        _h = 0 #not real
+        g = MAV.gravity
+        Va = state.Va
+        theta = x.item(1)
+        phi = x.item(0)
+        _h = np.array([state.q * Va * np.sin(theta) + g * np.sin(theta),
+                       state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * sin(phi),
+                       -state.q * Va * np.cos(theta) - g * np.cos(theta) * np.cos(phi)])
         return _h
 
     def propagate_model(self, state):
         # model propagation
         for i in range(0, self.N):
              # propagate model
-            self.xhat = self.x_hat + self.Ts * _f(self.x_hat, state);
+            self.xhat = self.xhat + self.Ts * self.f(self.xhat, state);
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
-            G = np.eye(2) * SENSOR.gyro_sigma**2
+            G = np.array([[1.0, 0.0, 0.0], #Not sure what this matrix is supposed to be
+                          [0.0, 1.0, 0.0]])
 
             # update P with continuous time model
             # self.P = self.P + self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
@@ -135,12 +144,16 @@ class ekf_attitude:
         h = self.h(self.xhat, state)
         C = jacobian(self.h, self.xhat, state)
         y = np.array([measurement.accel_x, measurement.accel_y, measurement.accel_z])
-        for i in range(0, 3):
-            if np.abs(y[i]-h[i,0]) < threshold:
-                Ci = 0
-                L = 0
-                self.P = 0
-                self.xhat =0.0
+        L = self.P @ C.T @ np.linalg.inv(self.R_accel + C @ self.P @ C.T)
+
+        I = np.eye(2)
+        self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
+        # for i in range(0, 3):
+        #     if np.abs(y[i]-h[i,0]) < threshold:
+        #         Ci = C[i,:]
+        #         L = self.P @ Ci.T @ (self.R_accel[])
+        #         self.P = 0
+        #         self.xhat =0.0
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
