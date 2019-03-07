@@ -129,11 +129,13 @@ class ekf_attitude:
         for i in range(0, self.N):
              # propagate model
             self.xhat = self.xhat + self.Ts * self.f(self.xhat, state);
+            phi = self.xhat.item(0)
+            theta = self.xhat.item(1)
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
-            G = np.array([[1.0, 0.0, 0.0], #Not sure what this matrix is supposed to be
-                          [0.0, 1.0, 0.0]])
+            G = np.array([[1.0, np.sin(phi) * np.tan(theta), np.cos(phi) * np.tan(theta)],
+                          [0.0, np.cos(phi), -np.sin(phi)]])
 
             # update P with continuous time model
             # self.P = self.P + self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
@@ -141,7 +143,7 @@ class ekf_attitude:
             A_d = np.eye(2) + A * self.Ts + A**2 * (self.Ts**2)/2
             G_d = self.Ts * G
             # update P with discrete time model
-            self.P = A_d @ self.P @ A_d.T + G_d @ self.Q_gyro @ G_d.T + self.Q * self.Ts**2  # Is this last part necessary
+            self.P = A_d @ self.P @ A_d.T + G_d @ self.Q_gyro @ G_d.T + self.Q * self.Ts**2
 
     def measurement_update(self, state, measurement):
         # measurement updates
