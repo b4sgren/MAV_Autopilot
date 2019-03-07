@@ -49,7 +49,6 @@ while sim_time < SIM.t_end:
     commands.altitude_command = h_command.square(sim_time)
 
     #-----------controller---------------------
-    dyn.updateSensors()
     measurements = dyn.sensors
     estimated_state = obsv.update(measurements)
     temp = dyn.msg_true_state
@@ -66,6 +65,7 @@ while sim_time < SIM.t_end:
     #------------Physical System----------------------
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
+    dyn.updateSensors()
 
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
