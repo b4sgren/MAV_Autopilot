@@ -16,9 +16,8 @@ import parameters.aerosonde_parameters as MAV
 from messages.state_msg import StateMsg
 
 class observer:
-    def __init__(self, ts_control, state):
+    def __init__(self, ts_control):
         # initialized estimated state message
-        # self.estimated_state = state # works with this. not sure if I'm supposed to do this though
         self.estimated_state = StateMsg()
 
         # use alpha filters to low pass filter gyros and accels
@@ -39,6 +38,8 @@ class observer:
 
     def update(self, measurements):
         #probably want to do the lpf on accel  and pressure here
+        static_p = self.lpf_static.update(measurements.static_pressure)
+        diff_p = self.lpf_diff.update(measurements.diff_pressure)
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
         self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x - self.estimated_state.bx)
@@ -50,8 +51,8 @@ class observer:
         # invert sensor model to get altitude and airspeed
         g = MAV.gravity
         rho = MAV.rho
-        # self.estimated_state.h = measurements.static_pressure / (rho * g)
-        # self.estimated_state.Va = np.sqrt((measurements.diff_pressure * g) / rho)
+        self.estimated_state.h = static_p / (rho * g)
+        self.estimated_state.Va = np.sqrt((diff_p * g) / rho)
 
         # estimate phi and theta with simple ekf
         # self.attitude_ekf.update(self.estimated_state, measurements)
