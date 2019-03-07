@@ -35,11 +35,16 @@ class observer:
         self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
         # self.position_ekf = ekf_position()
+        self.bool = False
 
     def update(self, measurements):
         #probably want to do the lpf on accel  and pressure here
         static_p = self.lpf_static.update(measurements.static_pressure)
         diff_p = self.lpf_diff.update(measurements.diff_pressure)
+
+        if not self.bool:
+            print(diff_p)
+            self.bool = True
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
         self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x - self.estimated_state.bx)
@@ -114,9 +119,9 @@ class ekf_attitude:
         Va = state.Va
         theta = x.item(1)
         phi = x.item(0)
-        _h = np.array([state.q * Va * np.sin(theta) + g * np.sin(theta),
-                       state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * np.sin(phi),
-                       -state.q * Va * np.cos(theta) - g * np.cos(theta) * np.cos(phi)])
+        _h = np.array([[state.q * Va * np.sin(theta) + g * np.sin(theta)],
+                       [state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * np.sin(phi)],
+                       [-state.q * Va * np.cos(theta) - g * np.cos(theta) * np.cos(phi)]])
         return _h
 
     def propagate_model(self, state):
