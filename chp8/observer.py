@@ -18,9 +18,9 @@ from messages.state_msg import StateMsg
 class observer:
     def __init__(self, ts_control, state):
         # initialized estimated state message
-        # self.estimated_state = state # works with this
+        # self.estimated_state = state # works with this. not sure if I'm supposed to do this though
         self.estimated_state = StateMsg()
-        
+
         # use alpha filters to low pass filter gyros and accels
         self.lpf_gyro_x = alpha_filter(alpha=0.5)
         self.lpf_gyro_y = alpha_filter(alpha=0.5)
@@ -38,9 +38,10 @@ class observer:
         # self.position_ekf = ekf_position()
 
     def update(self, measurements):
+        #probably want to do the lpf on accel  and pressure here
 
         # estimates for p, q, r are low pass filter of gyro minus bias estimate
-        self.estimated_state.p = self.lpf_gyro_y.update(measurements.gyro_x - self.estimated_state.bx)
+        self.estimated_state.p = self.lpf_gyro_x.update(measurements.gyro_x - self.estimated_state.bx)
         self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y - self.estimated_state.by)
         self.estimated_state.r = self.lpf_gyro_z.update(measurements.gyro_z - self.estimated_state.bz)
 

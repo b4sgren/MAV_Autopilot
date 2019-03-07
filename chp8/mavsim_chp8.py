@@ -58,7 +58,8 @@ while sim_time < SIM.t_end:
     temp.r = estimated_state.r
     # temp.h = estimated_state.h
     # temp.Va = estimated_state.Va
-    delta, commanded_state = ctrl.update(commands, estimated_state)
+    # delta, commanded_state = ctrl.update(commands, estimated_state)
+    delta, commanded_state = ctrl.update(commands, temp)
 
     #------------Physical System----------------------
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
