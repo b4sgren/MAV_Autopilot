@@ -8,21 +8,23 @@ import sys
 sys.path.append('..')
 import numpy as np
 
+import parameters.sim_params as SIM
+
 from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
-import parameters.sim_params as SIM
-from messages.state_msg import StateMsg
 from messages.msg_autopilot import msg_autopilot
+from messages.state_msg import StateMsg 
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
-from tools.tools import Quaternion2Euler
 from autopilot import autopilot
+from observer import observer
 from tools.signals import signals
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 ctrl = autopilot(SIM.ts_sim)
+obsv = observer(SIM.ts_sim)
 
 # autopilot commands
 commands = msg_autopilot()
@@ -36,17 +38,28 @@ data_view = data_viewer()
 # initialize the simulation time
 sim_time = SIM.t0
 
+temp = StateMsg();
+
 # main simulation loop
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
-    #-------controller-------------
-    estimated_state = dyn.msg_true_state  # uses true states in the control
+    #-------get commanded values-------------
     commands.airspeed_command = Va_command.square(sim_time)
     commands.course_command = chi_command.square(sim_time)
     commands.altitude_command = h_command.square(sim_time)
+
+    #-----------controller---------------------
+    measurements = dyn.sensors
+    estimated_state =obsv.update(measurements)
+    temp = dyn.msg_true_state
+    temp.p = estimated_state.p
+    temp.q = estimated_state.q
+    temp.r = estimated_state.r
+    temp.h = estimated_state.h
+    temp.Va = estimated_state.Va
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
-    #---Get the wind here
+    #------------Physical System----------------------
     current_wind = np.zeros((6, 1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
@@ -54,7 +67,7 @@ while sim_time < SIM.t_end:
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
-                    dyn.msg_true_state,
+                    temp, #this will be estimated state
                     commanded_state,
                     SIM.ts_sim)
 
