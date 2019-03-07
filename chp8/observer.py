@@ -84,7 +84,7 @@ class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
         self.Q = np.diag([0.1, 0.1]) # This is a tuning parameter
-        self.Q_gyro = SENSOR.gyro_sigma**2  # Is this actually R_gyro
+        self.Q_gyro = np.diag([0.1, 0.1])
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
         self.xhat = np.array([0.0, 0.0])  # initial state: phi, theta
@@ -102,10 +102,8 @@ class ekf_attitude:
         S = np.array([[1.0, np.sin(x[0]) * np.tan(x[1]), np.cos(x[0]) * np.tan(x[1])],
                       [0.0, np.cos(x[0]), -np.sin(x[0])]])
         u = np.array([state.p, state.q, state.r])
-        xi_phi = np.random.randn() * self.Q[0,0]
-        xi_theta = np.random.randn() * self.Q[1,1]
 
-        _f = S @ u + np.array([xi_phi, xi_theta])
+        _f = S @ u
         return _f
 
     def h(self, x, state):
@@ -121,14 +119,15 @@ class ekf_attitude:
             # compute Jacobian
             A = jacobian(self.f, self.xhat, state)
             # compute G matrix for gyro noise
-            G = 0
+            G = np.eye(2) * SENSOR.gyro_sigma**2
+
             # update P with continuous time model
             # self.P = self.P + self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
             A_d = np.eye(2) + A * self.Ts + A**2 * (self.Ts**2)/2
-            G_d = 0
+            G_d = self.Ts * G
             # update P with discrete time model
-            self.P = A_d @ self.P & A_d.T + self.Ts**2 * self.Q
+            self.P = A_d @ self.P & A_d.T + G_d @ self.Q_gyro @ G_d.T + slef.Q * self.Ts**2  # Is this last part necessary
 
     def measurement_update(self, state, measurement):
         # measurement updates
