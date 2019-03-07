@@ -24,7 +24,7 @@ from tools.signals import signals
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 ctrl = autopilot(SIM.ts_sim)
-obsv = observer(SIM.ts_sim)
+obsv = observer(SIM.ts_sim, dyn.msg_true_state)
 
 # autopilot commands
 commands = msg_autopilot()
@@ -51,7 +51,7 @@ while sim_time < SIM.t_end:
     #-----------controller---------------------
     dyn.updateSensors()
     measurements = dyn.sensors
-    estimated_state =obsv.update(measurements)
+    estimated_state = obsv.update(measurements)
     temp = dyn.msg_true_state
     temp.p = estimated_state.p
     temp.q = estimated_state.q

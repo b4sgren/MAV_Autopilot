@@ -16,9 +16,11 @@ import parameters.aerosonde_parameters as MAV
 from messages.state_msg import StateMsg
 
 class observer:
-    def __init__(self, ts_control):
+    def __init__(self, ts_control, state):
         # initialized estimated state message
+        # self.estimated_state = state # works with this
         self.estimated_state = StateMsg()
+        
         # use alpha filters to low pass filter gyros and accels
         self.lpf_gyro_x = alpha_filter(alpha=0.5)
         self.lpf_gyro_y = alpha_filter(alpha=0.5)
