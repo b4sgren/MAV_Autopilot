@@ -213,7 +213,7 @@ class ekf_position:
         # always update based on wind triangle pseudo measurement
         h = self.h_pseudo(self.xhat, state)
         C = jacobian(self.h_pseudo, self.xhat, state)
-        y = np.array([0, 0])
+        y = np.array([0, 0]) #This is to estimate wn and we
         for i in range(0, 2):
             Ci = 0
             L = 0
