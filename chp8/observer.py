@@ -136,7 +136,7 @@ class ekf_attitude:
             # update P with continuous time model
             # self.P = self.P + self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
-            A_d = np.eye(2) + A * self.Ts + (A @ A) * (self.Ts**2)/2
+            A_d = np.eye(2) + A * self.Ts + (A @ A) * (self.Ts**2)/2.0
             G_d = self.Ts * G
             # update P with discrete time model
             # The G_d * Q_gyro * G_d.T is because we use a noisy measurement in G (see f()) and need to account for it
@@ -147,8 +147,10 @@ class ekf_attitude:
         threshold = 2.0
         h = self.h(self.xhat, state)
         C = jacobian(self.h, self.xhat, state)
-        y = np.array([measurement.accel_x, measurement.accel_y, measurement.accel_z])
+        y = np.array([[measurement.accel_x, measurement.accel_y, measurement.accel_z]]).T
         L = self.P @ C.T @ np.linalg.inv(self.R_accel + C @ self.P @ C.T)
+
+        # print(y.shape)
 
         # This seems to help but still doesn't work
         update = True;
@@ -157,7 +159,9 @@ class ekf_attitude:
                 update = False
 
         if update:
+            print('1', self.xhat.shape) # xhat becomes a 2x1 here
             self.xhat = self.xhat + L @ (y - C @ self.xhat)
+            print('2', self.xhat.shape) # xhat is a 2x3 here
             I = np.eye(2)
             self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
