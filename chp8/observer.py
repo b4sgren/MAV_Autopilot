@@ -158,12 +158,12 @@ class ekf_attitude:
             if np.abs(y[i] - h[i]) > threshold:
                 update = False
 
-        if update:
-            print('1', self.xhat.shape) # xhat becomes a 2x1 here
-            self.xhat = self.xhat + L @ (y - C @ self.xhat)
-            print('2', self.xhat.shape) # xhat is a 2x3 here
-            I = np.eye(2)
-            self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
+        # if update:
+        print('1', self.xhat.shape) # xhat becomes a 2x1 here
+        self.xhat = self.xhat + L @ (y - C @ self.xhat)
+        print('2', self.xhat.shape) # xhat is a 2x3 here
+        I = np.eye(2)
+        self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
