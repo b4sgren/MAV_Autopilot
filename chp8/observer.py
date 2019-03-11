@@ -113,8 +113,8 @@ class ekf_attitude:
         # measurement model y
         g = MAV.gravity
         Va = state.Va
-        theta = x.item(1)
         phi = x.item(0)
+        theta = x.item(1)
         _h = np.array([[state.q * Va * np.sin(theta) + g * np.sin(theta)],
                        [state.r * Va * np.cos(theta) - state.p * Va * np.sin(theta) - g * np.cos(theta) * np.sin(phi)],
                        [-state.q * Va * np.cos(theta) - g * np.cos(theta) * np.cos(phi)]])
@@ -150,9 +150,16 @@ class ekf_attitude:
         y = np.array([measurement.accel_x, measurement.accel_y, measurement.accel_z])
         L = self.P @ C.T @ np.linalg.inv(self.R_accel + C @ self.P @ C.T)
 
-        self.xhat = self.xhat + L @ (y - C @ self.xhat)
-        I = np.eye(2)
-        self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
+        # This seems to help but still doesn't work
+        update = True;
+        for i in range(h.shape[0]):
+            if np.abs(y[i] - h[i]) > threshold:
+                update = False
+
+        if update:
+            self.xhat = self.xhat + L @ (y - C @ self.xhat)
+            I = np.eye(2)
+            self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
