@@ -84,7 +84,7 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q = np.diag([1e-3, 1e-3]) # This is a tuning parameter
+        self.Q = np.diag([1e-9, 1e-9]) # This is a tuning parameter
         self.Q_gyro = np.eye(3) * SENSOR.gyro_sigma**2
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
@@ -150,6 +150,7 @@ class ekf_attitude:
         y = np.array([measurement.accel_x, measurement.accel_y, measurement.accel_z])
         L = self.P @ C.T @ np.linalg.inv(self.R_accel + C @ self.P @ C.T)
 
+        self.xhat = self.xhat + L @ (y - C @ self.xhat)
         I = np.eye(2)
         self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
