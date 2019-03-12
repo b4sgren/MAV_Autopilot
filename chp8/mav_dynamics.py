@@ -93,7 +93,7 @@ class mav_dynamics:
         self.sensors.accel_y = self._forces.item(1)/m - g * np.cos(theta) * np.sin(phi) + np.random.randn() * sigma_a
         self.sensors.accel_z = self._forces.item(2)/m - g * np.cos(theta) * np.cos(phi) + np.random.randn() * sigma_a
         self.sensors.static_pressure = rho * g * self.msg_true_state.h + np.random.randn() * SENSOR.static_pres_sigma
-        self.sensors.diff_pressure = (rho * self.msg_true_state.Va**2)/g + np.random.randn() * SENSOR.diff_pres_sigma
+        self.sensors.diff_pressure = (rho * self.msg_true_state.Va**2)/2.0 + np.random.randn() * SENSOR.diff_pres_sigma
 
         if self._t_gps >= SENSOR.ts_gps:
             k_gps = SENSOR.gps_beta

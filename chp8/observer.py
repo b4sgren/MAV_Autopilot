@@ -53,7 +53,7 @@ class observer:
         g = MAV.gravity
         rho = MAV.rho
         self.estimated_state.h = static_p / (rho * g)
-        self.estimated_state.Va = np.sqrt((diff_p * g) / rho)
+        self.estimated_state.Va = np.sqrt((diff_p * 2.0) / rho)
 
         # estimate phi and theta with simple ekf
         self.attitude_ekf.update(self.estimated_state, measurements)

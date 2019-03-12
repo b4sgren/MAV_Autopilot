@@ -57,8 +57,8 @@ while sim_time < SIM.t_end:
     temp.r = estimated_state.r
     temp.h = estimated_state.h
     temp.Va = estimated_state.Va
-    temp.phi = estimated_state.phi
-    temp.theta = estimated_state.theta
+    # temp.phi = estimated_state.phi
+    # temp.theta = estimated_state.theta
     # delta, commanded_state = ctrl.update(commands, estimated_state)
     delta, commanded_state = ctrl.update(commands, temp)
 
