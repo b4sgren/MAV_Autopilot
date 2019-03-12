@@ -47,7 +47,7 @@ class observer:
         self.estimated_state.q = self.lpf_gyro_y.update(measurements.gyro_y - self.estimated_state.by)
         self.estimated_state.r = self.lpf_gyro_z.update(measurements.gyro_z - self.estimated_state.bz)
 
-        #If I have time, try to implement the full state EKF instead of everything below
+        #See supplement for full ekf instead of cascaded ekf below
 
         # invert sensor model to get altitude and airspeed
         g = MAV.gravity
@@ -154,10 +154,11 @@ class ekf_attitude:
         theta_p = self.xhat.item(1)
         xhat_p = [phi_p, theta_p]
 
-        #Not sure this helps replacing the threshold thing
-        for i in range(h.shape[0]):
-            if np.abs(y[i] - h[i]) > threshold:
-                L[:,i] = np.zeros(2)
+        #Not sure this helps. Replacing the threshold thing
+        # for i in range(h.shape[0]):
+            # if np.abs(y[i] - h[i]) > threshold:
+                # L[:,i] = np.zeros(2)
+                # print(y[i]) # I get a lot of bad measurements
 
         self.xhat = self.xhat + L @ (y - C @ self.xhat)
         I = np.eye(2)
