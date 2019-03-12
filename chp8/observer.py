@@ -150,18 +150,16 @@ class ekf_attitude:
         y = np.array([[measurement.accel_x, measurement.accel_y, measurement.accel_z]]).T
         L = self.P @ C.T @ np.linalg.inv(self.R_accel + C @ self.P @ C.T)
 
-        # print(y.shape)
+        phi_p = self.xhat.item(0)
+        theta_p = self.xhat.item(1)
+        xhat_p = [phi_p, theta_p]
 
-        # This seems to help but still doesn't work
-        update = True;
+        #Not sure this helps replacing the threshold thing
         for i in range(h.shape[0]):
             if np.abs(y[i] - h[i]) > threshold:
-                update = False
+                L[:,i] = np.zeros(2)
 
-        # if update:
-        print('1', self.xhat.shape) # xhat becomes a 2x1 here
         self.xhat = self.xhat + L @ (y - C @ self.xhat)
-        print('2', self.xhat.shape) # xhat is a 2x3 here
         I = np.eye(2)
         self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
