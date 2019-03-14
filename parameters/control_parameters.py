@@ -38,10 +38,10 @@ zeta_chi = 0.8
 W = 8.0
 wn_chi = 1.0/W * wn_phi
 
-# course_kp = 0.35  #(2 * zeta_chi * wn_chi * Va0) / gravity 1.25
-# course_ki = 0.005  #(Va0 * wn_chi**2) / gravity 0.2
-course_kp = 1.25  #(2 * zeta_chi * wn_chi * Va0) / gravity 1.25
-course_ki = 0.2  #(Va0 * wn_chi**2) / gravity 0.2
+course_kp = 0.35  #(2 * zeta_chi * wn_chi * Va0) / gravity 1.25
+course_ki = 0.005  #(Va0 * wn_chi**2) / gravity 0.2
+# course_kp = 1.25  #(2 * zeta_chi * wn_chi * Va0) / gravity 1.25
+# course_ki = 0.2  #(Va0 * wn_chi**2) / gravity 0.2
 
 #----------sideslip loop-------------
 #I don't think I will be using these
