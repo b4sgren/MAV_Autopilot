@@ -89,7 +89,7 @@ class ekf_attitude:
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
         self.xhat = np.array([[0.0], [0.0]])  # initial state: phi, theta
-        self.P = np.eye(2) * 1  # Represents uncertainty in initial conditions
+        self.P = np.eye(2) * 0.01  # Represents uncertainty in initial conditions
         self.Ts = SIM.ts_control/self.N
 
     def update(self, state, measurement):

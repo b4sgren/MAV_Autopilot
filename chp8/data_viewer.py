@@ -122,6 +122,3 @@ class data_viewer:
 
         # increment time
         self.time += ts
-
-
-

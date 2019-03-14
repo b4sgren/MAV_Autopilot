@@ -20,6 +20,8 @@ from autopilot import autopilot
 from observer import observer
 from tools.signals import signals
 
+import copy
+
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
@@ -51,7 +53,7 @@ while sim_time < SIM.t_end:
     #-----------controller---------------------
     measurements = dyn.sensors
     estimated_state = obsv.update(measurements)
-    temp = dyn.msg_true_state
+    temp = copy.deepcopy(dyn.msg_true_state)
     temp.p = estimated_state.p
     temp.q = estimated_state.q
     temp.r = estimated_state.r
@@ -63,14 +65,14 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, temp)
 
     #------------Physical System----------------------
-    current_wind = wind.update(dyn._Va)
+    current_wind = np.zeros((6,1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
-                    temp, #this will be estimated state
+                    temp,
                     commanded_state,
                     SIM.ts_sim)
 
