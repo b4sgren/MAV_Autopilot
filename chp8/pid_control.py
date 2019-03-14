@@ -28,10 +28,11 @@ class pid_control:
     def update(self, y_ref, y, rad_flag=False):
         error = y_ref - y
         if(rad_flag):
-            while(error > np.pi):
+            while(error >= np.pi):
                 error -= 2 * np.pi
-            while(error <= -np.pi):
+            while(error < -np.pi):
                 error += 2 * np.pi
+            print(error)
 
         self.integrateError(error)
         self.differentiate(y)
