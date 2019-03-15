@@ -168,8 +168,9 @@ class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
         self.Q = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
-        self.R = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
+        self.R_gps = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
                             SENSORS.gps_course_sigma**2, SENSORS.gps_Vg_sigma**2])
+        self.R_pseudo = np.diag([0.05, 0.05]) # not sure what this should be exactly
         self.N = 25  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
         self.xhat = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]).T
@@ -208,23 +209,34 @@ class ekf_position:
         c_psi = np.cos(psi)
         s_psi = np.sin(psi)
 
+        psi_d = q * np.sin(phi)/np.cos(theta) + r * np.cos(phi)/np.cos(theta)
+
         _f = np.array([[Vg * np.cos(chi)],
                        [Vg * np.sin(chi)],
-                       [1.0/Vg * ((Va * c_psi + wn)*(-Va * r * s_psi) + (Va * s_psi + we)*(Va * r * c_psi)],
+                       [1.0/Vg * ((Va * c_psi + wn)*(-Va * psi_d * s_psi) + (Va * s_psi + we)*(Va * psi_d * c_psi)],
                        [g/Vg * np.tan(phi) * np.cos(chi - psi)],
                        [0],
                        [0],
-                       [q * np.sin(phi)/np.cos(theta) + r * np.cos(phi)/np.cos(theta)]])
+                       [psi_d]])
         return _f
 
     def h_gps(self, x, state):
         # measurement model for gps measurements
-        _h = 0
+        _h = x[0:4,0]
         return _h
 
     def h_pseudo(self, x, state):
         # measurement model for wind triangale pseudo measurement
-        _h = 0
+        Vg = x.item(2)
+        chi = x.item(3)
+        wn = x.item(4)
+        we = x.item(5)
+        psi = x.item(6)
+
+        Va = state.Va
+
+        _h = np.array([[Va * np.cos(psi) + wn - Vg * np.cos(chi)],
+                       [Va * np.sin(psi) + we - Vg * np.sin(chi)]])
         return _h
 
     def propagate_model(self, state):
@@ -246,11 +258,11 @@ class ekf_position:
         h = self.h_pseudo(self.xhat, state)
         C = jacobian(self.h_pseudo, self.xhat, state)
         y = np.array([0, 0]) #This is to estimate wn and we
-        for i in range(0, 2): # Just update all at once
-            Ci = 0
-            L = 0
-            self.P = 0
-            self.xhat = 0
+        L = self.P @ C.T @ (self.R_pseudo + C @ self.P @ C.T)
+
+        self.xhat = self.xhat + L @ (y - C @ self.xhat)
+        I = np.eye(7)
+        self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_pseudo @ L.T
 
         # only update GPS when one of the signals changes
         if (measurement.gps_n != self.gps_n_old) \
