@@ -273,12 +273,11 @@ class ekf_position:
             h = self.h_gps(self.xhat, state)
             C = jacobian(self.h_gps, self.xhat, state)
             y = np.array([measurement.gps_n, measurement.gps_e, measurement.gps_Vg, measurement.gps_course])
-            for i in range(0, 4): # Just update all at once
-                Ci = 0
-                L = 0
-                self.P = 0
-                self.xhat = 0
-            # update stored GPS signals
+            L = self.P @ C.T @ (self.R_gps + C @ self.P @ C.T)
+
+            self.xhat = self.xhat + L @ (y - C @ self.xhat)
+            self.P = (I - L @ C) @ self.P 2 (I - L @ C).T + L @ self.R_gps @ L.T
+
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e
             self.gps_Vg_old = measurement.gps_Vg
