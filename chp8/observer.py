@@ -154,12 +154,6 @@ class ekf_attitude:
         theta_p = self.xhat.item(1)
         xhat_p = [phi_p, theta_p]
 
-        #Not sure this helps. Replacing the threshold thing
-        # for i in range(h.shape[0]):
-            # if np.abs(y[i] - h[i]) > threshold:
-                # L[:,i] = np.zeros(2)
-                # print(y[i]) # I get a lot of bad measurements
-
         self.xhat = self.xhat + L @ (y - h)
         I = np.eye(2)
         self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
@@ -222,8 +216,7 @@ class ekf_position:
 
     def h_gps(self, x, state):
         # measurement model for gps measurements
-        _h = x[0:4, 0]
-        _h = _h.reshape((4,1))
+        _h = x[0:4, :]
         return _h
 
     def h_pseudo(self, x, state):
