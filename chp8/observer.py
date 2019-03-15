@@ -11,7 +11,7 @@ import parameters.control_parameters as CTRL
 import parameters.sim_params as SIM
 import parameters.sensor_parameters as SENSOR
 import parameters.aerosonde_parameters as MAV
-from tools.rotations import Euler2Rotation
+from tools.tools import Euler2Rotation
 
 from messages.state_msg import StateMsg
 
@@ -34,7 +34,7 @@ class observer:
         # ekf for phi and theta
         self.attitude_ekf = ekf_attitude()
         # ekf for pn, pe, Vg, chi, wn, we, psi
-        # self.position_ekf = ekf_position()
+        self.position_ekf = ekf_position()
 
     def update(self, measurements):
         #probably want to do the lpf on accel  and pressure here
@@ -59,7 +59,7 @@ class observer:
         self.attitude_ekf.update(self.estimated_state, measurements)
 
         # estimate pn, pe, Vg, chi, wn, we, psi
-        # self.position_ekf.update(self.estimated_state, measurements)
+        self.position_ekf.update(self.estimated_state, measurements)
 
         # not estimating these
         self.estimated_state.alpha = self.estimated_state.theta
@@ -84,12 +84,12 @@ class alpha_filter:
 class ekf_attitude:
     # implement continous-discrete EKF to estimate roll and pitch angles
     def __init__(self):
-        self.Q = np.diag([1e-9, 1e-9]) # This is a tuning parameter
+        self.Q = np.diag([1e-6, 1e-6]) # This is a tuning parameter
         self.Q_gyro = np.eye(3) * SENSOR.gyro_sigma**2
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
         self.xhat = np.array([[0.0], [0.0]])  # initial state: phi, theta
-        self.P = np.eye(2) * 0.1  # Represents uncertainty in initial conditions
+        self.P = np.diag([0.1, 0.1])  # Represents uncertainty in initial conditions
         self.Ts = SIM.ts_control/self.N
 
     def update(self, state, measurement):
@@ -160,21 +160,21 @@ class ekf_attitude:
                 # L[:,i] = np.zeros(2)
                 # print(y[i]) # I get a lot of bad measurements
 
-        self.xhat = self.xhat + L @ (y - C @ self.xhat)
+        self.xhat = self.xhat + L @ (y - h)
         I = np.eye(2)
         self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_accel @ L.T
 
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
-        self.Q = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
-        self.R_gps = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
-                            SENSORS.gps_course_sigma**2, SENSORS.gps_Vg_sigma**2])
-        self.R_pseudo = np.diag([0.05, 0.05]) # not sure what this should be exactly
+        self.Q = np.diag([0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01])
+        self.R_gps = np.diag([SENSOR.gps_n_sigma**2, SENSOR.gps_e_sigma**2,
+                            SENSOR.gps_Vg_sigma**2, SENSOR.gps_course_sigma**2])
+        self.R_pseudo = np.diag([0.01, 0.01]) # not sure what this should be exactly
         self.N = 25  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
-        self.xhat = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]).T
-        self.P = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        self.xhat = np.array([[0.0, 0.0, 25.0, 0.0, 0.0, 0.0, 0.0]]).T
+        self.P = np.diag([0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
         self.gps_n_old = 9999
         self.gps_e_old = 9999
         self.gps_Vg_old = 9999
@@ -213,7 +213,7 @@ class ekf_position:
 
         _f = np.array([[Vg * np.cos(chi)],
                        [Vg * np.sin(chi)],
-                       [1.0/Vg * ((Va * c_psi + wn)*(-Va * psi_d * s_psi) + (Va * s_psi + we)*(Va * psi_d * c_psi)],
+                       [1.0/Vg * ((Va * c_psi + wn)*(-Va * psi_d * s_psi) + (Va * s_psi + we)*(Va * psi_d * c_psi))],
                        [g/Vg * np.tan(phi) * np.cos(chi - psi)],
                        [0],
                        [0],
@@ -222,7 +222,8 @@ class ekf_position:
 
     def h_gps(self, x, state):
         # measurement model for gps measurements
-        _h = x[0:4,0]
+        _h = x[0:4, 0]
+        _h = _h.reshape((4,1))
         return _h
 
     def h_pseudo(self, x, state):
@@ -249,7 +250,7 @@ class ekf_position:
             # update P with continuous time model
             # self.P = self.P + self.Ts * (A @ self.P + self.P @ A.T + self.Q + G @ self.Q_gyro @ G.T)
             # convert to discrete time models
-            A_d = np.eye(4) + A * slef.Ts + A @ A * self.Ts**2 / 2.0
+            A_d = np.eye(7) + A * self.Ts + A @ A * self.Ts**2 / 2.0
             # update P with discrete time model
             self.P = A_d @ self.P @ A_d.T + self.Q * self.Ts**2
 
@@ -257,10 +258,10 @@ class ekf_position:
         # always update based on wind triangle pseudo measurement
         h = self.h_pseudo(self.xhat, state)
         C = jacobian(self.h_pseudo, self.xhat, state)
-        y = np.array([0, 0]) #This is to estimate wn and we
-        L = self.P @ C.T @ (self.R_pseudo + C @ self.P @ C.T)
+        y = np.array([[0, 0]]).T #This is to estimate wn and we
+        L = self.P @ C.T @ np.linalg.inv(self.R_pseudo + C @ self.P @ C.T)
 
-        self.xhat = self.xhat + L @ (y - C @ self.xhat)
+        self.xhat = self.xhat + L @ (y - h)
         I = np.eye(7)
         self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_pseudo @ L.T
 
@@ -272,11 +273,12 @@ class ekf_position:
 
             h = self.h_gps(self.xhat, state)
             C = jacobian(self.h_gps, self.xhat, state)
-            y = np.array([measurement.gps_n, measurement.gps_e, measurement.gps_Vg, measurement.gps_course])
-            L = self.P @ C.T @ (self.R_gps + C @ self.P @ C.T)
+            y = np.array([[measurement.gps_n, measurement.gps_e, measurement.gps_Vg, measurement.gps_course]]).T
+            L = self.P @ C.T @ np.linalg.inv(self.R_gps + C @ self.P @ C.T)
 
-            self.xhat = self.xhat + L @ (y - C @ self.xhat)
-            self.P = (I - L @ C) @ self.P 2 (I - L @ C).T + L @ self.R_gps @ L.T
+            y[3,0] = self.wrap(y[3,0], h[3,0])
+            self.xhat = self.xhat + L @ (y - h)
+            self.P = (I - L @ C) @ self.P @ (I - L @ C).T + L @ self.R_gps @ L.T
 
             self.gps_n_old = measurement.gps_n
             self.gps_e_old = measurement.gps_e

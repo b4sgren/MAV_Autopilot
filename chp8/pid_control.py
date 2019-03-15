@@ -32,7 +32,7 @@ class pid_control:
                 error -= 2 * np.pi
             while(error < -np.pi):
                 error += 2 * np.pi
-            print(error)
+            # print(error)
 
         self.integrateError(error)
         self.differentiate(y)

@@ -53,16 +53,24 @@ while sim_time < SIM.t_end:
     #-----------controller---------------------
     measurements = dyn.sensors
     estimated_state = obsv.update(measurements)
-    temp = copy.deepcopy(dyn.msg_true_state)
-    temp.p = estimated_state.p
-    temp.q = estimated_state.q
-    temp.r = estimated_state.r
-    temp.h = estimated_state.h
-    temp.Va = estimated_state.Va
-    temp.phi = estimated_state.phi
-    temp.theta = estimated_state.theta
-    # delta, commanded_state = ctrl.update(commands, estimated_state)
-    delta, commanded_state = ctrl.update(commands, temp)
+    # temp = copy.deepcopy(dyn.msg_true_state)
+    # temp.p = estimated_state.p
+    # temp.q = estimated_state.q
+    # temp.r = estimated_state.r
+    # temp.h = estimated_state.h
+    # temp.Va = estimated_state.Va
+    # temp.phi = estimated_state.phi
+    # temp.theta = estimated_state.theta
+    # temp.pn = estimated_state.pn
+    # temp.pe = estimated_state.pe
+    # temp.Vg = estimated_state.Vg
+    # temp.chi = estimated_state.chi
+    # temp.wn = estimated_state.wn
+    # temp.we = estimated_state.we
+    # temp.psi = estimated_state.psi
+
+    delta, commanded_state = ctrl.update(commands, estimated_state)
+    # delta, commanded_state = ctrl.update(commands, temp)
     # delta, commanded_state = ctrl.update(commands, dyn.msg_true_state)
 
     #------------Physical System----------------------
@@ -73,7 +81,7 @@ while sim_time < SIM.t_end:
     #-------update viewer---------------
     mav_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
-                    temp,
+                    estimated_state,
                     commanded_state,
                     SIM.ts_sim)
 
