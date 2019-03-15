@@ -42,6 +42,12 @@ def Quaternion2Rotation(e):
 
     return R
 
+def Euler2Rotation(phi, theta, psi):
+    q = Euler2Quaternion(phi, theta, psi)
+    R = Quaternion2Rotation(q)
+
+    return R
+
 if __name__ == "__main__":
     phi = np.pi/2.0
     theta = np.pi/6.0

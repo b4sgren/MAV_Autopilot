@@ -11,7 +11,7 @@ import parameters.control_parameters as CTRL
 import parameters.sim_params as SIM
 import parameters.sensor_parameters as SENSOR
 import parameters.aerosonde_parameters as MAV
-# from tools.rotations import Euler2Rotation # Need to write this
+from tools.rotations import Euler2Rotation
 
 from messages.state_msg import StateMsg
 
@@ -89,7 +89,7 @@ class ekf_attitude:
         self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
         self.N = 10  # number of prediction step per sample
         self.xhat = np.array([[0.0], [0.0]])  # initial state: phi, theta
-        self.P = np.eye(2) * 0.01  # Represents uncertainty in initial conditions
+        self.P = np.eye(2) * 0.1  # Represents uncertainty in initial conditions
         self.Ts = SIM.ts_control/self.N
 
     def update(self, state, measurement):
@@ -167,13 +167,13 @@ class ekf_attitude:
 class ekf_position:
     # implement continous-discrete EKF to estimate pn, pe, chi, Vg
     def __init__(self):
-        self.Q = np.diag([0.1, 0.1, 0.1, 0.1])
+        self.Q = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
         self.R = np.diag([SENSORS.gps_n_sigma**2, SENSORS.gps_e_sigma**2,
                             SENSORS.gps_course_sigma**2, SENSORS.gps_Vg_sigma**2])
         self.N = 25  # number of prediction step per sample
         self.Ts = (SIM.ts_control / self.N)
-        self.xhat = np.array([[0.0, 0.0, 0.0, 0.0]]).T  #Not sure all of these should start at 0
-        self.P = np.eye(4) * 0.1
+        self.xhat = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]).T
+        self.P = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
         self.gps_n_old = 9999
         self.gps_e_old = 9999
         self.gps_Vg_old = 9999
@@ -193,7 +193,28 @@ class ekf_position:
 
     def f(self, x, state):
         # system dynamics for propagation model: xdot = f(x, u)
-        _f = 0
+        q = state.q
+        r = state.r
+        theta = state.theta
+        phi = state.phi
+        Va = state.Va
+        g = MAV.gravity
+
+        Vg = x.item(2)
+        chi = x.item(3)
+        wn = x.item(4)
+        we = x.item(5)
+        psi = x.item(6)
+        c_psi = np.cos(psi)
+        s_psi = np.sin(psi)
+
+        _f = np.array([[Vg * np.cos(chi)],
+                       [Vg * np.sin(chi)],
+                       [1.0/Vg * ((Va * c_psi + wn)*(-Va * r * s_psi) + (Va * s_psi + we)*(Va * r * c_psi)],
+                       [g/Vg * np.tan(phi) * np.cos(chi - psi)],
+                       [0],
+                       [0],
+                       [q * np.sin(phi)/np.cos(theta) + r * np.cos(phi)/np.cos(theta)]])
         return _f
 
     def h_gps(self, x, state):
@@ -225,7 +246,7 @@ class ekf_position:
         h = self.h_pseudo(self.xhat, state)
         C = jacobian(self.h_pseudo, self.xhat, state)
         y = np.array([0, 0]) #This is to estimate wn and we
-        for i in range(0, 2):
+        for i in range(0, 2): # Just update all at once
             Ci = 0
             L = 0
             self.P = 0
@@ -240,7 +261,7 @@ class ekf_position:
             h = self.h_gps(self.xhat, state)
             C = jacobian(self.h_gps, self.xhat, state)
             y = np.array([measurement.gps_n, measurement.gps_e, measurement.gps_Vg, measurement.gps_course])
-            for i in range(0, 4):
+            for i in range(0, 4): # Just update all at once
                 Ci = 0
                 L = 0
                 self.P = 0

@@ -63,6 +63,7 @@ while sim_time < SIM.t_end:
     temp.theta = estimated_state.theta
     # delta, commanded_state = ctrl.update(commands, estimated_state)
     delta, commanded_state = ctrl.update(commands, temp)
+    # delta, commanded_state = ctrl.update(commands, dyn.msg_true_state)
 
     #------------Physical System----------------------
     current_wind = np.zeros((6,1)) # wind.update(dyn._Va)
