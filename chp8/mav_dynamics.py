@@ -185,6 +185,8 @@ class mav_dynamics:
         self.msg_true_state.beta = self._beta  # see line 167 updateVelocityData
         self.msg_true_state.Vg = np.linalg.norm(self._state[3:6])
         self.calcGammaAndChi()
+        self.msg_true_state.wn = self._wind.item(0)
+        self.msg_true_state.we = self._wind.item(1)
 
     def calcGammaAndChi(self):
         Rv_b = Quaternion2Rotation(self._state[6:10])
