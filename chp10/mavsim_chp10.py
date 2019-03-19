@@ -45,8 +45,8 @@ else:
     path.orbit_radius = 300.0
     path.orbit_direction = 'CW'
 
-mav_view = MAV_Viewer()
-#path_view = path_viewer()
+# mav_view = MAV_Viewer()
+path_view = path_viewer()
 data_view = data_viewer()
 
 # initialize the simulation time
@@ -71,8 +71,8 @@ while sim_time < SIM.t_end:
     dyn.updateSensors()
 
     #-------update viewer---------------
-    mav_view.update(dyn.msg_true_state)
-    # path_view.update(dyn.msg_true_state)
+    # mav_view.update(dyn.msg_true_state)
+    path_view.update(dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
                     estimated_state,
                     commanded_state,
