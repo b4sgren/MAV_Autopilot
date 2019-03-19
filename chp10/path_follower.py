@@ -3,7 +3,7 @@ from math import sin, cos, atan, atan2
 import sys
 
 sys.path.append('..')
-from message_types.msg_autopilot import msg_autopilot
+from messages.msg_autopilot import msg_autopilot
 
 class path_follower:
     def __init__(self):
@@ -38,4 +38,3 @@ class path_follower:
         while chi_c-chi < -np.pi:
             chi_c = chi_c + 2.0 * np.pi
         return chi_c
-

@@ -1,7 +1,7 @@
 """
 mavsimPy: path drawing function
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         1/8/2019 - RWB
 """
 import sys
@@ -12,7 +12,7 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
 
-from tools.rotations import Euler2Rotation
+from tools.tools import Euler2Rotation
 
 class path_viewer():
     def __init__(self):
@@ -229,4 +229,3 @@ class path_viewer():
                                    antialias=True,
                                    mode='line_strip')
         return object
-
