@@ -9,7 +9,7 @@ class path_follower:
     def __init__(self):
         self.chi_inf = np.radians(80)   # approach angle for large distance from straight-line path
         self.k_path = 0.02  # proportional gain for straight-line path following
-        self.k_orbit =  0.05 # proportional gain for orbit following
+        self.k_orbit =  0.5 # proportional gain for orbit following
         self.gravity = 9.8
         self.autopilot_commands = msg_autopilot()  # message sent to autopilot
 
@@ -58,10 +58,30 @@ class path_follower:
         self.autopilot_commands.phi_feedforward = np.radians(0.0)
 
     def _follow_orbit(self, path, state):
-        self.autopilot_commands.airspeed_command = 0.0
-        self.autopilot_commands.course_command = 0.0
-        self.autopilot_commands.altitude_command = 0.0
-        self.autopilot_commands.phi_feedforward = np.radians(0.0)
+        Vg = state.Vg
+        psi = state.psi
+        chi = state.chi
+        p = np.array([[state.pn, state.pe, -state.h]])
+        d = p - path.orbit_center
+        d_norm = np.linalg.norm(d)
+        R = path.orbit_radius
+        if path.orbit_direction == 'CW':
+            dir = 1
+        else:
+            dir = -1
+
+        #Calculate chi_commanded
+        var_phi = atan2(d.item(1), d.item(0))
+        chi0 = var_phi + dir * np.pi/2.0
+        chi_c = chi0 + dir * atan(self.k_orbit * (d_norm - R)/R)
+
+        #Calculate phi_ff
+        phi_ff = atan(Vg**2 / (self.gravity * R * cos(chi - psi)))
+
+        self.autopilot_commands.airspeed_command = 25.0
+        self.autopilot_commands.course_command = chi_c
+        self.autopilot_commands.altitude_command = -path.orbit_center.item(2)
+        self.autopilot_commands.phi_feedforward = phi_ff
 
     def _wrap(self, chi_c, chi):
         while chi_c-chi > np.pi:

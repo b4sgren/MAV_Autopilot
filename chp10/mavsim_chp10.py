@@ -33,7 +33,7 @@ path_follow = path_follower()
 #path definition
 path = msg_path()
 path.flag = 'line'
-#path.flag = 'orbit'
+path.flag = 'orbit'
 
 if path.flag == 'line':
     path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
@@ -64,7 +64,7 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
-    current_wind =  wind.update(dyn._Va)
+    current_wind =  np.zeros((6,1))  # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 
