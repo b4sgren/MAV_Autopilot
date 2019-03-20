@@ -14,14 +14,13 @@ from messages.msg_autopilot import msg_autopilot
 from messages.state_msg import StateMsg
 from messages.msg_path import msg_path
 
-# from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
 from autopilot import autopilot
 from observer import observer
 from tools.signals import signals
-from path_viewer import path_viewer # does this replace MAV_Viewer
+from path_viewer import path_viewer
 from path_follower import path_follower
 
 # initialize dynamics object
@@ -45,7 +44,6 @@ else:
     path.orbit_radius = 300.0
     path.orbit_direction = 'CW'
 
-# mav_view = MAV_Viewer()
 path_view = path_viewer()
 data_view = data_viewer()
 
@@ -71,7 +69,6 @@ while sim_time < SIM.t_end:
     dyn.updateSensors()
 
     #-------update viewer---------------
-    # mav_view.update(dyn.msg_true_state)
     path_view.update(path, dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
                     estimated_state,
