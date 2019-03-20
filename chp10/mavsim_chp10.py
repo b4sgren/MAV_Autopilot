@@ -33,16 +33,16 @@ path_follow = path_follower()
 #path definition
 path = msg_path()
 path.flag = 'line'
-path.flag = 'orbit'
+# path.flag = 'orbit'
 
 if path.flag == 'line':
     path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
-    path.line_direction = np.array([[0.5, 1.0, 0.0]]).T
+    path.line_direction = np.array([[0.5, 1.0, -0.5]]).T
     path.line_direction = path.line_direction / np.linalg.norm(path.line_direction)
 else:
     path.orbit_center = np.array([[0.0, 0.0, -100.0]]).T
     path.orbit_radius = 300.0
-    path.orbit_direction = 'CW'
+    path.orbit_direction = 'CCW'
 
 path_view = path_viewer()
 data_view = data_viewer()
@@ -64,7 +64,7 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
-    current_wind =  np.zeros((6,1))  # wind.update(dyn._Va)
+    current_wind = wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 
