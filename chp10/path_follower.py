@@ -37,9 +37,9 @@ class path_follower:
         ep = R_i2p @ e
         epy = ep.item(1)
 
-        print(q.shape)
         temp = np.cross(q.reshape(3), np.array([0, 0, 1]))
         n = temp / np.linalg.norm(temp)
+        n = n.reshape((3,1))
         s = e - (e.T @ n) * n
 
         chi_d = self.chi_inf * (2./np.pi) * atan(self.k_path * epy)
@@ -49,9 +49,12 @@ class path_follower:
         # Altitude command
         ss = np.sqrt(s.item(0)**2 + s.item(1)**2) #not the correct s
         qs = np.sqrt(q.item(0)**2 + q.item(1)**2)
-        sd = q.item(2) / qs * s
+        sd = q.item(2) / qs * ss
 
         hc = -path.line_origin.item(2) + sd
+
+        # print(hc)
+        # print(chi_c)
 
         self.autopilot_commands.airspeed_command = 25.0 #Is there a way to calculate this?
         self.autopilot_commands.course_command = chi_c
