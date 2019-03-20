@@ -14,22 +14,22 @@ from messages.msg_autopilot import msg_autopilot
 from messages.state_msg import StateMsg
 from messages.msg_path import msg_path
 
-from mav_viewer import MAV_Viewer
+# from mav_viewer import MAV_Viewer
 from mav_dynamics import mav_dynamics as Dynamics
 from data_viewer import data_viewer
 from wind_simulation import wind_simulation
 from autopilot import autopilot
 from observer import observer
 from tools.signals import signals
-#from path_viewer import path_viewer # does this replace MAV_Viewer
-#from path_follower import path_follower
+from path_viewer import path_viewer # does this replace MAV_Viewer
+from path_follower import path_follower
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
 ctrl = autopilot(SIM.ts_sim)
 obsv = observer(SIM.ts_sim)
-#path_follow = path_follower()
+path_follow = path_follower()
 
 #path definition
 path = msg_path()
@@ -66,13 +66,13 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
-    current_wind = wind.update(dyn._Va)
+    current_wind = np.zeros((6,1))  # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 
     #-------update viewer---------------
     # mav_view.update(dyn.msg_true_state)
-    path_view.update(dyn.msg_true_state)
+    path_view.update(path, dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
                     estimated_state,
                     commanded_state,
