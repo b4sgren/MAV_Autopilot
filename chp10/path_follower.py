@@ -23,10 +23,8 @@ class path_follower:
     def _follow_straight_line(self, path, state):
         Vg = state.Vg
         chi = state.chi
-        qn = path.line_direction.item(0)
-        qe = path.line_direction.item(1)
-        qd = path.line_direction.item(2)
-        chi_q = atan2(qe, qn)
+        q = np.array([[path.line_direction.item(0), path.line_direction.item(1), path.line_direction.item(2)]]).T
+        chi_q = atan2(q.item(1), q.item(0))
 
         R_i2p = np.array([[cos(chi_q), sin(chi_q), 0],
                           [-sin(chi_q), cos(chi_q), 0],
@@ -35,18 +33,23 @@ class path_follower:
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
         # chi_command
-        e = R_i2p @ (p - r)
-        epy = e.item(1)
+        e = p - r
+        ep = R_i2p @ e
+        epy = ep.item(1)
+
+        print(q.shape)
+        temp = np.cross(q.reshape(3), np.array([0, 0, 1]))
+        n = temp / np.linalg.norm(temp)
+        s = e - (e.T @ n) * n
 
         chi_d = self.chi_inf * (2./np.pi) * atan(self.k_path * epy)
         chi_d = self._wrap(chi_d, chi_q)
         chi_c = chi_q - chi_d
 
         # Altitude command
-        s = np.sqrt(e.item(0)**2 + e.item(1)**2)
-        q = np.sqrt(qn**2 + qe**2)
-
-        sd = qd / q * s
+        ss = np.sqrt(s.item(0)**2 + s.item(1)**2) #not the correct s
+        qs = np.sqrt(q.item(0)**2 + q.item(1)**2)
+        sd = q.item(2) / qs * s
 
         hc = -path.line_origin.item(2) + sd
 
