@@ -25,6 +25,7 @@ class path_follower:
         chi = state.chi
         q = np.array([[path.line_direction.item(0), path.line_direction.item(1), path.line_direction.item(2)]]).T
         chi_q = atan2(q.item(1), q.item(0))
+        chi_q = self._wrap(chi_q, chi)
 
         R_i2p = np.array([[cos(chi_q), sin(chi_q), 0],
                           [-sin(chi_q), cos(chi_q), 0],
@@ -38,7 +39,6 @@ class path_follower:
         epy = ep.item(1)
 
         chi_d = self.chi_inf * (2./np.pi) * atan(self.k_path * epy)
-        chi_d = self._wrap(chi_d, chi_q)
         chi_c = chi_q - chi_d
 
         # Altitude command
