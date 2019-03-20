@@ -50,7 +50,7 @@ class path_follower:
         qs = np.sqrt(q.item(0)**2 + q.item(1)**2)
         sd = q.item(2) / qs * ss
 
-        hc = -path.line_origin.item(2) + sd
+        hc = -path.line_origin.item(2) - sd
 
         self.autopilot_commands.airspeed_command = 25.0 #Is there a way to calculate this?
         self.autopilot_commands.course_command = chi_c
