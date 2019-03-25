@@ -33,7 +33,7 @@ path_follow = path_follower()
 #path definition
 path = msg_path()
 path.flag = 'line'
-# path.flag = 'orbit'
+path.flag = 'orbit'
 
 if path.flag == 'line':
     path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
