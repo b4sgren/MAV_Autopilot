@@ -42,9 +42,9 @@ class path_follower:
         chi_c = chi_q - chi_d
 
         # Altitude command
-        temp = np.cross(q.reshape(3), np.array([0, 0, 1]))
+        temp = np.cross(q.reshape(3), np.array([0, 0, 1])).reshape((3,1))
         n = temp / np.linalg.norm(temp)
-        s = e - (e.T @ n) * n
+        s = e - (e.T @ n) * n # s is a 3x3 matrix
 
         ss = np.sqrt(s.item(0)**2 + s.item(1)**2)
         qs = np.sqrt(q.item(0)**2 + q.item(1)**2)
