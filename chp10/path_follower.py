@@ -7,9 +7,9 @@ from messages.msg_autopilot import msg_autopilot
 
 class path_follower:
     def __init__(self):
-        self.chi_inf = np.radians(80)   # approach angle for large distance from straight-line path
-        self.k_path = 0.002  # proportional gain for straight-line path following 0.02
-        self.k_orbit =  1.5 # proportional gain for orbit following 2.5
+        self.chi_inf = np.radians(60)   # approach angle for large distance from straight-line path
+        self.k_path = 0.05  # proportional gain for straight-line path following 0.02
+        self.k_orbit =  0.75 # proportional gain for orbit following 2.5
         self.gravity = 9.8
         self.autopilot_commands = msg_autopilot()  # message sent to autopilot
 
@@ -44,7 +44,7 @@ class path_follower:
         # Altitude command
         temp = np.cross(q.reshape(3), np.array([0, 0, 1])).reshape((3,1))
         n = temp / np.linalg.norm(temp)
-        s = e - (e.T @ n) * n # s is a 3x3 matrix
+        s = e - (e.T @ n) * n
 
         ss = np.sqrt(s.item(0)**2 + s.item(1)**2)
         qs = np.sqrt(q.item(0)**2 + q.item(1)**2)
@@ -52,7 +52,7 @@ class path_follower:
 
         hc = -path.line_origin.item(2) - sd
 
-        self.autopilot_commands.airspeed_command = 25.0 #Is there a way to calculate this?
+        self.autopilot_commands.airspeed_command = path.airspeed
         self.autopilot_commands.course_command = chi_c
         self.autopilot_commands.altitude_command = hc
         self.autopilot_commands.phi_feedforward = np.radians(0.0)
