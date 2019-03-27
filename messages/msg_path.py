@@ -1,7 +1,7 @@
 """
 msg_path
     - messages type for input to path follower
-    
+
 part of mavsim_python
     - Beard & McLain, PUP, 2012
     - Last update:
@@ -25,3 +25,4 @@ class msg_path:
         self.orbit_radius = 50
         # orbit direction: 'CW'==clockwise, 'CCW'==counter clockwise
         self.orbit_direction = 'CW'
+        self.flag_path_changed = True

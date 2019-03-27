@@ -35,7 +35,7 @@ class path_manager:
 
     def line_manager(self, waypoints, state):
         qi = waypoints.ned[:, self.ptr_next] - waypoints.ned[:, self.ptr_current]
-        qi = qi / np.linalg.norm(qi)
+        qi = qi / np.linalg.norm(qi) # issue here
         q_prev = waypoints.ned[:, self.ptr_current] - waypoints.ned[:, self.ptr_previous]
         q_prev = q_prev / np.linalg.norm(q_prev)
         # print(qi)
@@ -54,11 +54,14 @@ class path_manager:
             self.path.airspeed = waypoints.airspeed.item(self.ptr_next)
             self.line_origin = waypoints.ned[:, self.ptr_current].reshape((3,1))
             self.line_direction = qi.reshape((3,1))
+            self.path.flag_path_changed = True
 
             if not self.ptr_current == self.num_waypoints-1:
                 self.ptr_previous += 1
                 self.ptr_current += 1
                 self.ptr_next += 1
+        else:
+            self.path.flag_path_changed = False
 
 
 
