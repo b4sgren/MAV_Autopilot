@@ -25,6 +25,9 @@ class path_manager:
         # self.dubins_path = dubins_parameters()
 
     def update(self, waypoints, radius, state):
+        #check if waypoints change and reinitialize
+        self.num_waypoints = waypoints.num_waypoints
+
         if waypoints.type == 'straight_line':
             self.line_manager(waypoints, state)
         elif waypoints.type == 'fillet':
@@ -40,7 +43,7 @@ class path_manager:
         qi = qi / np.linalg.norm(qi) # issue here
         q_prev = waypoints.ned[:, self.ptr_current] - waypoints.ned[:, self.ptr_previous]
         q_prev = q_prev / np.linalg.norm(q_prev)
-        print(q_prev)
+        # print(q_prev)
 
         n = q_prev + qi
         self.halfspace_n = (n / np.linalg.norm(n)).reshape((3,1))
@@ -48,7 +51,7 @@ class path_manager:
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
         crossed = self.inHalfSpace(p)
-        print(crossed)
+        # print(crossed)
 
         if crossed:
             self.path.flag = 'line'
@@ -57,14 +60,11 @@ class path_manager:
             self.line_direction = qi.reshape((3,1))
             self.path.flag_path_changed = True
 
-            if  self.ptr_current < self.num_waypoints-1: # put in function
-                self.ptr_previous += 1
-                self.ptr_current += 1
-                self.ptr_next += 1
+            self.increment_pointers()
         else:
             self.path.flag_path_changed = False
             self.path.flag = 'line'
-            self.path.airspeed = waypoints.airspeed.item(self.ptr)
+            self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
             self.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
             self.line_direction = q_prev.reshape((3,1))
 
@@ -77,10 +77,15 @@ class path_manager:
         debug = 1
 
     def initialize_pointers(self):
-        debug = 1
+        self.ptr_previous = 0
+        self.ptr_current = 1
+        self.ptr_next = 2
 
     def increment_pointers(self):
-        debug = 1
+        if  self.ptr_current < self.num_waypoints-1: # put in function
+            self.ptr_previous += 1
+            self.ptr_current += 1
+            self.ptr_next += 1
 
     def inHalfSpace(self, pos):
         if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
