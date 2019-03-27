@@ -40,16 +40,15 @@ class path_manager:
         qi = qi / np.linalg.norm(qi) # issue here
         q_prev = waypoints.ned[:, self.ptr_current] - waypoints.ned[:, self.ptr_previous]
         q_prev = q_prev / np.linalg.norm(q_prev)
-        # print(qi)
-        # print(q_prev)
+        print(q_prev)
 
         n = q_prev + qi
-        # print(n/np.linalg.norm(n))
         self.halfspace_n = (n / np.linalg.norm(n)).reshape((3,1))
         self.halfspace_r = waypoints.ned[:, self.ptr_previous].reshape((3,1))
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
         crossed = self.inHalfSpace(p)
+        print(crossed)
 
         if crossed:
             self.path.flag = 'line'
@@ -58,12 +57,16 @@ class path_manager:
             self.line_direction = qi.reshape((3,1))
             self.path.flag_path_changed = True
 
-            if not self.ptr_current == self.num_waypoints-1:
+            if  self.ptr_current < self.num_waypoints-1:
                 self.ptr_previous += 1
                 self.ptr_current += 1
                 self.ptr_next += 1
         else:
             self.path.flag_path_changed = False
+            self.path.flag = 'line'
+            self.path.airspeed = waypoints.airspeed.item(self.ptr)
+            self.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
+            self.line_direction = q_prev.reshape((3,1))
 
 
 
