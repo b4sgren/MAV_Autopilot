@@ -1,7 +1,7 @@
 """
 mavsim_python: waypoitn viewer (for chapter 11)
     - Beard & McLain, PUP, 2012
-    - Update history:  
+    - Update history:
         3/26/2019 - RWB
 """
 import sys
@@ -12,8 +12,8 @@ import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import pyqtgraph.Vector as Vector
 
-from tools.rotations import Euler2Rotation
-from chap11.dubins_parameters import dubins_parameters
+from tools.tools import Euler2Rotation
+# from dubins_parameters import dubins_parameters
 
 class waypoint_viewer():
     def __init__(self):
@@ -34,7 +34,7 @@ class waypoint_viewer():
         # get points that define the non-rotated, non-translated mav and the mesh colors
         self.mav_points, self.mav_meshColors = self.get_mav_points()
         # dubins path parameters
-        self.dubins_path = dubins_parameters()
+        # self.dubins_path = dubins_parameters()
         self.mav_body = []
 
     ###################################
@@ -347,7 +347,3 @@ class waypoint_viewer():
             points = np.concatenate((points, new_point), axis=0)
 
         return points
-
-
-
-

@@ -1,8 +1,8 @@
 import numpy as np
 import sys
 sys.path.append('..')
-from chap11.dubins_parameters import dubins_parameters
-from message_types.msg_path import msg_path
+# from dubins_parameters import dubins_parameters
+from messages.msg_path import msg_path
 
 class path_manager:
     def __init__(self):
@@ -20,7 +20,7 @@ class path_manager:
         # state of the manager state machine
         self.manager_state = 1
         # dubins path parameters
-        self.dubins_path = dubins_parameters()
+        # self.dubins_path = dubins_parameters()
 
     def update(self, waypoints, radius, state):
         if waypoints.type == 'straight_line':
@@ -34,7 +34,30 @@ class path_manager:
         return self.path
 
     def line_manager(self, waypoints, state):
-        debug = 1
+        qi = waypoints.ned[:, self.ptr_next] - waypoints.ned[:, self.ptr_current]
+        qi = qi / np.linalg.norm(qi)
+        q_prev = waypoints.ned[:, self.ptr_current] - waypoints.ned[:, self.ptr_previous]
+        q_prev = q_prev / np.linalg.norm(q_prev)
+
+        n = q_prev + qi
+        self.halfspace_n = n / np.linalg.norm(n).reshape((3,1))
+        self.halfspace_r = waypoints.ned[:, self.ptr_previous].reshape((3,1))
+        p = np.array([[state.pn, state.pe, -state.h]]).T
+
+        crossed = self.inHalfSpace(p)
+
+        if crossed:
+            self.path.flag = 'line'
+            self.path.airspeed = waypoints.airspeed.item(self.ptr_next)
+            self.line_origin = waypoints.nedp[:, self.ptr_current].reshape((3,1))
+            self.line_direction = qi.reshape((3,1))
+
+            if not self.ptr_current == self.num_waypoints-1:
+                self.ptr_previous += 1
+                self.ptr_current += 1
+                slef.ptr_next += 1
+
+
 
     def fillet_manager(self, waypoints, radius, state):
         debug = 1
