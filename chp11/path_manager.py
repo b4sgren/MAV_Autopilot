@@ -57,7 +57,7 @@ class path_manager:
             self.line_direction = qi.reshape((3,1))
             self.path.flag_path_changed = True
 
-            if  self.ptr_current < self.num_waypoints-1:
+            if  self.ptr_current < self.num_waypoints-1: # put in function
                 self.ptr_previous += 1
                 self.ptr_current += 1
                 self.ptr_next += 1
