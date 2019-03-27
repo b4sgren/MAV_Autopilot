@@ -4,6 +4,8 @@ sys.path.append('..')
 # from dubins_parameters import dubins_parameters
 from messages.msg_path import msg_path
 
+#TODO Set the original path
+
 class path_manager:
     def __init__(self):
         # message sent to path follower

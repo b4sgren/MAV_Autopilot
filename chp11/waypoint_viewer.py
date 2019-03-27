@@ -53,7 +53,7 @@ class waypoint_viewer():
             self.drawMAV(state)
             if waypoints.flag_waypoints_changed==True:
                 self.drawWaypoints(waypoints, path.orbit_radius)
-            # if path.flag_path_changed==True:
+            if path.flag_path_changed==True:
                 self.drawPath(path)
 
         # update the center of the camera view to the mav location
