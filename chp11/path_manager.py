@@ -34,18 +34,22 @@ class path_manager:
         return self.path
 
     def line_manager(self, waypoints, state):
+        debug = 1
 
     def fillet_manager(self, waypoints, radius, state):
+        debug = 1
 
     def dubins_manager(self, waypoints, radius, state):
+        debug = 1
 
     def initialize_pointers(self):
+        debug = 1
 
     def increment_pointers(self):
+        debug = 1
 
     def inHalfSpace(self, pos):
         if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
             return True
         else:
             return False
-

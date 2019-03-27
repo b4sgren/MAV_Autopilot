@@ -9,10 +9,9 @@ sys.path.append('..')
 import numpy as np
 
 import parameters.sim_params as SIM
+import parameters.planner_parameters as PLAN
 
-from messages.msg_autopilot import msg_autopilot
-from messages.state_msg import StateMsg
-from messages.msg_path import msg_path
+from messages.msg_waypoints import msg_waypoints
 
 from mav_dynamics import mav_dynamics as Dynamics
 from data_viewer import data_viewer
@@ -20,8 +19,9 @@ from wind_simulation import wind_simulation
 from autopilot import autopilot
 from observer import observer
 from tools.signals import signals
-from path_viewer import path_viewer
+from waypoint_viewer import waypoint_viewer
 from path_follower import path_follower
+from path_manager import path_manager
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
@@ -29,22 +29,26 @@ wind = wind_simulation(SIM.ts_sim)
 ctrl = autopilot(SIM.ts_sim)
 obsv = observer(SIM.ts_sim)
 path_follow = path_follower()
+path_manage = path_manager()
 
-#path definition
-path = msg_path()
-path.flag = 'line'
-path.flag = 'orbit'
+# waypoint definition
+waypoints = msg_waypoints()
+waypoints.type = 'straight_line'
+#waypoints.type = 'fillet'
+#waypoints.type = 'dubins'
+waypoints.num_waypoints = 4
+Va = PLAN.Va0
+waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
+                                                       [1000, 0, -100],
+                                                       [0, 1000, -100],
+                                                       [1000, 1000, -100]]).T
+waypoints.airspeed[:, 0:waypoints.num_waypoints] = np.array([[Va, Va, Va, Va]])
+waypoints.course[:, 0:waypoints.num_waypoints] = np.array([[0,
+                                                            np.radians(45),
+                                                            np.radians(45),
+                                                            np.radians(-135)]])
 
-if path.flag == 'line':
-    path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
-    path.line_direction = np.array([[0.5, 1.0, 0.0]]).T
-    path.line_direction = path.line_direction / np.linalg.norm(path.line_direction)
-else:
-    path.orbit_center = np.array([[0.0, 0.0, -100.0]]).T
-    path.orbit_radius = 300.0
-    path.orbit_direction = 'CW'
-
-path_view = path_viewer()
+waypoint_view = waypoint_viewer()
 data_view = data_viewer()
 
 # initialize the simulation time
@@ -56,6 +60,9 @@ while sim_time < SIM.t_end:
     #-----------observer---------------------
     measurements = dyn.sensors
     estimated_state = obsv.update(measurements)
+
+    #-----------path manager------------------
+    path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
 
     #-----------path follower-----------------
     commands = path_follow.update(path, estimated_state)
@@ -69,7 +76,7 @@ while sim_time < SIM.t_end:
     dyn.updateSensors()
 
     #-------update viewer---------------
-    path_view.update(path, dyn.msg_true_state)
+    waypoint_view.update(waypoints, path, dyn.msg_true_state)
     data_view.update(dyn.msg_true_state,
                     estimated_state,
                     commanded_state,
