@@ -34,7 +34,7 @@ path_manage = path_manager()
 # waypoint definition
 waypoints = msg_waypoints()
 waypoints.type = 'straight_line'
-#waypoints.type = 'fillet'
+waypoints.type = 'fillet'
 #waypoints.type = 'dubins'
 waypoints.num_waypoints = 4
 Va = PLAN.Va0
