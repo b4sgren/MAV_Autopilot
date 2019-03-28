@@ -44,39 +44,37 @@ class path_manager:
 
     def line_manager(self, waypoints, state):
         qi = waypoints.ned[:, self.ptr_next] - waypoints.ned[:, self.ptr_current]
-        qi = qi / np.linalg.norm(qi) # issue here
+        qi = qi / np.linalg.norm(qi) # issue here?
         q_prev = waypoints.ned[:, self.ptr_current] - waypoints.ned[:, self.ptr_previous]
         q_prev = q_prev / np.linalg.norm(q_prev)
-        # print(q_prev)
 
-        self.path.flag_path_changed = False
-        self.path.flag = 'line'
-        self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
-        self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
-        self.path.line_direction = q_prev.reshape((3,1))
+        # self.path.flag_path_changed = False
+        # self.path.flag = 'line'
+        # self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
+        # self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
+        # self.path.line_direction = q_prev.reshape((3,1))
 
-        # n = q_prev + qi
-        # self.halfspace_n = (n / np.linalg.norm(n)).reshape((3,1))
-        # self.halfspace_r = waypoints.ned[:, self.ptr_previous].reshape((3,1))
-        # p = np.array([[state.pn, state.pe, -state.h]]).T
-        #
-        # crossed = self.inHalfSpace(p)
-        # # print(crossed)
-        #
-        # if crossed:
-        #     self.path.flag = 'line'
-        #     self.path.airspeed = waypoints.airspeed.item(self.ptr_next)
-        #     self.line_origin = waypoints.ned[:, self.ptr_current].reshape((3,1))
-        #     self.line_direction = qi.reshape((3,1))
-        #     self.path.flag_path_changed = True
-        #
-        #     self.increment_pointers()
-        # else:
-        #     self.path.flag_path_changed = False
-        #     self.path.flag = 'line'
-        #     self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
-        #     self.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
-        #     self.line_direction = q_prev.reshape((3,1))
+        n = q_prev + qi
+        self.halfspace_n = (n / np.linalg.norm(n)).reshape((3,1))
+        self.halfspace_r = waypoints.ned[:, self.ptr_current].reshape((3,1))
+        p = np.array([[state.pn, state.pe, -state.h]]).T
+
+        crossed = self.inHalfSpace(p) # this always responds true
+
+        if crossed:
+            self.path.flag = 'line'
+            self.path.airspeed = waypoints.airspeed.item(self.ptr_next)
+            self.path.line_origin = waypoints.ned[:, self.ptr_current].reshape((3,1))
+            self.path.line_direction = qi.reshape((3,1))
+            self.path.flag_path_changed = True  #where do I use this?
+
+            self.increment_pointers()
+        else:
+            self.path.flag_path_changed = False
+            self.path.flag = 'line'
+            self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
+            self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
+            self.path.line_direction = q_prev.reshape((3,1))
 
 
 
