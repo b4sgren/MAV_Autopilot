@@ -52,22 +52,17 @@ class path_manager:
         self.halfspace_r = waypoints.ned[:, self.ptr_current].reshape((3,1))
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
+        self.path.flag_path_changed = False
+        self.path.flag = 'line'
+        self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
+        self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
+        self.path.line_direction = q_prev.reshape((3,1))
+
         crossed = self.inHalfSpace(p)
 
         if crossed:
-            self.path.flag = 'line'
-            self.path.airspeed = waypoints.airspeed.item(self.ptr_next)
-            self.path.line_origin = waypoints.ned[:, self.ptr_current].reshape((3,1))
-            self.path.line_direction = qi.reshape((3,1))
-            self.path.flag_path_changed = True  #where do I use this?
-
             self.increment_pointers()
-        else:
-            self.path.flag_path_changed = False
-            self.path.flag = 'line'
-            self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
-            self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
-            self.path.line_direction = q_prev.reshape((3,1))
+
 
 
 
@@ -118,7 +113,7 @@ class path_manager:
             else:
                 self.orbit_direction = 'CCW'
 
-            self.halfspace_r = z #algorithm says previous
+            self.halfspace_r = z
             self.halfspace_n = qi
             crossed = self.inHalfSpace(p)
             if crossed:
