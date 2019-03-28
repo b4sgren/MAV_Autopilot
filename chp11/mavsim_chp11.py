@@ -63,6 +63,7 @@ while sim_time < SIM.t_end:
 
     #-----------path manager------------------
     path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
+    # print(path.line_origin)
 
     #-----------path follower-----------------
     commands = path_follow.update(path, estimated_state)
@@ -71,7 +72,7 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
-    current_wind = wind.update(dyn._Va)
+    current_wind = np.zeros((6,1)) # wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 
