@@ -118,6 +118,14 @@ class path_manager:
             else:
                 self.orbit_direction = 'CCW'
 
+            self.halfspace_r = z #algorithm says previous
+            self.halfspace_n = qi
+            crossed = self.inHalfSpace(p)
+            if crossed:
+                self.increment_pointers()
+                self.manager_state = 1
+                self.path.flag_path_changed = True
+
 
     def dubins_manager(self, waypoints, radius, state):
         debug = 1
