@@ -43,7 +43,7 @@ waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
                                                        [0, 1000, -100],
                                                        [1000, 1000, -100],
                                                        [0, 0, -100]]).T
-waypoints.airspeed[:, 0:waypoints.num_waypoints] = np.array([[Va, Va, Va, Va]])
+waypoints.airspeed[:, 0:waypoints.num_waypoints] = np.array([[Va, Va, Va, Va, Va]])
 waypoints.course[:, 0:waypoints.num_waypoints] = np.array([[0,
                                                             np.radians(45),
                                                             np.radians(45),

@@ -52,7 +52,7 @@ class path_manager:
         self.halfspace_r = waypoints.ned[:, self.ptr_current].reshape((3,1))
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
-        self.path.flag_path_changed = False
+        # self.path.flag_path_changed = False
         self.path.flag = 'line'
         self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
         self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
@@ -61,9 +61,8 @@ class path_manager:
         crossed = self.inHalfSpace(p)
 
         if crossed:
+            # self.path.flag_path_changed = True
             self.increment_pointers()
-
-
 
 
     def fillet_manager(self, waypoints, radius, state):
@@ -84,7 +83,7 @@ class path_manager:
             self.halfspace_r = z #algorithm says previous
             self.halfspace_n = q_prev
 
-            self.path.flag_path_changed = False
+            # self.path.flag_path_changed = False
             self.path.flag = 'line'
             self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
             self.path.line_origin = w_prev
@@ -93,13 +92,13 @@ class path_manager:
             crossed = self.inHalfSpace(p)
             if crossed:
                 self.manager_state = 2
-                self.path.flag_path_changed = True
+                # self.path.flag_path_changed = True
         else:
-            self.path.flag_path_change = False
+            # self.path.flag_path_changed = False
             q_temp = q_prev - qi
             q_temp = q_temp / np.linalg.norm(q_temp)
             c = w_current - (R/np.sin(var_theta/2.)) * q_temp
-            print(c)
+            # print(c)
 
             z = w_current + (R/np.tan(var_theta/2.)) * qi
             dir = np.sign(q_prev.item(0)*qi.item(1) - q_prev.item(1) * qi.item(0))
@@ -119,7 +118,7 @@ class path_manager:
             if crossed:
                 self.increment_pointers()
                 self.manager_state = 1
-                self.path.flag_path_changed = True
+                # self.path.flag_path_changed = True
 
 
     def dubins_manager(self, waypoints, radius, state):
@@ -131,7 +130,7 @@ class path_manager:
         self.ptr_next = 2
 
     def increment_pointers(self):
-        if  self.ptr_current < self.num_waypoints-1: # put in function
+        if  self.ptr_current < self.num_waypoints-1:
             self.ptr_previous += 1
             self.ptr_current += 1
             self.ptr_next += 1
