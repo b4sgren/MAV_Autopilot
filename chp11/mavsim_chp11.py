@@ -36,17 +36,19 @@ waypoints = msg_waypoints()
 waypoints.type = 'straight_line'
 waypoints.type = 'fillet'
 #waypoints.type = 'dubins'
-waypoints.num_waypoints = 4
+waypoints.num_waypoints = 5
 Va = PLAN.Va0
 waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
                                                        [1000, 0, -100],
                                                        [0, 1000, -100],
-                                                       [1000, 1000, -100]]).T
+                                                       [1000, 1000, -100],
+                                                       [0, 0, -100]]).T
 waypoints.airspeed[:, 0:waypoints.num_waypoints] = np.array([[Va, Va, Va, Va]])
 waypoints.course[:, 0:waypoints.num_waypoints] = np.array([[0,
                                                             np.radians(45),
                                                             np.radians(45),
-                                                            np.radians(-135)]])
+                                                            np.radians(-135),
+                                                            0]])
 
 waypoint_view = waypoint_viewer()
 data_view = data_viewer()

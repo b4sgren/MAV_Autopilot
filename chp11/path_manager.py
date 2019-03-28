@@ -108,10 +108,10 @@ class path_manager:
             self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
             self.path.orbit_center = c
             self.path.orbit_radius = R
-            if dir == 1:
-                self.orbit_direction = 'CW'
+            if dir > 0:
+                self.path.orbit_direction = 'CW'
             else:
-                self.orbit_direction = 'CCW'
+                self.path.orbit_direction = 'CCW'
 
             self.halfspace_r = z
             self.halfspace_n = qi
