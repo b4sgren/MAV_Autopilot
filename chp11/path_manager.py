@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 sys.path.append('..')
-# from dubins_parameters import dubins_parameters
+from dubins_parameters import dubins_parameters
 from messages.msg_path import msg_path
 import parameters.planner_parameters as PLAN
 
@@ -21,7 +21,7 @@ class path_manager:
         # state of the manager state machine
         self.manager_state = 1
         # dubins path parameters
-        # self.dubins_path = dubins_parameters()
+        self.dubins_path = dubins_parameters()
 
     def update(self, waypoints, radius, state):
         #check if waypoints change and reinitialize
@@ -133,14 +133,20 @@ class path_manager:
         p = np.array([[state.pn, state.pe, -state.h]]).T
         chi = state.chi
 
-        # First circle centers
-        cr = p + radius * np.array([[np.cos(chi + np.pi/2), np.sin(chi + np.pi/2), 0]]).T
-        cl = p + radius * np.array([[np.cos(chi - np.pi/2), np.sin(chi - np.pi/2), 0]]).T 
+        ps = waypoints.ned[:, self.ptr_previous].reshape((3, 1))
+        pe = waypoints.ned[:, self.ptr_current].reshape((3, 1))
+        chis = waypoints.course.item(self.ptr_previous)
+        chie = waypoints.course.item(self.ptr_current)
+
+        self.dubins_path.update(ps, chis, p3, chie, radius)
+
+        if self.manager_state == 1: #first part of start circle
 
     def initialize_pointers(self):
         self.ptr_previous = 0
         self.ptr_current = 1
         self.ptr_next = 2
+        self.manager_state = 1
 
     def increment_pointers(self):
         if  self.ptr_current < self.num_waypoints-1:
