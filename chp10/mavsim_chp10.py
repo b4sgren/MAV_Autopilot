@@ -33,14 +33,14 @@ path_follow = path_follower()
 #path definition
 path = msg_path()
 path.flag = 'line'
-# path.flag = 'orbit'
+path.flag = 'orbit'
 
 if path.flag == 'line':
     path.line_origin = np.array([[0.0, 0.0, -100.0]]).T
     path.line_direction = np.array([[1.0, 0.0, 0.0]]).T
     path.line_direction = path.line_direction / np.linalg.norm(path.line_direction)
 else:
-    path.orbit_center = np.array([[0.0, 0.0, -100.0]]).T
+    path.orbit_center = np.array([[-300.0, 0.0, -100.0]]).T
     path.orbit_radius = 300.0
     path.orbit_direction = 'CW'
 

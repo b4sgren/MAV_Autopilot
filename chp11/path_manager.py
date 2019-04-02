@@ -23,6 +23,7 @@ class path_manager:
         # dubins path parameters
         self.dubins_path = dubins_parameters()
         self.dubins_flag = 1
+        self.update_dubins = True
 
     def update(self, waypoints, radius, state):
         #check if waypoints change and reinitialize
@@ -108,7 +109,7 @@ class path_manager:
             c = w_current - (radius/np.sin(var_theta/2.)) * q_temp
             # print(c)
 
-            z = w_current + (radius/np.tan(var_theta/2.)) * q_temp # was qi
+            z = w_current + (radius/np.tan(var_theta/2.)) * q_temp
             dir = np.sign(q_prev.item(0)*qi.item(1) - q_prev.item(1) * qi.item(0))
 
             self.path.flag = 'orbit'
@@ -132,23 +133,22 @@ class path_manager:
 
     def dubins_manager(self, waypoints, radius, state):
         p = np.array([[state.pn, state.pe, -state.h]]).T
-        chi = state.chi
         self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
 
-        ps = waypoints.ned[:, self.ptr_previous].reshape((3, 1))
-        pe = waypoints.ned[:, self.ptr_current].reshape((3, 1))
-        chis = waypoints.course.item(self.ptr_previous)
-        chie = waypoints.course.item(self.ptr_current)
+        if self.update_dubins:
+            self.update_dubins = False
+            ps = waypoints.ned[:, self.ptr_previous].reshape((3, 1))
+            pe = waypoints.ned[:, self.ptr_current].reshape((3, 1))
+            chis = waypoints.course.item(self.ptr_previous)
+            chie = waypoints.course.item(self.ptr_current)
 
-        self.dubins_path.update(ps, chis, pe, chie, radius)
+            self.dubins_path.update(ps, chis, pe, chie, radius)
 
         if self.manager_state == 1: #check if in half plane initially
             self.dubins_flag = 2
             self.halfspace_r = self.dubins_path.r1
             self.halfspace_n = -self.dubins_path.n1
 
-            # print(self.halfspace_r.shape)
-
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_s
             self.path.orbit_radius = radius
@@ -156,19 +156,13 @@ class path_manager:
                 self.path.orbit_direction = 'CW'
             else:
                 self.path.orbit_direction = 'CCW'
+
             if self.inHalfSpace(p):
                 self.manager_state = 2
-        elif self.manager_state == 2: #Second part of first circle
-            self.halfspace_r = self.dubins_path.r1
-            self.halfspace_n = self.dubins_path.n1
-
-            self.path.flag = 'orbit'
-            self.path.orbit_center = self.dubins_path.center_s
-            self.path.orbit_radius = radius
-            if self.dubins_path.dir_s > 0:
-                self.path.orbit_direction = 'CW'
+                self.path.flag_path_changed = True
             else:
-                self.path.orbit_direction = 'CCW'
+                self.path.flag_path_changed = False
+        elif self.manager_state == 2: #Second part of first circle
             if self.inHalfSpace(p):
                 self.manager_state = 3
                 self.path.flag_path_changed = True
@@ -177,7 +171,7 @@ class path_manager:
         elif self.manager_state == 3: # Line part
             self.dubins_flag = 1
             self.halfspace_r = self.dubins_path.r2
-            self.halfspace_n = self.dubins_path.n1
+            self.halfspace_n = self.dubins_path.n1 # mat has n2 here?
 
             self.path.flag = 'line'
             self.path.line_origin = self.dubins_path.r1
@@ -203,22 +197,15 @@ class path_manager:
 
             if self.inHalfSpace(p):
                 self.manager_state = 5
-        elif self.manager_state == 5:
-            self.halfspace_r = self.dubins_path.r3
-            self.halfspace_n = self.dubins_path.n3
-
-            self.path.flag = 'orbit'
-            self.path.orbit_center = self.dubins_path.center_e
-            self.path.orbit_radius = radius
-            if self.dubins_path.dir_e > 0:
-                self.path.orbit_direction = 'CW'
+                self.path.flag_path_changed = True
             else:
-                self.path.orbit_direction = 'CCW'
-
+                self.path.flag_path_changed = False
+        elif self.manager_state == 5:
             if self.inHalfSpace(p):
                 self.manager_state = 1
                 self.path.flag_path_changed = True
                 self.increment_pointers()
+                self.update_dubins = True
             else:
                 self.path.flag_path_changed = False
 

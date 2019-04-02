@@ -34,24 +34,35 @@ class dubins_parameters:
         if ell < 2 * R:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
-            crs = ps + R * rotz(np.pi/2) @ np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cls = ps + R * rotz(-np.pi/2) @ np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cre = pe + R * rotz(np.pi/2) @ np.array([[np.cos(chie), np.sin(chie), 0]]).T
-            cle = pe + R * rotz(-np.pi/2) @ np.array([[np.cos(chie), np.sin(chie), 0]]).T
+            c_xs = np.cos(chis)
+            s_xs = np.sin(chis)
+            c_xe = np.cos(chie)
+            s_xe = np.sin(chie)
+            crs = ps + R * rotz(np.pi/2) @ np.array([[c_xs, s_xs, 0]]).T
+            cls = ps + R * rotz(-np.pi/2) @ np.array([[c_xs, s_xs, 0]]).T
+            cre = pe + R * rotz(np.pi/2) @ np.array([[c_xe, s_xe, 0]]).T
+            cle = pe + R * rotz(-np.pi/2) @ np.array([[c_xe, s_xe, 0]]).T
 
+            theta = np.arctan2(ps.item(1)-pe.item(1),ps.item(0)-pe.item(0))
+            theta2 = theta - np.arccos(2*R/ell)
+            pi = np.pi
+            sqrt = np.sqrt(ell**2 - 4*R**2)
 
-            L_rsr = self.calcL_rsr(R, chis, chie, ps, pe)
-            L_rsl = self.calcL_rsl(R, chis, chie, ps, pe)
-            L_lsr = self.calcL_lsr(R, chis, chie, ps, pe)
-            L_lsl = self.calcL_lsl(R, chis, chie, ps, pe)
-
+            # compute L1,L2,L3,L4
+            L_rsr = np.linalg.norm(crs-cre)+R*mod(2*pi+mod(theta-pi/2)-\
+                    mod(chis-pi/2))+R*mod(2*pi+mod(chie-pi/2)-mod(theta-pi/2))
+            L_rsl = sqrt*mod(2*pi+mod(theta-theta2)-mod(chis-pi/2))+\
+                    R*mod(2*pi+mod(theta2+pi)-mod(chie+pi/2))
+            L_lsr = sqrt+R*mod(2*pi+mod(chis+pi/2)-mod(theta-theta2))+R*mod(\
+                    2*pi+mod(chie-pi/2)-mod(theta+theta2-pi))
+            L_lsl = np.linalg.norm(cls-cle)+R*mod(2*pi+mod(chis+pi/2)-\
+                    mod(theta+pi/2))+R*mod(2*pi+mod(theta+pi/2)-mod(chie-pi/2))
             L = [L_rsr, L_rsl, L_lsr, L_lsl]
             index = np.argmin(L) #determine which path is shortest
 
             e1 = np.array([[1, 0, 0]]).T
             z3 = pe
             q3 = rotz(chie) @ e1
-            l = np.inf
             if index == 0:
                 cs = crs
                 ce = cre
@@ -62,12 +73,13 @@ class dubins_parameters:
                 z2 = ce + R * rotz(-np.pi/2) @ q1
             elif index == 1:
                 cs = crs
-                ce = cre
+                ce = cle
                 dir_s = 1
                 dir_e = -1
-                l = np.linalg.norm(ce - cs)
-                var_theta = self.calc_varTheta(ps, pe) #not sure this is the correct calculation
-                ang2 = var_theta - np.pi/2 + np.arcsin(2 * R/l)
+                diff = ce - cs
+                ell = np.linalg.norm(diff)
+                var_theta = np.arctan2(diff.item(1), diff.item(0)) #switches variables in mats code
+                ang2 = var_theta - np.pi/2 + np.arcsin(2 * R/ell)
                 q1 = rotz(ang2 + np.pi/2) @ e1
                 z1 = cs + R * rotz(ang2) @ e1
                 z2 = ce + R * rotz(ang2 + np.pi) @ e1
@@ -76,9 +88,10 @@ class dubins_parameters:
                 ce = cre
                 dir_s = -1
                 dir_e = 1
-                l = np.linalg.norm(ce - cs) # not sure if this is the correct calculation
-                var_theta = self.calc_varTheta(ps, pe)
-                ang2 = np.arccos(2 * R /l)
+                diff = ce - cs
+                ell = np.linalg.norm(diff)
+                var_theta = np.arctan2(diff.item(1), diff.item(0)) # switches order in mats code
+                ang2 = np.arccos(2 * R /ell)
                 q1 = rotz(var_theta + ang2 - np.pi/2) @ e1
                 z1 = cs + R * rotz(var_theta + ang2) @ e1
                 z2 = ce + R * rotz(var_theta + ang2 - np.pi) @ e1
@@ -96,7 +109,7 @@ class dubins_parameters:
             self.p_e = pe
             self.chi_e = chie
             self.radius = R
-            self.length = l
+            self.length = ell
             self.center_s = cs
             self.dir_s = dir_s
             self.center_e = ce
@@ -106,80 +119,6 @@ class dubins_parameters:
             self.r2 = z2
             self.r3 = z3
             self.n3 = q3
-
-    def calcL_rsr(self, R, chis, chie, ps, pe):
-        crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-        cre = ps + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
-        l1 = np.linalg.norm(crs-cre)
-
-        e1 = np.array([[1, 0, 0]]).T
-        var_theta1 = mod(chis - np.pi/2)
-        var_theta2 = self.calc_varTheta(ps, pe)
-        var_theta3 = mod(var_theta2 - np.pi/2)
-        l2 = R * mod(2 * np.pi + var_theta3 - var_theta1)
-
-        var_theta4 = mod(chie - np.pi/2)
-        l3 = R * mod(2 * np.pi + var_theta4 - var_theta3)
-
-        return l1 + l2 + l3
-
-    def calcL_rsl(self, R, chis, chie, ps, pe):
-        p = pe - ps
-        l = np.linalg.norm(p)
-
-        l1 = np.sqrt(l**2 + 4 * R**2)
-
-        e1 = np.array([[1, 0, 0]]).T
-        var_theta = self.calc_varTheta(ps, pe)
-        theta2 = var_theta - np.pi/2.0 + np.arcsin(2*R/l)
-        ang1 = mod(chis - np.pi/2.0)
-        l2 = R * mod(2 * np.pi + mod(var_theta - theta2) - ang1)
-
-        ang2 = mod(chie + np.pi/2.0)
-        l3 = R * mod(2 * np.pi + mod(theta2 + np.pi) - ang2)
-
-        return l1 + l2 + l3
-
-    def calcL_lsr(self, R, chis, chie, ps, pe):
-        p = pe - ps
-        l = np.linalg.norm(p)
-
-        l1 = np.sqrt(l**2 + 4 * R**2)
-
-        e1 = np.array([[1, 0, 0]]).T
-        var_theta = self.calc_varTheta(ps, pe)
-        theta2 = np.arccos(2*R/l)
-        ang1 = mod(chis + np.pi/2.0)
-        l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + theta2))
-
-        ang2 = mod(chie - np.pi/2.0)
-        l3 = R * mod(2 * np.pi + ang2 - mod(var_theta + theta2 - np.pi))
-
-        return l1 + l2 + l3
-
-    def calcL_lsl(self, R, chis, chie, ps, pe):
-        p = pe - ps
-        cls = p + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-        cle = p + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
-
-        l1 = np.linalg.norm(cls - cle)
-
-        e1 = np.array([[1, 0, 0]]).T
-        ang1 = mod(chis + np.pi/2)
-        var_theta = self.calc_varTheta(ps, pe)
-        l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + np.pi/2))
-
-        ang2 = mod(chie + np.pi/2)
-        l3 = mod(2 * np.pi + mod(var_theta + np.pi/2) - ang2)
-
-        return l1 + l2 + l3
-
-    def calc_varTheta(self, ps, pe):
-        e1 = np.array([[1, 0, 0]]).T
-        p = pe - ps
-        var_theta = mod(np.arccos(np.dot(e1.T, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
-
-        return var_theta
 
 def rotz(theta):
     return np.array([[np.cos(theta), -np.sin(theta), 0],
