@@ -61,8 +61,10 @@ class path_manager:
         crossed = self.inHalfSpace(p)
 
         if crossed:
-            # self.path.flag_path_changed = True
+            self.path.flag_path_changed = True
             self.increment_pointers()
+        else:
+            self.path.flag_path_changed = False
 
 
     def fillet_manager(self, waypoints, radius, state):
@@ -75,15 +77,13 @@ class path_manager:
         q_prev = (q_prev / np.linalg.norm(q_prev))
 
         var_theta = np.arccos(-q_prev.T @ qi)
-        R = PLAN.R_min
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
         if self.manager_state == 1:  #straight line part
-            z = w_current - (R/np.tan(var_theta/2.)) * q_prev
+            z = w_current - (radius/np.tan(var_theta/2.)) * q_prev
             self.halfspace_r = z #algorithm says previous
             self.halfspace_n = q_prev
 
-            # self.path.flag_path_changed = False
             self.path.flag = 'line'
             self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
             self.path.line_origin = w_prev
@@ -92,21 +92,22 @@ class path_manager:
             crossed = self.inHalfSpace(p)
             if crossed:
                 self.manager_state = 2
-                # self.path.flag_path_changed = True
+                self.path.flag_path_changed = True
+            else:
+                self.path.flag_path_changed = False
         else:
-            # self.path.flag_path_changed = False
             q_temp = q_prev - qi
             q_temp = q_temp / np.linalg.norm(q_temp)
-            c = w_current - (R/np.sin(var_theta/2.)) * q_temp
+            c = w_current - (radius/np.sin(var_theta/2.)) * q_temp
             # print(c)
 
-            z = w_current + (R/np.tan(var_theta/2.)) * qi
+            z = w_current + (radius/np.tan(var_theta/2.)) * q_temp # was qi
             dir = np.sign(q_prev.item(0)*qi.item(1) - q_prev.item(1) * qi.item(0))
 
             self.path.flag = 'orbit'
             self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
             self.path.orbit_center = c
-            self.path.orbit_radius = R
+            self.path.orbit_radius = radius
             if dir > 0:
                 self.path.orbit_direction = 'CW'
             else:
@@ -118,8 +119,9 @@ class path_manager:
             if crossed:
                 self.increment_pointers()
                 self.manager_state = 1
-                # self.path.flag_path_changed = True
-
+                self.path.flag_path_changed = True
+            else:
+                self.path.flag_path_changed = False
 
     def dubins_manager(self, waypoints, radius, state):
         debug = 1
