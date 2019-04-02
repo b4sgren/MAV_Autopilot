@@ -29,16 +29,22 @@ class path_manager:
             self.num_waypoints = waypoints.num_waypoints
             self.flag_need_new_waypoints = False
             self.initialize_pointers()
-            waypoints.flag_waypoints_changed = False # not sure this does anything
+            waypoints.flag_waypoints_changed = False
+            self.manager_state = 1
 
-        if waypoints.type == 'straight_line':
-            self.line_manager(waypoints, state)
-        elif waypoints.type == 'fillet':
-            self.fillet_manager(waypoints, radius, state)
-        elif waypoints.type == 'dubins':
-            self.dubins_manager(waypoints, radius, state)
+        if self.path.flag_path_changed:
+            self.path.flag_path_changed = False
+        if waypoints.num_waypoints == 0:
+            waypoints.flag_manager_requests_waypoints = True
         else:
-            print('Error in Path Manager: Undefined waypoint type.')
+            if waypoints.type == 'straight_line':
+                self.line_manager(waypoints, state)
+            elif waypoints.type == 'fillet':
+                self.fillet_manager(waypoints, radius, state)
+            elif waypoints.type == 'dubins':
+                self.dubins_manager(waypoints, radius, state)
+            else:
+                print('Error in Path Manager: Undefined waypoint type.')
         return self.path
 
     def line_manager(self, waypoints, state):
