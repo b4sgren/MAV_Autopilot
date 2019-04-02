@@ -77,8 +77,22 @@ class dubins_parameters:
 
             return l1 + l2 + l3
 
-        def calcL_rsl(self, chis, chie, ps, pe):
-            debug = 1
+        def calcL_rsl(self, R, chis, chie, ps, pe):
+            p = pe - ps
+            l = np.linalg.norm(p)
+
+            l1 = np.sqrt(l**2 + 4 * R**2)
+
+            e1 = np.array([[1, 0, 0]]).T
+            var_theta = mod(np.arccos(np.dot(e1, pe-ps)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
+            theta2 = var_theta - np.pi/2.0 + np.arcsin(2*R/l)
+            ang1 = mod(chis - np.pi/2.0)
+            l2 = R * mod(2 * np.pi + mod(var_theta - theta2) - ang1)
+
+            ang2 = mod(chie + np.pi/2.0)
+            l3 = R * mod(2 * np.pi + mod(theta2 + np.pi) - ang2)
+
+            return l1 + l2 + l3
 
 def rotz(theta):
     return np.array([[np.cos(theta), -np.sin(theta), 0],
