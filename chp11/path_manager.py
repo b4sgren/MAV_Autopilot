@@ -32,8 +32,8 @@ class path_manager:
             waypoints.flag_waypoints_changed = False
             self.manager_state = 1
 
-        if self.path.flag_path_changed:
-            self.path.flag_path_changed = False
+        # if self.path.flag_path_changed:
+        #     self.path.flag_path_changed = False
         if waypoints.num_waypoints == 0:
             waypoints.flag_manager_requests_waypoints = True
         else:
@@ -130,7 +130,12 @@ class path_manager:
                 self.path.flag_path_changed = False
 
     def dubins_manager(self, waypoints, radius, state):
-        debug = 1
+        p = np.array([[state.pn, state.pe, -state.h]]).T
+        chi = state.chi
+
+        # First circle centers
+        cr = p + radius * np.array([[np.cos(chi + np.pi/2), np.sin(chi + np.pi/2), 0]]).T
+        cl = p + radius * np.array([[np.cos(chi - np.pi/2), np.sin(chi - np.pi/2), 0]]).T 
 
     def initialize_pointers(self):
         self.ptr_previous = 0
