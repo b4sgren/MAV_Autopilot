@@ -34,16 +34,16 @@ class dubins_parameters:
         if ell < 2 * R:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
-            # crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            # cls = ps + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            cls = ps + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
             cre = pe + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
             cle = pe + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
 
 
             L_rsr = self.calcL_rsr(R, chis, chie, ps, pe)
             L_rsl = self.calcL_rsl(R, chis, chie, ps, pe)
-            L_lsr = 0
-            L_lsl = np.linalg.norm(cls - cle) + R * 0
+            L_lsr = self.calcL_lsr(R, chis, chie, ps, pe)
+            L_lsl = self.calcL_lsl(R, chis, chie, ps, pe)
 
             self.p_s = ps
             self.chi_s = chis
@@ -63,7 +63,7 @@ class dubins_parameters:
 
         def calcL_rsr(self, R, chis, chie, ps, pe):
             crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cls = ps + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            cre = ps + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
             l1 = np.linalg.norm(crs-cre)
 
             e1 = np.array([[1, 0, 0]]).T
@@ -84,13 +84,47 @@ class dubins_parameters:
             l1 = np.sqrt(l**2 + 4 * R**2)
 
             e1 = np.array([[1, 0, 0]]).T
-            var_theta = mod(np.arccos(np.dot(e1, pe-ps)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
+            var_theta = mod(np.arccos(np.dot(e1, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
             theta2 = var_theta - np.pi/2.0 + np.arcsin(2*R/l)
             ang1 = mod(chis - np.pi/2.0)
             l2 = R * mod(2 * np.pi + mod(var_theta - theta2) - ang1)
 
             ang2 = mod(chie + np.pi/2.0)
             l3 = R * mod(2 * np.pi + mod(theta2 + np.pi) - ang2)
+
+            return l1 + l2 + l3
+
+        def calcL_lsr(self, R, chis, chie, ps, pe):
+            p = pe - ps
+            l = np.linalg.norm(p)
+
+            l1 = np.sqrt(l**2 + 4 * R**2)
+
+            e1 = np.array([[1, 0, 0]]).T
+            var_theta = mod(np.arccos(np.dot(e1, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
+            theta2 = np.arccos(2*R/l)
+            ang1 = mod(chis + np.pi/2.0)
+            l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + theta2))
+
+            ang2 = mod(chie - np.pi/2.0)
+            l3 = R * mod(2 * np.pi + ang2 - mod(var_theta + theta2 - np.pi))
+
+            return l1 + l2 + l3
+
+        def calcL_lsl(self, R, chis, chie, ps, pe):
+            p = pe - ps
+            cls = p + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            cle = p + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
+
+            l1 = np.linalg.norm(cls - cle)
+
+            e1 = np.array([[1, 0, 0]]).T
+            ang1 = mod(chis + np.pi/2)
+            var_theta = mod(np.arccos(np.dot(e1, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
+            l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + np.pi/2))
+
+            ang2 = mod(chie + np.pi/2)
+            l3 = mod(2 * np.pi + mod(var_theta + np.pi/2) - ang2)
 
             return l1 + l2 + l3
 
