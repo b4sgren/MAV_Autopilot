@@ -140,7 +140,7 @@ class path_manager:
         chis = waypoints.course.item(self.ptr_previous)
         chie = waypoints.course.item(self.ptr_current)
 
-        self.dubins_path.update(ps, chis, p3, chie, radius)
+        self.dubins_path.update(ps, chis, pe, chie, radius)
 
         if self.manager_state == 1: #check if in half plane initially
             self.dubins_flag = 2
@@ -150,7 +150,7 @@ class path_manager:
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_s
             self.path.orbit_radius = radius
-            if self.dubings_path.dir_s > 0:
+            if self.dubins_path.dir_s > 0:
                 self.path.orbit_direction = 'CW'
             else:
                 self.path.orbit_direction = 'CCW'

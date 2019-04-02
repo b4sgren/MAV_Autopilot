@@ -107,79 +107,79 @@ class dubins_parameters:
             self.r3 = z3
             self.n3 = q3
 
-        def calcL_rsr(self, R, chis, chie, ps, pe):
-            crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cre = ps + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
-            l1 = np.linalg.norm(crs-cre)
+    def calcL_rsr(self, R, chis, chie, ps, pe):
+        crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+        cre = ps + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
+        l1 = np.linalg.norm(crs-cre)
 
-            e1 = np.array([[1, 0, 0]]).T
-            var_theta1 = mod(chis - np.pi/2)
-            var_theta2 = self.calc_varTheta(ps, pe)
-            var_theta3 = mod(var_theta2 - np.pi/2)
-            l2 = R * mod(2 * np.pi + var_theta3 - var_theta1)
+        e1 = np.array([[1, 0, 0]]).T
+        var_theta1 = mod(chis - np.pi/2)
+        var_theta2 = self.calc_varTheta(ps, pe)
+        var_theta3 = mod(var_theta2 - np.pi/2)
+        l2 = R * mod(2 * np.pi + var_theta3 - var_theta1)
 
-            var_theta4 = mod(chie - np.pi/2)
-            l3 = R * mod(2 * np.pi + var_theta4 - var_theta3)
+        var_theta4 = mod(chie - np.pi/2)
+        l3 = R * mod(2 * np.pi + var_theta4 - var_theta3)
 
-            return l1 + l2 + l3
+        return l1 + l2 + l3
 
-        def calcL_rsl(self, R, chis, chie, ps, pe):
-            p = pe - ps
-            l = np.linalg.norm(p)
+    def calcL_rsl(self, R, chis, chie, ps, pe):
+        p = pe - ps
+        l = np.linalg.norm(p)
 
-            l1 = np.sqrt(l**2 + 4 * R**2)
+        l1 = np.sqrt(l**2 + 4 * R**2)
 
-            e1 = np.array([[1, 0, 0]]).T
-            var_theta = self.calc_varTheta(ps, pe)
-            theta2 = var_theta - np.pi/2.0 + np.arcsin(2*R/l)
-            ang1 = mod(chis - np.pi/2.0)
-            l2 = R * mod(2 * np.pi + mod(var_theta - theta2) - ang1)
+        e1 = np.array([[1, 0, 0]]).T
+        var_theta = self.calc_varTheta(ps, pe)
+        theta2 = var_theta - np.pi/2.0 + np.arcsin(2*R/l)
+        ang1 = mod(chis - np.pi/2.0)
+        l2 = R * mod(2 * np.pi + mod(var_theta - theta2) - ang1)
 
-            ang2 = mod(chie + np.pi/2.0)
-            l3 = R * mod(2 * np.pi + mod(theta2 + np.pi) - ang2)
+        ang2 = mod(chie + np.pi/2.0)
+        l3 = R * mod(2 * np.pi + mod(theta2 + np.pi) - ang2)
 
-            return l1 + l2 + l3
+        return l1 + l2 + l3
 
-        def calcL_lsr(self, R, chis, chie, ps, pe):
-            p = pe - ps
-            l = np.linalg.norm(p)
+    def calcL_lsr(self, R, chis, chie, ps, pe):
+        p = pe - ps
+        l = np.linalg.norm(p)
 
-            l1 = np.sqrt(l**2 + 4 * R**2)
+        l1 = np.sqrt(l**2 + 4 * R**2)
 
-            e1 = np.array([[1, 0, 0]]).T
-            var_theta = self.calc_varTheta(ps, pe)
-            theta2 = np.arccos(2*R/l)
-            ang1 = mod(chis + np.pi/2.0)
-            l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + theta2))
+        e1 = np.array([[1, 0, 0]]).T
+        var_theta = self.calc_varTheta(ps, pe)
+        theta2 = np.arccos(2*R/l)
+        ang1 = mod(chis + np.pi/2.0)
+        l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + theta2))
 
-            ang2 = mod(chie - np.pi/2.0)
-            l3 = R * mod(2 * np.pi + ang2 - mod(var_theta + theta2 - np.pi))
+        ang2 = mod(chie - np.pi/2.0)
+        l3 = R * mod(2 * np.pi + ang2 - mod(var_theta + theta2 - np.pi))
 
-            return l1 + l2 + l3
+        return l1 + l2 + l3
 
-        def calcL_lsl(self, R, chis, chie, ps, pe):
-            p = pe - ps
-            cls = p + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cle = p + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
+    def calcL_lsl(self, R, chis, chie, ps, pe):
+        p = pe - ps
+        cls = p + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
+        cle = p + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
 
-            l1 = np.linalg.norm(cls - cle)
+        l1 = np.linalg.norm(cls - cle)
 
-            e1 = np.array([[1, 0, 0]]).T
-            ang1 = mod(chis + np.pi/2)
-            var_theta = self.calc_varTheta(ps, pe)
-            l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + np.pi/2))
+        e1 = np.array([[1, 0, 0]]).T
+        ang1 = mod(chis + np.pi/2)
+        var_theta = self.calc_varTheta(ps, pe)
+        l2 = R * mod(2 * np.pi + ang1 - mod(var_theta + np.pi/2))
 
-            ang2 = mod(chie + np.pi/2)
-            l3 = mod(2 * np.pi + mod(var_theta + np.pi/2) - ang2)
+        ang2 = mod(chie + np.pi/2)
+        l3 = mod(2 * np.pi + mod(var_theta + np.pi/2) - ang2)
 
-            return l1 + l2 + l3
+        return l1 + l2 + l3
 
-        def calc_varTheta(self, ps, pe):
-            e1 = np.array([[1, 0, 0]]).T
-            p = pe - ps
-            var_theta = mod(np.arccos(np.dot(e1, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
+    def calc_varTheta(self, ps, pe):
+        e1 = np.array([[1, 0, 0]]).T
+        p = pe - ps
+        var_theta = mod(np.arccos(np.dot(e1.T, p)/(np.linalg.norm(pe) * np.linalg.norm(ps)))) #check this if not working
 
-            return var_theta
+        return var_theta
 
 def rotz(theta):
     return np.array([[np.cos(theta), -np.sin(theta), 0],
