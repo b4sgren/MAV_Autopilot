@@ -147,6 +147,8 @@ class path_manager:
             self.halfspace_r = self.dubins_path.r1
             self.halfspace_n = -self.dubins_path.n1
 
+            # print(self.halfspace_r.shape)
+
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_s
             self.path.orbit_radius = radius
@@ -163,7 +165,7 @@ class path_manager:
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_s
             self.path.orbit_radius = radius
-            if self.dubings_path.dir_s > 0:
+            if self.dubins_path.dir_s > 0:
                 self.path.orbit_direction = 'CW'
             else:
                 self.path.orbit_direction = 'CCW'
@@ -175,11 +177,11 @@ class path_manager:
         elif self.manager_state == 3: # Line part
             self.dubins_flag = 1
             self.halfspace_r = self.dubins_path.r2
-            self.halfspace_n = self.dubins_path.q1
+            self.halfspace_n = self.dubins_path.n1
 
             self.path.flag = 'line'
             self.path.line_origin = self.dubins_path.r1
-            self.path.line_direction = self.dubins_path.q1
+            self.path.line_direction = self.dubins_path.n1
 
             if self.inHalfSpace(p):
                 self.manager_state = 4
@@ -189,7 +191,7 @@ class path_manager:
         elif self.manager_state == 4:
             self.dubins_flag = 2
             self.halfspace_r = self.dubins_path.r3
-            self.halfspace_n = -self.dubins_path.q3
+            self.halfspace_n = -self.dubins_path.n3
 
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_e
@@ -203,7 +205,7 @@ class path_manager:
                 self.manager_state = 5
         elif self.manager_state == 5:
             self.halfspace_r = self.dubins_path.r3
-            self.halfspace_n = self.dubins_path.q3
+            self.halfspace_n = self.dubins_path.n3
 
             self.path.flag = 'orbit'
             self.path.orbit_center = self.dubins_path.center_e

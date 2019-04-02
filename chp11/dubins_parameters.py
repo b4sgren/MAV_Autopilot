@@ -34,10 +34,10 @@ class dubins_parameters:
         if ell < 2 * R:
             print('Error in Dubins Parameters: The distance between nodes must be larger than 2R.')
         else:
-            crs = ps + R * rotz(np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cls = ps + R * rotz(-np.pi/2) * np.array([[np.cos(chis), np.sin(chis), 0]]).T
-            cre = pe + R * rotz(np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
-            cle = pe + R * rotz(-np.pi/2) * np.array([[np.cos(chie), np.sin(chie), 0]]).T
+            crs = ps + R * rotz(np.pi/2) @ np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            cls = ps + R * rotz(-np.pi/2) @ np.array([[np.cos(chis), np.sin(chis), 0]]).T
+            cre = pe + R * rotz(np.pi/2) @ np.array([[np.cos(chie), np.sin(chie), 0]]).T
+            cle = pe + R * rotz(-np.pi/2) @ np.array([[np.cos(chie), np.sin(chie), 0]]).T
 
 
             L_rsr = self.calcL_rsr(R, chis, chie, ps, pe)
