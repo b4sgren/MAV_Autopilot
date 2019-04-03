@@ -43,11 +43,7 @@ class dubins_parameters:
             cre = pe + R * rotz(np.pi/2) @ np.array([[c_xe, s_xe, 0]]).T
             cle = pe + R * rotz(-np.pi/2) @ np.array([[c_xe, s_xe, 0]]).T
 
-            theta = np.arctan2(ps.item(1)-pe.item(1),ps.item(0)-pe.item(0))
-            theta2 = theta - np.arccos(2*R/ell)
             pi = np.pi
-            sqrt = np.sqrt(ell**2 - 4*R**2)
-
             # compute L1,L2,L3,L4
             theta = np.arctan2(cre.item(1)-crs.item(1),cre.item(0)-crs.item(0))
             L_rsr = np.linalg.norm(crs-cre)+R*mod(2*pi + mod(theta-pi/2)-\
