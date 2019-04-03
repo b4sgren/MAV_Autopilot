@@ -106,9 +106,8 @@ class path_manager:
             q_temp = q_prev - qi
             q_temp = q_temp / np.linalg.norm(q_temp)
             c = w_current - (radius/np.sin(var_theta/2.)) * q_temp
-            # print(c)
 
-            z = w_current + (radius/np.tan(var_theta/2.)) * q_temp
+            z = w_current + (radius/np.tan(var_theta/2.)) * qi # Mat has qi but mine works better with qtemp
             dir = np.sign(q_prev.item(0)*qi.item(1) - q_prev.item(1) * qi.item(0))
 
             self.path.flag = 'orbit'
