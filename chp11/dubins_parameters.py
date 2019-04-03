@@ -57,6 +57,36 @@ class dubins_parameters:
                     2*pi+mod(chie-pi/2)-mod(theta+theta2-pi))
             L_lsl = np.linalg.norm(cls-cle)+R*mod(2*pi+mod(chis+pi/2)-\
                     mod(theta+pi/2))+R*mod(2*pi+mod(theta+pi/2)-mod(chie-pi/2))
+
+            #This works. Done by Parth Viradiya
+            # pi = np.pi
+            # ## compute L1,L2,L3,L4
+            # # L1
+            # theta = np.arctan2(cre[1]-crs[1],cre[0]-crs[0])
+            # L_rsr = np.linalg.norm(crs-cre) + R*mod(2*pi+mod(theta-(pi/2))-\
+            #         mod(chis-(pi/2))) + R*mod(2*pi+mod(chie-(pi/2))-mod(theta-(pi/2)))
+            #
+            # # L2
+            # ell = np.linalg.norm(cle-crs)
+            # theta = np.arctan2(cle[1]-crs[1],cle[0]-crs[0])
+            # theta2 = theta - (pi/2) + np.arcsin(2*R/ell)
+            # sqrt = np.sqrt(ell**2 - 4*R**2)
+            # L_rsl = sqrt + R*mod((2*pi)+mod(theta2)-mod(chis-(pi/2)))+\
+            #         R*mod((2*pi)+mod(theta2+pi)-mod(chie+(pi/2)))
+            #
+            # # L3
+            # ell = np.linalg.norm(cre-cls)
+            # theta = np.arctan2(cre[1]-cls[1],cre[0]-cls[0])
+            # theta2 = np.arccos(2*R/ell)
+            # sqrt = np.sqrt(ell**2 - 4*R**2)
+            # L_lsr = sqrt + R*mod((2*pi)+mod(chis+(pi/2))-mod(theta+theta2))+ R*mod(\
+            #         (2*pi)+mod(chie-(pi/2))-mod(theta+theta2-pi))
+            #
+            # # L4
+            # theta = np.arctan2(cle[1]-cls[1],cle[0]-cls[0])
+            # L_lsl = np.linalg.norm(cls-cle) + R*mod((2*pi)+mod(chis+(pi/2))-\
+            #         mod(theta+(pi/2))) + R*mod((2*pi)+mod(theta+(pi/2))-mod(chie-(pi/2)))
+
             L = [L_rsr, L_rsl, L_lsr, L_lsl]
             index = np.argmin(L) #determine which path is shortest
 
