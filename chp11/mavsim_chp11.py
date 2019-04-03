@@ -34,8 +34,8 @@ path_manage = path_manager()
 # waypoint definition
 waypoints = msg_waypoints()
 waypoints.type = 'straight_line'
-waypoints.type = 'fillet'
-waypoints.type = 'dubins'
+# waypoints.type = 'fillet'
+# waypoints.type = 'dubins'
 waypoints.num_waypoints = 5
 Va = PLAN.Va0
 waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
@@ -65,7 +65,6 @@ while sim_time < SIM.t_end:
 
     #-----------path manager------------------
     path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
-    # print(path.line_origin)
 
     #-----------path follower-----------------
     commands = path_follow.update(path, estimated_state)

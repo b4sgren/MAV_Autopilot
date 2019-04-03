@@ -22,7 +22,6 @@ class path_manager:
         self.manager_state = 1
         # dubins path parameters
         self.dubins_path = dubins_parameters()
-        self.dubins_flag = 1
         self.update_dubins = True
 
     def update(self, waypoints, radius, state):
@@ -60,16 +59,16 @@ class path_manager:
         self.halfspace_r = waypoints.ned[:, self.ptr_current].reshape((3,1))
         p = np.array([[state.pn, state.pe, -state.h]]).T
 
-        # self.path.flag_path_changed = False
         self.path.flag = 'line'
         self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
         self.path.line_origin = waypoints.ned[:, self.ptr_previous].reshape((3,1))
         self.path.line_direction = q_prev.reshape((3,1))
 
         crossed = self.inHalfSpace(p)
-
         if crossed:
             self.path.flag_path_changed = True
+            self.path.line_origin = waypoints.ned[:, self.ptr_current].reshape((3,1))
+            self.path.line_direction = qi.reshape((3,1))
             self.increment_pointers()
         else:
             self.path.flag_path_changed = False
@@ -145,7 +144,6 @@ class path_manager:
             self.dubins_path.update(ps, chis, pe, chie, radius)
 
         if self.manager_state == 1: #check if in half plane initially
-            self.dubins_flag = 2
             self.halfspace_r = self.dubins_path.r1
             self.halfspace_n = -self.dubins_path.n1
 
@@ -169,7 +167,6 @@ class path_manager:
             else:
                 self.path.flag_path_changed = False
         elif self.manager_state == 3: # Line part
-            self.dubins_flag = 1
             self.halfspace_r = self.dubins_path.r2
             self.halfspace_n = self.dubins_path.n1 # mat has n2 here?
 
@@ -183,7 +180,6 @@ class path_manager:
             else:
                 self.path.flag_path_changed = False
         elif self.manager_state == 4:
-            self.dubins_flag = 2
             self.halfspace_r = self.dubins_path.r3
             self.halfspace_n = -self.dubins_path.n3
 
@@ -222,7 +218,6 @@ class path_manager:
             self.ptr_next += 1
         else:
             self.flag_need_new_waypoints = True
-            self.dubins_flag = 1
 
     def inHalfSpace(self, pos):
         if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
