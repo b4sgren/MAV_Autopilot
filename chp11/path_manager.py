@@ -101,6 +101,22 @@ class path_manager:
             if crossed:
                 self.manager_state = 2
                 self.path.flag_path_changed = True
+
+                q_temp = q_prev - qi
+                q_temp = q_temp / np.linalg.norm(q_temp)
+                c = w_current - (radius/np.sin(var_theta/2.)) * q_temp
+
+                z = w_current + (radius/np.tan(var_theta/2.)) * qi # Mat has qi but mine works better with qtemp
+                dir = np.sign(q_prev.item(0)*qi.item(1) - q_prev.item(1) * qi.item(0))
+
+                self.path.flag = 'orbit'
+                self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
+                self.path.orbit_center = c
+                self.path.orbit_radius = radius
+                if dir > 0:
+                    self.path.orbit_direction = 'CW'
+                else:
+                    self.path.orbit_direction = 'CCW'
             else:
                 self.path.flag_path_changed = False
         else:
@@ -124,6 +140,10 @@ class path_manager:
             self.halfspace_n = qi
             crossed = self.inHalfSpace(p)
             if crossed:
+                self.path.flag = 'line'
+                self.path.airspeed = waypoints.airspeed.item(self.ptr_current)
+                self.path.line_origin = w_current
+                self.path.line_direction = qi
                 self.increment_pointers()
                 self.manager_state = 1
                 self.path.flag_path_changed = True
