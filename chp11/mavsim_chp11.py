@@ -35,7 +35,7 @@ path_manage = path_manager()
 waypoints = msg_waypoints()
 waypoints.type = 'straight_line'
 waypoints.type = 'fillet'
-# waypoints.type = 'dubins'
+waypoints.type = 'dubins'
 waypoints.num_waypoints = 4
 Va = PLAN.Va0
 waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
@@ -71,7 +71,7 @@ while sim_time < SIM.t_end:
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #------------Physical System----------------------
-    current_wind = np.zeros((6,1)) # wind.update(dyn._Va)
+    current_wind = wind.update(dyn._Va)
     dyn.update_state(delta, current_wind)
     dyn.updateSensors()
 

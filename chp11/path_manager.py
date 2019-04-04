@@ -34,8 +34,6 @@ class path_manager:
             waypoints.flag_waypoints_changed = False
             self.manager_state = 1
 
-        # if self.path.flag_path_changed:
-        #     self.path.flag_path_changed = False
         if waypoints.num_waypoints == 0:
             waypoints.flag_manager_requests_waypoints = True
         else:
@@ -168,7 +166,7 @@ class path_manager:
 
             self.path.flag = 'orbit'
             self.path.flag_path_changed = self.dubins_state_changed
-            self.dubins_state_changed = False
+            self.dubins_state_changed = False #Note: Won't plot path initially
             self.path.orbit_center = self.dubins_path.center_s
             self.path.orbit_radius = radius
             if self.dubins_path.dir_s > 0:
@@ -178,12 +176,14 @@ class path_manager:
 
             if self.inHalfSpace(p):
                 self.manager_state = 2
-                # self.dubins_state_changed = True
+                self.dubins_state_changed = True
 
         elif self.manager_state == 2:
+            self.halfspace_n = self.dubins_path.n1
             if self.inHalfSpace(p):
                 self.manager_state = 3
                 self.dubins_state_changed = True
+
                 self.path.flag = 'line'
                 self.path.line_origin = self.dubins_path.r1
                 self.path.line_direction = self.dubins_path.n1
@@ -202,6 +202,15 @@ class path_manager:
             if self.inHalfSpace(p):
                 self.manager_state = 4
                 self.dubins_state_changed = True
+
+                self.path.flag = 'orbit'
+                self.path.orbit_center = self.dubins_path.center_e
+                self.path.orbit_radius = radius
+                self.flag_path_changed = self.dubins_state_changed
+                if self.dubins_path.dir_e > 0:
+                    self.path.orbit_direction = 'CW'
+                else:
+                    self.path.orbit_direction = 'CCW'
 
         elif self.manager_state == 4:
             self.halfspace_r = self.dubins_path.r3
@@ -223,10 +232,12 @@ class path_manager:
 
         elif self.manager_state == 5:
             self.halfspace_n = self.dubins_path.n3
+            self.flag_path_changed = self.dubins_state_changed
+            self.dubins_state_changed = False
             if self.inHalfSpace(p):
                 self.manager_state = 1
                 self.path.flag_path_changed = self.dubins_state_changed
-                self.dubins_state_changed = False
+                self.dubins_state_changed = True
                 self.increment_pointers()
                 self.update_dubins = True
 
