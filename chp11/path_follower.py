@@ -5,6 +5,8 @@ import sys
 sys.path.append('..')
 from messages.msg_autopilot import msg_autopilot
 
+from IPython.core.debugger import Pdb
+
 class path_follower:
     def __init__(self):
         self.chi_inf = np.radians(80)   # approach angle for large distance from straight-line path
@@ -58,6 +60,7 @@ class path_follower:
         self.autopilot_commands.phi_feedforward = np.radians(0.0)
 
     def _follow_orbit(self, path, state):
+        # Pdb().set_trace()
         Vg = state.Vg
         psi = state.psi
         chi = state.chi
@@ -76,7 +79,7 @@ class path_follower:
         chi_c = chi0 + dir * atan(self.k_orbit * (d_norm - R)/R)
 
         #Calculate phi_ff
-        phi_ff = atan(Vg**2 / (self.gravity * R * cos(chi - psi)))
+        phi_ff = dir * atan(Vg**2 / (self.gravity * R * cos(chi - psi)))
 
         self.autopilot_commands.airspeed_command = 25.0
         self.autopilot_commands.course_command = chi_c
