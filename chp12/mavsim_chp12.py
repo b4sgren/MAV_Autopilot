@@ -13,7 +13,7 @@ import numpy as np
 import parameters.sim_params as SIM
 import parameters.planner_parameters as PLAN
 
-from messages.msg_waypoints import msg_waypoints
+from messages.msg_map import msg_map
 
 from mav_dynamics import mav_dynamics as Dynamics
 from data_viewer import data_viewer
@@ -24,6 +24,7 @@ from tools.signals import signals
 from waypoint_viewer import waypoint_viewer
 from path_follower import path_follower
 from path_manager import path_manager
+from path_planner import path_planner
 
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
@@ -33,22 +34,8 @@ obsv = observer(SIM.ts_sim)
 path_follow = path_follower()
 path_manage = path_manager()
 
-# waypoint definition
-waypoints = msg_waypoints()
-waypoints.type = 'straight_line'
-waypoints.type = 'fillet'
-waypoints.type = 'dubins'
-waypoints.num_waypoints = 4
-Va = PLAN.Va0
-waypoints.ned[:,0:waypoints.num_waypoints] = np.array([[0, 0, -100],
-                                                       [1000, 0, -100],
-                                                       [0, 1000, -100],
-                                                       [1000, 1000, -100]]).T
-waypoints.airspeed[:, 0:waypoints.num_waypoints] = np.array([[Va, Va, Va, Va]])
-waypoints.course[:, 0:waypoints.num_waypoints] = np.array([[0,
-                                                            np.radians(45),
-                                                            np.radians(45),
-                                                            np.radians(-135)]])
+# map definition
+map = msg_map()
 
 waypoint_view = waypoint_viewer()
 data_view = data_viewer()
@@ -62,6 +49,10 @@ while sim_time < SIM.t_end:
     #-----------observer---------------------
     measurements = dyn.sensors
     estimated_state = obsv.update(measurements)
+
+    #-----------path planner -------------------
+    if path_manage.flag_need_new_waypoints:
+        waypoints = path_plan.update(map, estimated_state)
 
     #-----------path manager------------------
     path = path_manage.update(waypoints, PLAN.R_min, estimated_state)
