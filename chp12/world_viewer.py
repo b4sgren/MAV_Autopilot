@@ -48,6 +48,7 @@ class world_viewer():
             self.drawMAV(state)
             self.drawWaypoints(waypoints, path.orbit_radius)
             self.drawPath(path)
+            self.drawCity(map)
             self.plot_initialized = True
 
         # else update drawing on all other calls to update()
@@ -364,6 +365,9 @@ class world_viewer():
         R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
         points = points @ R.T
         return points
+
+    def drawCity(self, map):
+        debut = 1
 
 def mod(x):
     # force x to be between 0 and 2*pi
