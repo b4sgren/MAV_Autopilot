@@ -14,8 +14,8 @@ class path_planner:
         planner_flag = 2  # return dubins waypoint path
         # planner_flag = 3  # do straight line RRT through city
         # planner_flag = 4  # do dubins RRT through city
-         p = np.array([[state.pn, state.pe, -state.h]]).T
-         m = np.array([[map.city_width, map.city_width, -state.h]]).T
+        p = np.array([[state.pn, state.pe, -state.h]]).T
+        m = np.array([[map.city_width, map.city_width, -state.h]]).T
 
         if planner_flag == 1:
             self.waypoints.type = 'fillet'

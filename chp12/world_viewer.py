@@ -17,7 +17,7 @@ import pyqtgraph.Vector as Vector
 from tools.tools import Euler2Rotation
 from dubins_parameters import dubins_parameters
 
-class waypoint_viewer():
+class world_viewer():
     def __init__(self):
         self.scale = 4000
         # initialize Qt gui application and window
@@ -41,7 +41,7 @@ class waypoint_viewer():
 
     ###################################
     # public functions
-    def update(self, waypoints, path, state):
+    def update(self, map, waypoints, path, state):
 
         # initialize the drawing the first time update() is called
         if not self.plot_initialized:
