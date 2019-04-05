@@ -33,6 +33,7 @@ ctrl = autopilot(SIM.ts_sim)
 obsv = observer(SIM.ts_sim)
 path_follow = path_follower()
 path_manage = path_manager()
+path_plan = path_planner()
 
 # map definition
 map = msg_map()

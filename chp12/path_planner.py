@@ -1,14 +1,16 @@
 import sys
 sys.path.append("..")
+
 from messages.msg_waypoints import msg_waypoints
+import numpy as np
 
 class path_planner:
     def __init__(self):
         self.waypoints = msg_waypoints()
 
     def update(self, map, state):
-        planner_flag = 1  # return simple fillet path
-        # planner_flag = 2  # return dubins waypoint path
+        # planner_flag = 1  # return simple fillet path
+        planner_flag = 2  # return dubins waypoint path
         # planner_flag = 3  # do straight line RRT through city
         # planner_flag = 4  # do dubins RRT through city
 
@@ -41,4 +43,4 @@ class path_planner:
         else:
             print("Unknown planner type")
 
-        return self.waypoints()
+        return self.waypoints

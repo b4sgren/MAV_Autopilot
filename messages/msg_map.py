@@ -11,7 +11,7 @@ class msg_map:
         self.street_width = PLAN.city_width/PLAN.num_blocks * PLAN.street_width
         self.building_max_height = PLAN.building_height
         #Array of heights of buildings
-        self.building_height = PLAN.building_max_height * np.abs(np.random.randn(self.num_city_blocks, self.num_city_blocks))
+        self.building_height = self.building_max_height * np.abs(np.random.randn(self.num_city_blocks, self.num_city_blocks))
         #Width of each building is the same
         self.building_width = PLAN.city_width/PLAN.num_blocks * (1- PLAN.street_width)
         #Array of north corner of the building
