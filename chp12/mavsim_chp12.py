@@ -5,7 +5,7 @@ mavsim
         1/10/2019 - RWB
 """
 
-# Matlab tmeplate files: path_planner.m, world_viewer.m, msg_map.m, mavsim_chap12.m
+# Matlab tmeplate files: path_planner.m, world_viewer.m,
 import sys
 sys.path.append('..')
 import numpy as np
