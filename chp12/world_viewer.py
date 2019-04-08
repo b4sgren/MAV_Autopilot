@@ -302,8 +302,22 @@ class world_viewer():
             else:
                 if th1 <= th2:
                     while th > th2 - 2*np.pi:
-                        th -= Del
-                        theta_list.append(th)
+                         th -= Del
+                         mesh = np.array([[points[0], points[1], points[2]],  # nose-top
+                         [points[0], points[1], points[4]],  # nose-right
+                         [points[0], points[3], points[4]],  # nose-bottom
+                         [points[0], points[3], points[2]],  # nose-left
+                         [points[5], points[2], points[3]],  # fuselage-left
+                         [points[5], points[1], points[2]],  # fuselage-top
+                         [points[5], points[1], points[4]],  # fuselage-right
+                         [points[5], points[3], points[4]],  # fuselage-bottom
+                         [points[6], points[7], points[9]],  # wing
+                         [points[7], points[8], points[9]],  # wing
+                         [points[10], points[11], points[12]],  # horizontal tail
+                         [points[10], points[12], points[13]],  # horizontal tail
+                         [points[5], points[14], points[15]],  # vertical tail
+                         ])
+                         theta_list.append(th)
                 else:
                     while th > th2:
                         th -= Del
@@ -367,7 +381,47 @@ class world_viewer():
         return points
 
     def drawCity(self, map):
-        debut = 1
+        w = map.building_width
+        for i in range(map.num_city_blocks): # see if there is a way to vectorize this
+            n = map.building_north[i]
+            for j in range(map.num_city_blocks):
+                e = map.building_north[j]
+                h = map.building_height[i, j]
+                bldg_pts = np.array([[n, e, 0], # south west bottom corner
+                                     [n+w, e, 0],  # north west bottom corner
+                                     [n+w, e+w, 0],  #north east bottom
+                                     [n, e+w, 0],  #south east bottom
+                                     [n, e, h], # south west top corner
+                                     [n+w, e, h],  # north west top
+                                     [n+w, e+w, h], # north east top
+                                     [n, e+w, h]])  # south east top
+
+                R = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]])
+                bldg_pts = bldg_pts @ R.T # rotate from NEU to ENU
+
+                mesh = np.array([[bldg_pts[0], bldg_pts[1], bldg_pts[4]],
+                                 [bldg_pts[1], bldg_pts[5], bldg_pts[4]],
+                                 [bldg_pts[1], bldg_pts[2], bldg_pts[5]],
+                                 [bldg_pts[2], bldg_pts[6], bldg_pts[5]],
+                                 [bldg_pts[2], bldg_pts[3], bldg_pts[6]],
+                                 [bldg_pts[2], bldg_pts[7], bldg_pts[6]],
+                                 [bldg_pts[3], bldg_pts[0], bldg_pts[7]],
+                                 [bldg_pts[0], bldg_pts[4], bldg_pts[7]],
+                                 [bldg_pts[4], bldg_pts[5], bldg_pts[6]],
+                                 [bldg_pts[4], bldg_pts[6], bldg_pts[7]]])
+
+                blue = np.array([0., 0., 1., 1])
+                meshColors = np.empty((10, 3, 4), dtype=np.float32)
+                for k in range(10):
+                    meshColors[k] = blue
+
+                bldg = gl.GLMeshItem(vertexes=mesh,  # defines the triangular mesh (Nx3x3)
+                                      vertexColors=meshColors,  # defines mesh colors (Nx1)
+                                      drawEdges=True,  # draw edges between mesh elements
+                                      smooth=False,  # speeds up rendering
+                                      computeNormals=False)  # speeds up rendering
+                self.window.addItem(bldg)
+
 
 def mod(x):
     # force x to be between 0 and 2*pi
