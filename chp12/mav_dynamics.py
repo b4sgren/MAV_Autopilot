@@ -49,7 +49,6 @@ class mav_dynamics:
             Inputs are the forces and moments on the aircraft.
             Ts is the time step between function calls.
         '''
-
         forces_moments = self.calcForcesAndMoments(deltas)
 
         # Integrate ODE using Runge-Kutta RK4 algorithm
