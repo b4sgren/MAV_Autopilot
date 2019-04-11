@@ -29,8 +29,9 @@ sim_time = SIM.t0
 
 #get trim input and states
 Va_star = 25.
-gamma_star = 0.
-trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star)
+gamma_star = np.radians(10)
+R = 150.0
+trim_state, trim_input = compute_trim(dyn, Va_star, gamma_star, R)
 delta = np.copy(trim_input)
 
 # main simulation loop
@@ -43,7 +44,7 @@ while sim_time < SIM.t_end:
     #     delta[3,0] = 0.75
     # else:
     #     delta[3, 0] = trim_input.item(3)
-    # 
+    #
     # if sim_time >= 10.0 and sim_time <=10.2:
     #     delta[3,0] = -0.75
     # elif sim_time > 10.2 and sim_time <= 10.4:
