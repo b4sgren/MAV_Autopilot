@@ -62,18 +62,23 @@ class autopilot:
 
     def update(self, cmd, state):
         # lateral autopilot
-        #add phi_feedforward to phi_c?
         psi_c = cmd.course_command
 
         phi_c = self.course_from_roll.update(psi_c, state.chi, rad_flag=True) + cmd.phi_feedforward
+        phi_c = self.saturate(phi_c, -np.radians(30), np.radians(30))
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)
+        delta_a = self.saturate(delta_a, -1, 1)
         delta_r = self.yaw_damper.update(state.r)
+        delta_r = self.saturate(delta_r, -1, 1)
 
         # longitudinal autopilot
         h_c = cmd.altitude_command
         theta_c = self.altitude_from_pitch.update(h_c, state.h)
+        theta_c = self.saturate(theta_c, -np.radians(30), np.radians(30)) # how to use the altitude zone?
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
+        delta_e = self.saturate(delta_e, -1, 1)
         delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va)
+
 
         # construct output and commanded states
         delta = np.array([[delta_e], [delta_t], [delta_a], [delta_r]])
