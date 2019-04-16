@@ -1,6 +1,7 @@
 import numpy as np
 from messages.msg_waypoints import msg_waypoints
 
+from IPython.core.debugger import Pdb
 
 class planRRT():
     def __init__(self):
@@ -17,7 +18,8 @@ class planRRT():
         end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0])
 
         # establish tree starting with the start node
-        tree = start_node
+        tree = np.empty((1, 6))
+        tree[0,:] = start_node
 
         # check to see if start_node connects directly to end_node
         if ((np.linalg.norm(start_node[0:3] - end_node[0:3]) < self.segmentLength ) and not self.collision(start_node, end_node, map)):
@@ -44,6 +46,7 @@ class planRRT():
         n = pt.item(0)
         e = pt.item(1)
 
+        print(tree.shape)
         dist = (n - tree[:,0])**2 + (e - tree[:,1])**2
         index = np.argmin(dist)
 
@@ -79,30 +82,29 @@ class planRRT():
         vec = end_node[0:3] - start_node[0:3]
         vec = vec/np.linalg.norm(vec)
 
-        points = start_node[0:3]
+        points = np.empty((1,3))
+        points[0] = start_node[0:3]
         for i in range(10):
             temp = points[-1,:] + vec * Del
             points = np.hstack((points, temp))
 
         return points
 
-    def downAtNE(self, map, n, e):
-        debug = 0
-
     def extendTree(self, tree, end_node, segmentLength, map, pd):
+        Pdb().set_trace()
         pt = self.generateRandomNode(map, pd, 0) #figure out what chi is later
         v_star, index = self.findClosestNode(tree, pt)
-        v_plus = self.planSegment(v_star, p)
+        v_plus = self.planSegment(v_star, pt)
         flag = 0
         if not self.collision(v_star, v_plus, map):
             #append to tree
             cost = self.segmentLength + tree[index, 3]
-            temp = np.array(v_plus[0], v_plus[1], v_plus[2], cost, index, flag)
+            temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
             np.hstack((tree, temp))
         if not self.collision(v_plus, end_node, map):
             flag = 1
             cost +=  np.linalg.norm(v_plus[0:3])
-            temp = np.array(end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag)
+            temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
             np.hstack((tree, temp))
 
         return tree, flag
