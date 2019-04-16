@@ -41,9 +41,10 @@ print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:
     #-------controller-------------
     estimated_state = dyn.msg_true_state  # uses true states in the control
-    commands.airspeed_command = Va_command.square(sim_time)
-    commands.course_command = chi_command.square(sim_time)
-    commands.altitude_command = h_command.square(sim_time)
+    commands.airspeed_command = 20 #Va_command.square(sim_time)
+    commands.course_command = np.pi/4 #chi_command.square(sim_time)
+    commands.altitude_command = 90 #h_command.square(sim_time)
+    commands.phi_feedforward = 0
     delta, commanded_state = ctrl.update(commands, estimated_state)
 
     #---Get the wind here

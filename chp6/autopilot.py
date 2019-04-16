@@ -13,6 +13,8 @@ from messages.state_msg import StateMsg
 from tools.tools import Quaternion2Euler
 from tools.transfer_function import transfer_function
 
+from IPython.core.debugger import Pdb
+
 
 class autopilot:
     def __init__(self, ts_control):
@@ -63,6 +65,7 @@ class autopilot:
     def update(self, cmd, state):
         # lateral autopilot
         #add phi_feedforward to phi_c?
+        Pdb().set_trace()
         phi_c = self.course_from_roll.update(cmd.course_command, state.chi, rad_flag=True)
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p) #try this second
         delta_r = self.yaw_damper.update(state.r)
@@ -71,7 +74,7 @@ class autopilot:
         h_c = cmd.altitude_command
         theta_c = self.altitude_from_pitch.update(h_c, state.h)
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
-        dcdelta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
+        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va) # tune first
 
         #for tuning
         # delta_e = AP.trim_input.item(0)

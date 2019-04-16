@@ -13,7 +13,6 @@ from messages.state_msg import StateMsg
 from tools.tools import Quaternion2Euler
 from tools.transfer_function import transfer_function
 
-
 class autopilot:
     def __init__(self, ts_control):
         #Can i just use the PID control class with 0 for certain gain?
@@ -64,7 +63,7 @@ class autopilot:
         # lateral autopilot
         psi_c = cmd.course_command
 
-        phi_c = self.course_from_roll.update(psi_c, state.chi, rad_flag=True) + cmd.phi_feedforward
+        phi_c = self.course_from_roll.update(psi_c, state.chi, rad_flag=True) + 0 #cmd.phi_feedforward
         phi_c = self.saturate(phi_c, -np.radians(30), np.radians(30))
         delta_a = self.roll_from_aileron.update_with_rate(phi_c, state.phi, state.p)
         delta_a = self.saturate(delta_a, -1, 1)
@@ -72,12 +71,15 @@ class autopilot:
         delta_r = self.saturate(delta_r, -1, 1)
 
         # longitudinal autopilot
-        h_c = cmd.altitude_command
+        # h_c = cmd.altitude_command
+        # Va_c = cmd.airspeed_command
+        h_c = 110
+        Va_c = 25
         theta_c = self.altitude_from_pitch.update(h_c, state.h)
         theta_c = self.saturate(theta_c, -np.radians(30), np.radians(30)) # how to use the altitude zone?
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
         delta_e = self.saturate(delta_e, -1, 1)
-        delta_t = self.airspeed_from_throttle.update(cmd.airspeed_command, state.Va)
+        delta_t = self.airspeed_from_throttle.update(Va_c, state.Va)
 
 
         # construct output and commanded states
