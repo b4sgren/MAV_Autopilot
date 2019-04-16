@@ -8,11 +8,13 @@ import numpy as np
 import sys
 sys.path.append('..')
 from messages.msg_waypoints import msg_waypoints
+from planRRT import planRRT
 
 class path_planner:
     def __init__(self):
         # waypoints definition
         self.waypoints = msg_waypoints()
+        self.rrt = planRRT()
 
     def update(self, map, state):
         # this flag is set for one time step to signal a redraw in the viewer

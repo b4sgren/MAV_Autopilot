@@ -3,7 +3,7 @@ from messages.msg_waypoints import msg_waypoints
 
 
 class planRRT():
-    def __init__(self, map):
+    def __init__(self):
         self.waypoints = msg_waypoints()
         self.segmentLength = 300 # standard length of path segments
 
@@ -94,12 +94,12 @@ class planRRT():
         v_star, index = self.findClosestNode(tree, pt)
         v_plus = self.planSegment(v_star, p)
         flag = 0
-        if !self.collision(v_star, v_plus, map):
+        if not self.collision(v_star, v_plus, map):
             #append to tree
             cost = self.segmentLength + tree[index, 3]
             temp = np.array(v_plus[0], v_plus[1], v_plus[2], cost, index, flag)
             np.hstack((tree, temp))
-        if !self.collision(v_plus, end_node, map):
+        if not self.collision(v_plus, end_node, map):
             flag = 1
             cost +=  np.linalg.norm(v_plus[0:3])
             temp = np.array(end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag)
