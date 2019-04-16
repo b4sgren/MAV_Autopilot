@@ -46,7 +46,6 @@ class planRRT():
         n = pt.item(0)
         e = pt.item(1)
 
-        print(tree.shape)
         dist = (n - tree[:,0])**2 + (e - tree[:,1])**2
         index = np.argmin(dist)
 
@@ -86,12 +85,12 @@ class planRRT():
         points[0] = start_node[0:3]
         for i in range(10):
             temp = points[-1,:] + vec * Del
-            points = np.hstack((points, temp))
+            # temp = temp.reshape((1,3))
+            points = np.vstack((points, temp))
 
         return points
 
     def extendTree(self, tree, end_node, segmentLength, map, pd):
-        Pdb().set_trace()
         pt = self.generateRandomNode(map, pd, 0) #figure out what chi is later
         v_star, index = self.findClosestNode(tree, pt)
         v_plus = self.planSegment(v_star, pt)
@@ -100,16 +99,17 @@ class planRRT():
             #append to tree
             cost = self.segmentLength + tree[index, 3]
             temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
-            np.hstack((tree, temp))
-        if not self.collision(v_plus, end_node, map):
+            np.vstack((tree, temp))
+        if self.collision(v_plus, end_node, map):
             flag = 1
             cost +=  np.linalg.norm(v_plus[0:3])
             temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
-            np.hstack((tree, temp))
+            np.vstack((tree, temp))
 
         return tree, flag
 
     def findMinimumPath(self, tree, end_node):
+        Pdb().set_trace()
         indices = np.nonzero(tree[:,-1])
         index = np.argmin(tree[indices, 3])
         #get the list of all points
@@ -134,4 +134,4 @@ class planRRT():
             j += 1
         smooth.append[path[-1]]
         smooth = np.array(smooth)
-        self.waypoints.ned = smooth[0:3, :].T
+        self.waypoints.ned = smooth[:, 0:3].T
