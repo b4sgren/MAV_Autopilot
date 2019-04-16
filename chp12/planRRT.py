@@ -100,7 +100,7 @@ class planRRT():
             cost = self.segmentLength + tree[index, 3]
             temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
             np.vstack((tree, temp))
-        if self.collision(v_plus, end_node, map):
+        if not self.collision(v_plus, end_node, map):
             flag = 1
             cost +=  np.linalg.norm(v_plus[0:3])
             temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
