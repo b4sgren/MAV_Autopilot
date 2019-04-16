@@ -71,10 +71,8 @@ class autopilot:
         delta_r = self.saturate(delta_r, -1, 1)
 
         # longitudinal autopilot
-        # h_c = cmd.altitude_command
-        # Va_c = cmd.airspeed_command
-        h_c = 110
-        Va_c = 25
+        h_c = cmd.altitude_command
+        Va_c = cmd.airspeed_command
         theta_c = self.altitude_from_pitch.update(h_c, state.h)
         theta_c = self.saturate(theta_c, -np.radians(30), np.radians(30)) # how to use the altitude zone?
         delta_e =  self.pitch_from_elevator.update_with_rate(theta_c, state.theta, state.q)
