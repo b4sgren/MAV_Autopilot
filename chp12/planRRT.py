@@ -13,7 +13,7 @@ class planRRT():
 
         # specify start and end nodes from wpp_start and wpp_end
         # format: N, E, D, cost, parentIndex, connectsToGoalFlag,
-        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, 0, 0])
+        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, -1, 0])
         end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0])
 
         # establish tree starting with the start node
@@ -28,10 +28,10 @@ class planRRT():
                 tree, flag = self.extendTree(tree, end_node, self.segmentLength, map, pd)
                 numPaths = numPaths + flag
 
-
         # find path with minimum cost to end_node
         path = self.findMinimumPath(tree, end_node)
-        return self.smoothPath(path, map)
+        self.smoothPath(path, map)
+        return self.waypoints
 
     def generateRandomNode(self, map, pd, chi):
         min = 0
@@ -70,10 +70,10 @@ class planRRT():
 
             buf = 5
             if (pt[0] > dst_n[index_n] - buf and pt[0] < dst_n[index_n] + map.building_width + buf) \
-               and (pt[1] > dst_e[index_e] - buf and pt[1] < dst_e[index_e] + map.building_width + buf):
+               and (pt[1] > dst_e[index_e] - buf and pt[1] < dst_e[index_e] + map.building_width + buf) \
+               and (pt[2] < map.building_height[index_n, index_e] + buf):
                return True
         return False
-
 
     def pointsAlongPath(self, start_node, end_node, Del):
         vec = end_node[0:3] - start_node[0:3]
@@ -105,10 +105,31 @@ class planRRT():
             temp = np.array(end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag)
             np.hstack((tree, temp))
 
-        return flag
+        return tree, flag
 
     def findMinimumPath(self, tree, end_node):
-        debug = 0
+        indices = np.nonzero(tree[:,-1])
+        index = np.argmin(tree[indices, 3])
+        #get the list of all points
+        waypoints = [tree[index]]
+        while tree[index,4] != -1:
+            index = tree[index,4]
+            waypoints.append(tree[index])
+        return waypoints[::-1] # this reverses the list
 
     def smoothPath(self, path, map):
-        debug = 0
+        i = 0
+        j = 1
+        smooth = [path[0]]
+
+        while j < len(path)-1:
+            node = path[i]
+            next_node = path[j+1]
+            if self.collisions(node, next_node, map):
+                last_node = path[j]
+                smooth.append[last_node]
+                i = j
+            j += 1
+        smooth.append[path[-1]]
+        smooth = np.array(smooth)
+        self.waypoints.ned = smooth[0:3, :].T
