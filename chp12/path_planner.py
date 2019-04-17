@@ -10,6 +10,8 @@ sys.path.append('..')
 from messages.msg_waypoints import msg_waypoints
 from planRRT import planRRT
 
+from IPython.core.debugger import Pdb
+
 class path_planner:
     def __init__(self):
         # waypoints definition
@@ -70,6 +72,7 @@ class path_planner:
                                     Va])
 
             waypoints = self.rrt.planPath(wpp_start, wpp_end, map)
+            Pdb().set_trace()
             self.waypoints.ned = waypoints.ned
             self.waypoints.airspeed = waypoints.airspeed
             self.waypoints.num_waypoints = waypoints.num_waypoints
