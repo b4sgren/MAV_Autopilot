@@ -35,6 +35,7 @@ class planDubinsRRT():
                 numPaths = numPaths + flag
 
         # find path with minimum cost to end_node
+        Pdb().set_trace()
         path = self.findMinimumPath(tree, end_node)
         self.smoothPath(path, map)
         return self.waypoints
