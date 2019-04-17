@@ -60,7 +60,7 @@ class path_planner:
                                   state.pe,
                                   -state.h,
                                   state.Va])
-            if np.linalg.norm(np.array([state.pn, state.pe, -state.h])-np.array([map.city_width, map.city_width, -state.h])) == 0:
+            if np.linalg.norm(np.array([state.pn, state.pe, -state.h])-np.array([map.city_width, map.city_width, -state.h])) <= 50:
                 wpp_end = np.array([0,
                                     0,
                                     -state.h,
@@ -72,7 +72,6 @@ class path_planner:
                                     Va])
 
             waypoints = self.rrt.planPath(wpp_start, wpp_end, map)
-            # Pdb().set_trace()
             self.waypoints.num_waypoints = waypoints.num_waypoints
             self.waypoints.ned = waypoints.ned
             self.waypoints.airspeed = 25 * np.ones(waypoints.num_waypoints)
