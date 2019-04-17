@@ -27,12 +27,12 @@ class planRRT():
         else:
             numPaths = 0
             while numPaths < 3:
-                Pdb().set_trace()
                 tree, flag = self.extendTree(tree, end_node, self.segmentLength, map, pd)
                 numPaths = numPaths + flag
 
         # find path with minimum cost to end_node
         path = self.findMinimumPath(tree, end_node)
+        # Pdb().set_trace()
         self.smoothPath(path, map)
         return self.waypoints
 
@@ -62,8 +62,7 @@ class planRRT():
         return np.array([v_plus.item(0), v_plus.item(1), p.item(2), 0, 0, 0])
 
     def collision(self, start_node, end_node, map):
-        # delta = self.segmentLength/10
-        delta = 25
+        delta = 10
         pts = self.pointsAlongPath(start_node, end_node, delta)
 
         for i in range(pts.shape[0]):
@@ -111,22 +110,21 @@ class planRRT():
             cost = self.segmentLength + tree[index, 3]
             temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
             tree = np.vstack((tree, temp))
-        if not self.collision(v_plus, end_node, map):
-            flag = 1
-            cost +=  np.linalg.norm(v_plus[0:3])
-            temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
-            tree = np.vstack((tree, temp))
+            if not self.collision(v_plus, end_node, map):
+                flag = 1
+                cost +=  np.linalg.norm(v_plus[0:3])
+                temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
+                tree = np.vstack((tree, temp))
 
         return tree, flag
 
     def findMinimumPath(self, tree, end_node):
-        Pdb().set_trace()
         indices = np.nonzero(tree[:,-1])
-        index = np.argmin(tree[indices, 3])
+        index = indices[0][np.argmin(tree[indices, 3])]
         #get the list of all points
         waypoints = [tree[index]]
         while tree[index,4] != -1:
-            index = tree[index,4]
+            index = int(tree[index,4])
             waypoints.append(tree[index])
         return waypoints[::-1] # this reverses the list
 
@@ -138,11 +136,11 @@ class planRRT():
         while j < len(path)-1:
             node = path[i]
             next_node = path[j+1]
-            if self.collisions(node, next_node, map):
+            if self.collision(node, next_node, map):
                 last_node = path[j]
-                smooth.append[last_node]
+                smooth.append(last_node)
                 i = j
             j += 1
-        smooth.append[path[-1]]
+        smooth.append(path[-1])
         smooth = np.array(smooth)
         self.waypoints.ned = smooth[:, 0:3].T
