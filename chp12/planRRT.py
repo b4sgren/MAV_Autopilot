@@ -27,6 +27,7 @@ class planRRT():
         else:
             numPaths = 0
             while numPaths < 3:
+                Pdb().set_trace()
                 tree, flag = self.extendTree(tree, end_node, self.segmentLength, map, pd)
                 numPaths = numPaths + flag
 
@@ -35,11 +36,12 @@ class planRRT():
         self.smoothPath(path, map)
         return self.waypoints
 
-    def generateRandomNode(self, map, pd, chi):
+    def generateRandomNode(self, map, pd):
         min = 0
         max = map.city_width
+        p = np.random.uniform(min, max, 3)
+        p[2] = pd
 
-        p = np.array([np.random.uniform(min, max), np.random.uniform(min, max), pd, chi])  # N, E, D, heading
         return p
 
     def findClosestNode(self, tree, pt):
@@ -52,14 +54,16 @@ class planRRT():
         return tree[index,:], index
 
     def planSegment(self, v_star, p):
-        v = v_star[0:3] - p[0:3]
+        v = p[0:3] - v_star[0:3]
         v = v / np.linalg.norm(v)
         v_plus = v_star[0:3] + v * self.segmentLength
 
-        return np.array([v_plus.item(0), v_plus.item(1), p.item(2), p.item(3)])
+        # N, E, D, cost, parent node, connect to goal
+        return np.array([v_plus.item(0), v_plus.item(1), p.item(2), 0, 0, 0])
 
     def collision(self, start_node, end_node, map):
-        delta = self.segmentLength/10
+        # delta = self.segmentLength/10
+        delta = 25
         pts = self.pointsAlongPath(start_node, end_node, delta)
 
         for i in range(pts.shape[0]):
@@ -71,19 +75,25 @@ class planRRT():
             index_e = np.argmin(dst_e)
 
             buf = 5
-            if (pt[0] > dst_n[index_n] - buf and pt[0] < dst_n[index_n] + map.building_width + buf) \
-               and (pt[1] > dst_e[index_e] - buf and pt[1] < dst_e[index_e] + map.building_width + buf) \
-               and (pt[2] < map.building_height[index_n, index_e] + buf):
+            dn = map.building_north[index_n]
+            de = map.building_east[index_e]
+            # if (pt[0] > dst_n[index_n] - buf and pt[0] < dst_n[index_n] + map.building_width + buf) \
+            #    and (pt[1] > dst_e[index_e] - buf and pt[1] < dst_e[index_e] + map.building_width + buf) \
+            #    and (pt[2] < map.building_height[index_n, index_e] + buf):
+            if (pt[0] > dn - buf and pt[0] < dn + map.building_width + buf) \
+               and (pt[1] > de - buf and pt[1] < de + map.building_width + buf):
                return True
         return False
 
     def pointsAlongPath(self, start_node, end_node, Del):
         vec = end_node[0:3] - start_node[0:3]
-        vec = vec/np.linalg.norm(vec)
+        v = np.linalg.norm(vec)
+        num_pts = np.ceil(v/Del)
+        vec = vec/v
 
         points = np.empty((1,3))
         points[0] = start_node[0:3]
-        for i in range(10):
+        for i in range(int(num_pts)):
             temp = points[-1,:] + vec * Del
             # temp = temp.reshape((1,3))
             points = np.vstack((points, temp))
@@ -91,7 +101,7 @@ class planRRT():
         return points
 
     def extendTree(self, tree, end_node, segmentLength, map, pd):
-        pt = self.generateRandomNode(map, pd, 0) #figure out what chi is later
+        pt = self.generateRandomNode(map, pd)
         v_star, index = self.findClosestNode(tree, pt)
         v_plus = self.planSegment(v_star, pt)
         flag = 0
@@ -99,12 +109,12 @@ class planRRT():
             #append to tree
             cost = self.segmentLength + tree[index, 3]
             temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
-            np.vstack((tree, temp))
+            tree = np.vstack((tree, temp))
         if not self.collision(v_plus, end_node, map):
             flag = 1
             cost +=  np.linalg.norm(v_plus[0:3])
             temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
-            np.vstack((tree, temp))
+            tree = np.vstack((tree, temp))
 
         return tree, flag
 
