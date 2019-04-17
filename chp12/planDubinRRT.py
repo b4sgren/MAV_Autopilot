@@ -7,7 +7,7 @@ from IPython.core.debugger import Pdb
 class planDubinsRRT():
     def __init__(self):
         self.waypoints = msg_waypoints()
-        self.segmentLength = 300 # standard length of path segments
+        self.segmentLength = 500 # standard length of path segments
         self.dubins_params = dubins_parameters()
 
     def planPath(self, wpp_start, wpp_end, map):
@@ -68,7 +68,7 @@ class planDubinsRRT():
 
     def collision(self, start_node, end_node, map):
         #need to edit this function
-        R = 150
+        R = 200
         delta = 10
         d_ang = np.radians(1)
         buf = 5
@@ -174,7 +174,7 @@ class planDubinsRRT():
         return tree, flag
 
     def findMinimumPath(self, tree, end_node):
-        indices = np.nonzero(tree[:,-1])
+        indices = np.nonzero(tree[:,-2])
         index = indices[0][np.argmin(tree[indices, 3])]
         #get the list of all points
         waypoints = [tree[index]]
