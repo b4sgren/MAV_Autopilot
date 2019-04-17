@@ -9,6 +9,7 @@ import sys
 sys.path.append('..')
 from messages.msg_waypoints import msg_waypoints
 from planRRT import planRRT
+from planDubinRRT import planDubinsRRT
 
 from IPython.core.debugger import Pdb
 
@@ -96,7 +97,12 @@ class path_planner:
                                     -state.h,
                                     Va,
                                     -np.pi/2.0])
-
+            waypoints = self.dubins_rrt.planPath(wpp_start, wpp_end, map)
+            self.waypoints.num_waypoints = waypoints.num_waypoints
+            self.waypoints.ned = waypoints.ned
+            self.waypoints.airspeed = Va * np.ones(waypoints.num_waypoints)
+            self.waypoints.flag_waypoints_changed = True
+            self.waypoints.course = waypoints.course
         else:
             print("Error in Path Planner: Undefined planner type.")
 

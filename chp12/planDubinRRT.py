@@ -3,11 +3,10 @@ from messages.msg_waypoints import msg_waypoints
 
 from IPython.core.debugger import Pdb
 
-class planRRT():
+class planDubinsRRT():
     def __init__(self):
         self.waypoints = msg_waypoints()
         self.segmentLength = 300 # standard length of path segments
-
     def planPath(self, wpp_start, wpp_end, map):
         # desired down position is down position of end node
         pd = wpp_end.item(2)
