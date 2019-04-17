@@ -262,6 +262,7 @@ class path_manager:
         self.ptr_current += 1
         if self.ptr_current >= self.num_waypoints:
             self.ptr_current = 0
+            self.flag_need_new_waypoints = True
         self.ptr_next += 1
         if self.ptr_next >= self.num_waypoints:
             self.ptr_next = 0
