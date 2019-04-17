@@ -73,6 +73,7 @@ class path_planner:
             self.waypoints.ned = waypoints.ned
             self.waypoints.airspeed = waypoints.airspeed
             self.waypoints.num_waypoints = waypoints.num_waypoints
+            self.waypoints.flag_waypoints_changed = True
         # elif planner_flag == 4:
 
         else:

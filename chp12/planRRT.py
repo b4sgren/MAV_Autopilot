@@ -32,7 +32,6 @@ class planRRT():
 
         # find path with minimum cost to end_node
         path = self.findMinimumPath(tree, end_node)
-        # Pdb().set_trace()
         self.smoothPath(path, map)
         return self.waypoints
 

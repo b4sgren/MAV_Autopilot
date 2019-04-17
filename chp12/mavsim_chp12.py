@@ -44,6 +44,9 @@ data_view = data_viewer()
 # initialize the simulation time
 sim_time = SIM.t0
 
+dyn.update_state(np.zeros(4), np.zeros((6,1)))
+dyn.updateSensors()
+
 # main simulation loop
 print("Press Ctrl-Q to exit...")
 while sim_time < SIM.t_end:

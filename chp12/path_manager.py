@@ -249,22 +249,23 @@ class path_manager:
         self.update_dubins = True
 
     def increment_pointers(self):
-        # if  self.ptr_current < self.num_waypoints-1:
-        #     self.ptr_previous += 1
-        #     self.ptr_current += 1
-        #     self.ptr_next += 1
-        # else:
-        #     self.flag_need_new_waypoints = True
-        self.ptr_previous += 1
-        if self.ptr_previous >= self.num_waypoints:
-            self.ptr_previous = 0
-        self.ptr_current += 1
-        if self.ptr_current >= self.num_waypoints:
-            self.ptr_current = 0
-        self.ptr_next += 1
-        if self.ptr_next >= self.num_waypoints:
-            self.ptr_next = 0
-        self.update_dubins = True
+        if  self.ptr_current < self.num_waypoints-1:
+            self.ptr_previous += 1
+            self.ptr_current += 1
+            self.ptr_next += 1
+        else:
+            self.flag_need_new_waypoints = True
+            
+        # self.ptr_previous += 1
+        # if self.ptr_previous >= self.num_waypoints:
+        #     self.ptr_previous = 0
+        # self.ptr_current += 1
+        # if self.ptr_current >= self.num_waypoints:
+        #     self.ptr_current = 0
+        # self.ptr_next += 1
+        # if self.ptr_next >= self.num_waypoints:
+        #     self.ptr_next = 0
+        # self.update_dubins = True
 
     def inHalfSpace(self, pos):
         if (pos-self.halfspace_r).T @ self.halfspace_n >= 0:
