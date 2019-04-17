@@ -41,6 +41,9 @@ class mav_dynamics:
         self._gps_eta_h = 0.0
         self._t_gps = 999. #timer so that gps only updates every ts_gps seconds
 
+        self._update_msg_true_state()
+        self.updateSensors()
+
     ###################################
     # public functions
     def update_state(self, deltas, wind):
