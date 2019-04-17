@@ -1,5 +1,6 @@
 import numpy as np
 from messages.msg_waypoints import msg_waypoints
+from dubins_parameters import dubins_parameters
 
 from IPython.core.debugger import Pdb
 
@@ -7,14 +8,18 @@ class planDubinsRRT():
     def __init__(self):
         self.waypoints = msg_waypoints()
         self.segmentLength = 300 # standard length of path segments
+        self.dubins_params = dubins_parameters()
+
     def planPath(self, wpp_start, wpp_end, map):
         # desired down position is down position of end node
         pd = wpp_end.item(2)
 
         # specify start and end nodes from wpp_start and wpp_end
-        # format: N, E, D, cost, parentIndex, connectsToGoalFlag,
-        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, -1, 0])
-        end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0])
+        # format: N, E, D, cost, parentIndex, connectsToGoalFlag, chi
+        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, -1, 0, wpp_start.item(4)])
+        v = wpp_end[0:2] - wpp_start[0:2]
+        chi = np.arctan2(v.item(1), v.item(0))
+        end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0, chi])
 
         # establish tree starting with the start node
         tree = np.empty((1, 6))
@@ -55,11 +60,13 @@ class planDubinsRRT():
         v = p[0:3] - v_star[0:3]
         v = v / np.linalg.norm(v)
         v_plus = v_star[0:3] + v * self.segmentLength
+        chi = np.arctan2(v.item(1), v.item(2))
 
-        # N, E, D, cost, parent node, connect to goal
-        return np.array([v_plus.item(0), v_plus.item(1), p.item(2), 0, 0, 0])
+        # N, E, D, cost, parent node, connect to goal, chi
+        return np.array([v_plus.item(0), v_plus.item(1), p.item(2), 0, 0, 0, chi])
 
     def collision(self, start_node, end_node, map):
+        #need to edit this function
         delta = 10
         pts = self.pointsAlongPath(start_node, end_node, delta)
 
@@ -104,12 +111,14 @@ class planDubinsRRT():
         if not self.collision(v_star, v_plus, map):
             #append to tree
             cost = self.segmentLength + tree[index, 3]
-            temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag])
+            temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag, v_plus[-1]])
             tree = np.vstack((tree, temp))
             if not self.collision(v_plus, end_node, map):
                 flag = 1
+                v = end_node[0:2] - v_plus[0:2]
+                chi = np.arctan2(v.item(1), v.item(0))
                 cost +=  np.linalg.norm(v_plus[0:3])
-                temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag])
+                temp = np.array([end_node[0], end_node[1], end_node[2], cost, tree.shape[0]-1, flag, chi])
                 tree = np.vstack((tree, temp))
 
         return tree, flag
@@ -133,7 +142,7 @@ class planDubinsRRT():
             node = path[i]
             next_node = path[j+1]
             if self.collision(node, next_node, map):
-                last_node = path[j]
+                last_node = path[j] # TODO need to edit chi in here
                 smooth.append(last_node)
                 i = j
             j += 1

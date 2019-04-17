@@ -92,7 +92,6 @@ class planRRT():
         points[0] = start_node[0:3]
         for i in range(int(num_pts)):
             temp = points[-1,:] + vec * Del
-            # temp = temp.reshape((1,3))
             points = np.vstack((points, temp))
 
         return points

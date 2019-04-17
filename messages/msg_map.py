@@ -18,5 +18,5 @@ class msg_map:
         self.building_north = np.zeros(self.num_city_blocks)
         self.building_east = np.zeros(self.num_city_blocks)
         for i in range(self.num_city_blocks):
-            self.building_north[i] = 0.5 * self.city_width/self.num_city_blocks * (2*(i-1) + 1)
-            self.building_east[i] = 0.5 * self.city_width/self.num_city_blocks * (2*(i-1) + 1)
+            self.building_north[i] = 0.5 * self.city_width/self.num_city_blocks * (2*(i) + 1)
+            self.building_east[i] = 0.5 * self.city_width/self.num_city_blocks * (2*(i) + 1)

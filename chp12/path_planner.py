@@ -18,6 +18,7 @@ class path_planner:
         # waypoints definition
         self.waypoints = msg_waypoints()
         self.rrt = planRRT()
+        self.dubins_rrt = planDubinsRRT()
 
     def update(self, map, state):
         # this flag is set for one time step to signal a redraw in the viewer
