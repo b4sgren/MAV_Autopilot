@@ -22,7 +22,7 @@ class planDubinsRRT():
         end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0, chi])
 
         # establish tree starting with the start node
-        tree = np.empty((1, 6))
+        tree = np.empty((1, 7))
         tree[0,:] = start_node
 
         # check to see if start_node connects directly to end_node
@@ -67,9 +67,44 @@ class planDubinsRRT():
 
     def collision(self, start_node, end_node, map):
         #need to edit this function
+        R = 300
+        self.dubins_params.update(start_node[0:3], start_node[-1], end_node[0:3], end_node[-1], R)
         delta = 10
-        pts = self.pointsAlongPath(start_node, end_node, delta)
+        d_ang = np.radians(1)
+        buf = 5
 
+        # collisions on first circle
+        chi_s = start_node[-1]
+        d2 = np.linalg.norm(self.dubins_params.r1 - start_node[0:3])
+        alpha = np.arccos((2 * R**2 - d2)/(2*R))
+        chi_e1 = chi_s - alpha
+        pts = self.pointsAlongOrbit(self.dubins_params.center_s, d_ang * -self.dubins_params.dir_s, # CHECK I think I need the negative in multiplication
+                                     chi_s, chi_e1, R)
+        crashed = self.detectCrash(pts)
+        if crashed:
+            return crashed
+
+        #collisions on straight line
+        pts = self.pointsAlongPath(self.dubins_params.r2, self.dubins_params.r3, delta)
+        crashed = self.detectCrash(pts)
+        if crashed:
+            return crashed
+
+        #collisions on second circle
+        d2 = np.linalg.norm(self.dubins_params.r3 - self.dubins_params.r2)
+        alpha = np.arccos((2 * R**2 - d2)/(2*R))
+        chi_e2 = chi_e1 - alpha
+        pts = self.pointsAlongOrbit(self.dubins_params.center_e, d_ang * -self.dubins_params.dir_e,  # CHECK I think I need the negative in multiplication
+                                     chi_e1, chi_e2, R)
+        crashed = self.detectCrash(pts)
+        if crashed:
+            return crashed
+
+        return False
+
+    def detectCrash(self, pts):
+        buf = 5
+        w = map.building_width
         for i in range(pts.shape[0]):
             pt = pts[i,:]
             #find the closes building in NE plane
@@ -78,15 +113,29 @@ class planDubinsRRT():
             index_n = np.argmin(dst_n)
             index_e = np.argmin(dst_e)
 
-            buf = 5
-            w = map.building_width
             dn = map.building_north[index_n] - w/2
             de = map.building_east[index_e] - w/2
             if (pt[0] > dn - buf and pt[0] < dn + w + buf) \
                and (pt[1] > de - buf and pt[1] < de + w + buf)\
-               and (pt[2] < map.building_height[index_n, index_e] + buf):
+               and (pt[2] < map.building_height[index_e, index_n] + buf):
                return True
         return False
+
+    def pointsAlongOrbit(self, center, Del, chi_s, chi_e, R):
+        pts = np.empty((1, 3))
+        pd = center.item(2)
+
+        while abs(chi_s - chi_e) > 1:
+            n = center.item(0) + R * np.sin(chi_s)
+            e = center.item(1) + R * np.cos(chi_s)
+            chi_s += Del
+            pts = np.vstack((pts, np.array([[n, e, pd]])))
+            if chi_s > np.pi:
+                chi_s -= 2 * np.pi
+            if chi_s < -np.pi:
+                chi_s += 2 * np.pi
+        return pts
+
 
     def pointsAlongPath(self, start_node, end_node, Del):
         vec = end_node[0:3] - start_node[0:3]

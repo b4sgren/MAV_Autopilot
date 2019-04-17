@@ -24,8 +24,8 @@ class path_planner:
         # this flag is set for one time step to signal a redraw in the viewer
         # planner_flag = 1  # return simple waypoint path
         # planner_flag = 2  # return dubins waypoint path
-        planner_flag = 3  # plan path through city using straight-line RRT
-        # planner_flag = 4  # plan path through city using dubins RRT
+        # planner_flag = 3  # plan path through city using straight-line RRT
+        planner_flag = 4  # plan path through city using dubins RRT
         if planner_flag == 1:
             self.waypoints.type = 'fillet'
             self.waypoints.num_waypoints = 4

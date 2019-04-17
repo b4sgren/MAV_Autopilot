@@ -78,7 +78,7 @@ class planRRT():
             de = map.building_east[index_e] - w/2
             if (pt[0] > dn - buf and pt[0] < dn + w + buf) \
                and (pt[1] > de - buf and pt[1] < de + w + buf)\
-               and (pt[2] < map.building_height[index_n, index_e] + buf):
+               and (pt[2] < map.building_height[index_e, index_n] + buf):
                return True
         return False
 
