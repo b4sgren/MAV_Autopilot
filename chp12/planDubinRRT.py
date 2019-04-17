@@ -142,7 +142,10 @@ class planDubinsRRT():
             node = path[i]
             next_node = path[j+1]
             if self.collision(node, next_node, map):
-                last_node = path[j] # TODO need to edit chi in here
+                last_node = path[j]
+                v = last_node[0:2] - node[0:2]
+                chi = np.arctan2(v.item(1), v.item(0))
+                last_node[-1] = chi
                 smooth.append(last_node)
                 i = j
             j += 1
