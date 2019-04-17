@@ -75,13 +75,14 @@ class planRRT():
             index_e = np.argmin(dst_e)
 
             buf = 5
-            dn = map.building_north[index_n]
-            de = map.building_east[index_e]
+            w = map.building_width
+            dn = map.building_north[index_n] - w/2
+            de = map.building_east[index_e] - w/2
             # if (pt[0] > dst_n[index_n] - buf and pt[0] < dst_n[index_n] + map.building_width + buf) \
             #    and (pt[1] > dst_e[index_e] - buf and pt[1] < dst_e[index_e] + map.building_width + buf) \
             #    and (pt[2] < map.building_height[index_n, index_e] + buf):
-            if (pt[0] > dn - buf and pt[0] < dn + map.building_width + buf) \
-               and (pt[1] > de - buf and pt[1] < de + map.building_width + buf):
+            if (pt[0] > dn - buf and pt[0] < dn + w + buf) \
+               and (pt[1] > de - buf and pt[1] < de + w + buf):
                return True
         return False
 
