@@ -52,7 +52,7 @@ class path_planner:
                              np.radians(45),
                              np.radians(-135)]])
         elif planner_flag == 3:
-            self.waypoints.type = 'fillet'
+            self.waypoints.type = 'straight_line'
             self.waypoints.num_waypoints = 0
             Va = 25
             # current configuration vector format: N, E, D, Va
@@ -72,10 +72,10 @@ class path_planner:
                                     Va])
 
             waypoints = self.rrt.planPath(wpp_start, wpp_end, map)
-            Pdb().set_trace()
-            self.waypoints.ned = waypoints.ned
-            self.waypoints.airspeed = waypoints.airspeed
+            # Pdb().set_trace()
             self.waypoints.num_waypoints = waypoints.num_waypoints
+            self.waypoints.ned = waypoints.ned
+            self.waypoints.airspeed = 25 * np.ones(waypoints.num_waypoints)
             self.waypoints.flag_waypoints_changed = True
         # elif planner_flag == 4:
 

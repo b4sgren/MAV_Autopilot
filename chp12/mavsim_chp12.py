@@ -26,6 +26,8 @@ from path_follower import path_follower
 from path_manager import path_manager
 from path_planner import path_planner
 
+from IPython.core.debugger import Pdb
+
 # initialize dynamics object
 dyn = Dynamics(SIM.ts_sim)
 wind = wind_simulation(SIM.ts_sim)
@@ -56,6 +58,7 @@ while sim_time < SIM.t_end:
 
     #-----------path planner -------------------
     if path_manage.flag_need_new_waypoints:
+        # Pdb().set_trace()
         waypoints = path_plan.update(map, estimated_state)
 
     #-----------path manager------------------

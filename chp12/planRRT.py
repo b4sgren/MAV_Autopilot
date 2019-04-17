@@ -143,3 +143,4 @@ class planRRT():
         smooth.append(path[-1])
         smooth = np.array(smooth)
         self.waypoints.ned = smooth[:, 0:3].T
+        self.waypoints.num_waypoints = smooth.shape[0]

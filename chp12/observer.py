@@ -28,7 +28,7 @@ class observer:
         self.lpf_accel_y = alpha_filter(alpha=0.5)
         self.lpf_accel_z = alpha_filter(alpha=0.5)
         # use alpha filters to low pass filter static and differential pressure
-        self.lpf_static = alpha_filter(alpha=0.9)
+        self.lpf_static = alpha_filter(alpha=0.9, y0=1350)
         self.lpf_diff = alpha_filter(alpha=0.5)
 
         # ekf for phi and theta
