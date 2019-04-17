@@ -67,42 +67,42 @@ class planDubinsRRT():
 
     def collision(self, start_node, end_node, map):
         #need to edit this function
-        R = 300
-        self.dubins_params.update(start_node[0:3], start_node[-1], end_node[0:3], end_node[-1], R)
+        R = 150
         delta = 10
         d_ang = np.radians(1)
         buf = 5
 
         # collisions on first circle
+        self.dubins_params.update(start_node[0:3], start_node[-1], end_node[0:3], end_node[-1], R)
         chi_s = start_node[-1]
         d2 = np.linalg.norm(self.dubins_params.r1 - start_node[0:3])
-        alpha = np.arccos((2 * R**2 - d2)/(2*R))
+        alpha = np.arccos((2 * R**2 - d2)/(2* R**2))
         chi_e1 = chi_s - alpha
         pts = self.pointsAlongOrbit(self.dubins_params.center_s, d_ang * -self.dubins_params.dir_s, # CHECK I think I need the negative in multiplication
                                      chi_s, chi_e1, R)
-        crashed = self.detectCrash(pts)
+        crashed = self.detectCrash(pts, map)
         if crashed:
             return crashed
 
         #collisions on straight line
         pts = self.pointsAlongPath(self.dubins_params.r2, self.dubins_params.r3, delta)
-        crashed = self.detectCrash(pts)
+        crashed = self.detectCrash(pts, map)
         if crashed:
             return crashed
 
         #collisions on second circle
         d2 = np.linalg.norm(self.dubins_params.r3 - self.dubins_params.r2)
-        alpha = np.arccos((2 * R**2 - d2)/(2*R))
+        alpha = np.arccos((2 * R**2 - d2)/(2* R**2))
         chi_e2 = chi_e1 - alpha
         pts = self.pointsAlongOrbit(self.dubins_params.center_e, d_ang * -self.dubins_params.dir_e,  # CHECK I think I need the negative in multiplication
                                      chi_e1, chi_e2, R)
-        crashed = self.detectCrash(pts)
+        crashed = self.detectCrash(pts, map)
         if crashed:
             return crashed
 
         return False
 
-    def detectCrash(self, pts):
+    def detectCrash(self, pts, map):
         buf = 5
         w = map.building_width
         for i in range(pts.shape[0]):
@@ -136,7 +136,6 @@ class planDubinsRRT():
                 chi_s += 2 * np.pi
         return pts
 
-
     def pointsAlongPath(self, start_node, end_node, Del):
         vec = end_node[0:3] - start_node[0:3]
         v = np.linalg.norm(vec)
@@ -144,7 +143,8 @@ class planDubinsRRT():
         vec = vec/v
 
         points = np.empty((1,3))
-        points[0] = start_node[0:3]
+        # Pdb().set_trace()
+        points = np.vstack((points, start_node[0:3]))
         for i in range(int(num_pts)):
             temp = points[-1,:] + vec * Del
             # temp = temp.reshape((1,3))
