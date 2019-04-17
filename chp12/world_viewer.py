@@ -383,9 +383,9 @@ class world_viewer():
     def drawCity(self, map):
         w = map.building_width
         for i in range(map.num_city_blocks): # see if there is a way to vectorize this
-            n = map.building_north[i]
+            n = map.building_north[i] - w/2.0
             for j in range(map.num_city_blocks):
-                e = map.building_north[j]
+                e = map.building_east[j] - w/2.0
                 h = map.building_height[i, j]
                 bldg_pts = np.array([[n, e, 0], # south west bottom corner
                                      [n+w, e, 0],  # north west bottom corner

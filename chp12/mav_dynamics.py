@@ -213,6 +213,8 @@ class mav_dynamics:
         Vr = V - self._wind
         self._Va = np.linalg.norm(Vr)
 
+        self._wind = Rb_v.T @ self._wind # put into vehicle frame
+
         #Compute alpha
         if Vr.item(0) == 0:
             self._alpha = np.sign(Vr.item(2)) * np.pi/2.0
