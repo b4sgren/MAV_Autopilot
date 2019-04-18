@@ -35,7 +35,6 @@ class planDubinsRRT():
                 numPaths = numPaths + flag
 
         # find path with minimum cost to end_node
-        # Pdb().set_trace()
         path = self.findMinimumPath(tree, end_node)
         self.smoothPath(path, map)
         return self.waypoints
@@ -74,32 +73,9 @@ class planDubinsRRT():
         buf = 5
 
         # collisions on first circle
-        self.dubins_params.update(start_node[0:3], start_node[-1], end_node[0:3], end_node[-1], R)
-        chi_s = start_node[-1]
-        d2 = np.linalg.norm(self.dubins_params.r1 - start_node[0:3])
-        alpha = np.arccos((2 * R**2 - d2)/(2* R**2))
-        chi_e1 = chi_s - alpha
-        pts = self.pointsAlongOrbit(self.dubins_params.center_s, d_ang * -self.dubins_params.dir_s, # CHECK I think I need the negative in multiplication
-                                     chi_s, chi_e1, R)
-        crashed = self.detectCrash(pts, map)
-        if crashed:
-            return crashed
-
-        #collisions on straight line
-        pts = self.pointsAlongPath(self.dubins_params.r2, self.dubins_params.r3, delta)
-        crashed = self.detectCrash(pts, map)
-        if crashed:
-            return crashed
-
-        #collisions on second circle
-        d2 = np.linalg.norm(self.dubins_params.r3 - self.dubins_params.r2)
-        alpha = np.arccos((2 * R**2 - d2)/(2* R**2))
-        chi_e2 = chi_e1 - alpha
-        pts = self.pointsAlongOrbit(self.dubins_params.center_e, d_ang * -self.dubins_params.dir_e,  # CHECK I think I need the negative in multiplication
-                                     chi_e1, chi_e2, R)
-        crashed = self.detectCrash(pts, map)
-        if crashed:
-            return crashed
+        Pdb().set_trace()
+        self.dubins_params.update(start_node[0:3].reshape((3,1)), start_node[-1], end_node[0:3].reshape((3,1)), end_node[-1], R)
+        pts = self.pointsAlongPath()
 
         return False
 
@@ -122,34 +98,90 @@ class planDubinsRRT():
                return True
         return False
 
-    def pointsAlongOrbit(self, center, Del, chi_s, chi_e, R):
-        pts = np.empty((1, 3))
-        pd = center.item(2)
+    def pointsAlongPath(self, Del_th, Del_lin):
+        # points along start circle
+        initialize_points = True
+        th1 = np.arctan2(self.dubins_params.p_s.item(1) - self.dubins_params.center_s.item(1),
+                        self.dubins_params.p_s.item(0) - self.dubins_params.center_s.item(0))
+        th1 = mod(th1)
+        th2 = np.arctan2(self.dubins_params.r1.item(1) - self.dubins_params.center_s.item(1),
+                         self.dubins_params.r1.item(0) - self.dubins_params.center_s.item(0))
+        th2 = mod(th2)
+        th = th1
+        theta_list = [th]
+        if self.dubins_params.dir_s > 0:
+            if th1 >= th2:
+                while th < th2 + 2*np.pi:
+                    th += Del_th
+                    theta_list.append(th)
+            else:
+                while th < th2:
+                    th += Del_th
+                    theta_list.append(th)
+        else:
+            if th1 <= th2:
+                while th > th2 - 2*np.pi:
+                     th -= Del_th
+                     theta_list.append(th)
+            else:
+                while th > th2:
+                    th -= Del_th
+                    theta_list.append(th)
 
-        while abs(chi_s - chi_e) > 1:
-            n = center.item(0) + R * np.sin(chi_s)
-            e = center.item(1) + R * np.cos(chi_s)
-            chi_s += Del
-            pts = np.vstack((pts, np.array([[n, e, pd]])))
-            if chi_s > np.pi:
-                chi_s -= 2 * np.pi
-            if chi_s < -np.pi:
-                chi_s += 2 * np.pi
-        return pts
+        if initialize_points:
+            points = np.array([[self.dubins_params.center_s.item(0) + self.dubins_params.radius * np.cos(theta_list[0]),
+                                self.dubins_params.center_s.item(1) + self.dubins_params.radius * np.sin(theta_list[0]),
+                                self.dubins_params.center_s.item(2)]])
+            initialize_points = False
+        for angle in theta_list:
+            new_point = np.array([[self.dubins_params.center_s.item(0) + self.dubins_params.radius * np.cos(angle),
+                                   self.dubins_params.center_s.item(1) + self.dubins_params.radius * np.sin(angle),
+                                   self.dubins_params.center_s.item(2)]])
+            points = np.concatenate((points, new_point), axis=0)
 
-    def pointsAlongPath(self, start_node, end_node, Del):
-        vec = end_node[0:3] - start_node[0:3]
-        v = np.linalg.norm(vec)
-        num_pts = np.ceil(v/Del)
+        # points along straight line
+        sig = 0
+        vec = self.dubins_params.r2 - self.dubins_params.r1
+        v = np.linalg.norm(sig)
+        num_pts = np.ceil(v/Del_lin)
         vec = vec/v
-
-        points = np.empty((1,3))
-        # Pdb().set_trace()
-        points = np.vstack((points, start_node[0:3]))
         for i in range(int(num_pts)):
-            temp = points[-1,:] + vec * Del
-            # temp = temp.reshape((1,3))
-            points = np.vstack((points, temp))
+            new_point = self.dubins_params + i * Del_lin * vec  
+            points = np.concatenate((points, new_point), axis=0)
+            sig += Del
+
+        # points along end circle
+        th2 = np.arctan2(self.dubins_params.p_e.item(1) - self.dubins_params.center_e.item(1),
+                         self.dubins_params.p_e.item(0) - self.dubins_params.center_e.item(0))
+        th2 = mod(th2)
+        th1 = np.arctan2(self.dubins_params.r2.item(1) - self.dubins_params.center_e.item(1),
+                         self.dubins_params.r2.item(0) - self.dubins_params.center_e.item(0))
+        th1 = mod(th1)
+        th = th1
+        theta_list = [th]
+        if self.dubins_params.dir_e > 0:
+            if th1 >= th2:
+                while th < th2 + 2 * np.pi:
+                    th += Del_th
+                    theta_list.append(th)
+            else:
+                while th < th2:
+                    th += Del_th
+                    theta_list.append(th)
+        else:
+            if th1 <= th2:
+                while th > th2 - 2 * np.pi:
+                    th -= Del_th
+                    theta_list.append(th)
+            else:
+                while th > th2:
+                    th -= Del_th
+                    theta_list.append(th)
+        for angle in theta_list:
+            new_point = np.array([[self.dubins_params.center_e.item(0) + self.dubins_params.radius * np.cos(angle),
+                                   self.dubins_params.center_e.item(1) + self.dubins_params.radius * np.sin(angle),
+                                   self.dubins_params.center_e.item(2)]])
+            points = np.concatenate((points, new_point), axis=0)
 
         return points
 
@@ -158,6 +190,7 @@ class planDubinsRRT():
         v_star, index = self.findClosestNode(tree, pt)
         v_plus = self.planSegment(v_star, pt)
         flag = 0
+        # Pdb().set_trace()
         if not self.collision(v_star, v_plus, map):
             #append to tree
             cost = self.segmentLength + tree[index, 3]

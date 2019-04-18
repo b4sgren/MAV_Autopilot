@@ -303,20 +303,20 @@ class world_viewer():
                 if th1 <= th2:
                     while th > th2 - 2*np.pi:
                          th -= Del
-                         mesh = np.array([[points[0], points[1], points[2]],  # nose-top
-                         [points[0], points[1], points[4]],  # nose-right
-                         [points[0], points[3], points[4]],  # nose-bottom
-                         [points[0], points[3], points[2]],  # nose-left
-                         [points[5], points[2], points[3]],  # fuselage-left
-                         [points[5], points[1], points[2]],  # fuselage-top
-                         [points[5], points[1], points[4]],  # fuselage-right
-                         [points[5], points[3], points[4]],  # fuselage-bottom
-                         [points[6], points[7], points[9]],  # wing
-                         [points[7], points[8], points[9]],  # wing
-                         [points[10], points[11], points[12]],  # horizontal tail
-                         [points[10], points[12], points[13]],  # horizontal tail
-                         [points[5], points[14], points[15]],  # vertical tail
-                         ])
+                         # mesh = np.array([[points[0], points[1], points[2]],  # nose-top
+                         # [points[0], points[1], points[4]],  # nose-right
+                         # [points[0], points[3], points[4]],  # nose-bottom
+                         # [points[0], points[3], points[2]],  # nose-left
+                         # [points[5], points[2], points[3]],  # fuselage-left
+                         # [points[5], points[1], points[2]],  # fuselage-top
+                         # [points[5], points[1], points[4]],  # fuselage-right
+                         # [points[5], points[3], points[4]],  # fuselage-bottom
+                         # [points[6], points[7], points[9]],  # wing
+                         # [points[7], points[8], points[9]],  # wing
+                         # [points[10], points[11], points[12]],  # horizontal tail
+                         # [points[10], points[12], points[13]],  # horizontal tail
+                         # [points[5], points[14], points[15]],  # vertical tail
+                         # ])
                          theta_list.append(th)
                 else:
                     while th > th2:
