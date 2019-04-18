@@ -98,7 +98,8 @@ class path_planner:
                                     -state.h,
                                     Va,
                                     -np.pi/2.0])
-            waypoints = self.dubins_rrt.planPath(wpp_start, wpp_end, map)
+            R = 225
+            waypoints = self.dubins_rrt.planPath(wpp_start, wpp_end, map, R)
             self.waypoints.num_waypoints = waypoints.num_waypoints
             self.waypoints.ned = waypoints.ned
             self.waypoints.airspeed = Va * np.ones(waypoints.num_waypoints)

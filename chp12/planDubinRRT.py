@@ -10,33 +10,35 @@ class planDubinsRRT():
         self.segmentLength = 500 # standard length of path segments
         self.dubins_params = dubins_parameters()
 
-    def planPath(self, wpp_start, wpp_end, map):
+    def planPath(self, wpp_start, wpp_end, map, R):
         # desired down position is down position of end node
         pd = wpp_end.item(2)
+        self.segmentLength = 3.5 * R
 
         # specify start and end nodes from wpp_start and wpp_end
         # format: N, E, D, cost, parentIndex, connectsToGoalFlag, chi
-        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, -1, 0, wpp_start.item(4)])
+        start_node = np.array([wpp_start.item(0), wpp_start.item(1), pd, 0, -1, 0, mod(wpp_start.item(4))])
         v = wpp_end[0:2] - wpp_start[0:2]
         chi = np.arctan2(v.item(1), v.item(0))
-        end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0, chi])
+        end_node = np.array([wpp_end.item(0), wpp_end.item(1), pd, 0, 0, 0, mod(chi)])
 
         # establish tree starting with the start node
         tree = np.empty((1, 7))
         tree[0,:] = start_node
 
         # check to see if start_node connects directly to end_node
-        if ((np.linalg.norm(start_node[0:3] - end_node[0:3]) < self.segmentLength ) and not self.collision(start_node, end_node, map)):
+        if ((np.linalg.norm(start_node[0:3] - end_node[0:3]) < self.segmentLength ) and not self.collision(start_node, end_node, map, R)
+            and np.linalg.norm(start_node[0:3] - end_node[0:3]) >= 3*R):
             self.waypoints.ned = end_node[0:3] #This seems kinda dumb b/c only 1 waypoint. Need 3 for our thing
         else:
             numPaths = 0
-            while numPaths < 3:
-                tree, flag = self.extendTree(tree, end_node, self.segmentLength, map, pd)
+            while numPaths < 1: #see if we get 3
+                tree, flag = self.extendTree(tree, end_node, self.segmentLength, map, pd, R)
                 numPaths = numPaths + flag
 
         # find path with minimum cost to end_node
         path = self.findMinimumPath(tree, end_node)
-        self.smoothPath(path, map)
+        self.smoothPath(path, map, R)
         return self.waypoints
 
     def generateRandomNode(self, map, pd):
@@ -60,24 +62,24 @@ class planDubinsRRT():
         v = p[0:3] - v_star[0:3]
         v = v / np.linalg.norm(v)
         v_plus = v_star[0:3] + v * self.segmentLength
-        chi = np.arctan2(v.item(1), v.item(2))
+        chi = np.arctan2(v.item(1), v.item(0))
 
         # N, E, D, cost, parent node, connect to goal, chi
         return np.array([v_plus.item(0), v_plus.item(1), p.item(2), 0, 0, 0, chi])
 
-    def collision(self, start_node, end_node, map):
+    def collision(self, start_node, end_node, map, R):
         #need to edit this function
-        R = 200
         delta = 10
         d_ang = np.radians(1)
         buf = 5
 
-        # collisions on first circle
-        Pdb().set_trace()
+        # all pts on dubins path between 2 nodes
+        # Pdb().set_trace()
         self.dubins_params.update(start_node[0:3].reshape((3,1)), start_node[-1], end_node[0:3].reshape((3,1)), end_node[-1], R)
-        pts = self.pointsAlongPath()
+        pts = self.pointsAlongPath(d_ang, delta)
+        crashed = self.detectCrash(pts, map)
 
-        return False
+        return crashed
 
     def detectCrash(self, pts, map):
         buf = 5
@@ -140,15 +142,14 @@ class planDubinsRRT():
             points = np.concatenate((points, new_point), axis=0)
 
         # points along straight line
-        sig = 0
         vec = self.dubins_params.r2 - self.dubins_params.r1
-        v = np.linalg.norm(sig)
+        v = np.linalg.norm(vec)
         num_pts = np.ceil(v/Del_lin)
+        # Pdb().set_trace()
         vec = vec/v
         for i in range(int(num_pts)):
-            new_point = self.dubins_params + i * Del_lin * vec  
-            points = np.concatenate((points, new_point), axis=0)
-            sig += Del
+            new_point = self.dubins_params.r1 + i * Del_lin * vec
+            points = np.concatenate((points, new_point.T), axis=0)
 
         # points along end circle
         th2 = np.arctan2(self.dubins_params.p_e.item(1) - self.dubins_params.center_e.item(1),
@@ -185,18 +186,17 @@ class planDubinsRRT():
 
         return points
 
-    def extendTree(self, tree, end_node, segmentLength, map, pd):
+    def extendTree(self, tree, end_node, segmentLength, map, pd, R):
         pt = self.generateRandomNode(map, pd)
         v_star, index = self.findClosestNode(tree, pt)
         v_plus = self.planSegment(v_star, pt)
         flag = 0
-        # Pdb().set_trace()
-        if not self.collision(v_star, v_plus, map):
+        if not self.collision(v_star, v_plus, map, R):
             #append to tree
             cost = self.segmentLength + tree[index, 3]
             temp = np.array([v_plus[0], v_plus[1], v_plus[2], cost, index, flag, v_plus[-1]])
             tree = np.vstack((tree, temp))
-            if not self.collision(v_plus, end_node, map):
+            if not self.collision(v_plus, end_node, map, R):
                 flag = 1
                 v = end_node[0:2] - v_plus[0:2]
                 chi = np.arctan2(v.item(1), v.item(0))
@@ -216,7 +216,7 @@ class planDubinsRRT():
             waypoints.append(tree[index])
         return waypoints[::-1] # this reverses the list
 
-    def smoothPath(self, path, map):
+    def smoothPath(self, path, map, R):
         i = 0
         j = 1
         smooth = [path[0]]
@@ -224,7 +224,7 @@ class planDubinsRRT():
         while j < len(path)-1:
             node = path[i]
             next_node = path[j+1]
-            if self.collision(node, next_node, map):
+            if self.collision(node, next_node, map, R):
                 last_node = path[j]
                 v = last_node[0:2] - node[0:2]
                 chi = np.arctan2(v.item(1), v.item(0))
@@ -237,3 +237,11 @@ class planDubinsRRT():
         self.waypoints.ned = smooth[:, 0:3].T
         self.waypoints.num_waypoints = smooth.shape[0]
         self.waypoints.course = smooth[:,-1].T
+
+def mod(x):
+    # force x to be between 0 and 2*pi
+    while x < 0:
+        x += 2*np.pi
+    while x > 2*np.pi:
+        x -= 2*np.pi
+    return x
