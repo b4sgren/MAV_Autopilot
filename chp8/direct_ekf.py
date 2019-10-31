@@ -13,3 +13,14 @@ from messages.state_msg import StateMsg
 class observer:
     def __init__(self, ts_control):
         self.estimated_state = StateMsg()
+
+        # Covariance Matrices. Q and P (a little) are tuning parameters
+        self.P = np.eye(12) * 0.5
+        self.Q = np.diag(np.ones(12)) * 0.01
+        self.R_gyro = np.eye(3) * SENSOR.gyro_sigma**2
+        self.R_accel = np.eye(3) * SENSOR.accel_sigma**2
+        self.R_gps = np.diag([SENSOR.gps_n_sigma**2, SENSOR.gps_e_sigma**2,
+                            SENSOR.gps_Vg_sigma**2, SENSOR.gps_course_sigma**2])
+        self.R_pseudo = np.diag([0.1, 0.1]) # This is for the pseudo wind triangle measurement
+        self.R_static_p = SENSOR.static_pres_sigma**2
+        self.R_diff_p = SENSOR.diff_pres_sigma**2
