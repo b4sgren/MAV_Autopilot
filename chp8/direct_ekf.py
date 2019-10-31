@@ -24,3 +24,14 @@ class observer:
         self.R_pseudo = np.diag([0.1, 0.1]) # This is for the pseudo wind triangle measurement
         self.R_static_p = SENSOR.static_pres_sigma**2
         self.R_diff_p = SENSOR.diff_pres_sigma**2
+
+        self.N = 10  # Number of propagation steps in between measurement samples
+        self.ts = SIM.ts_control/self.N
+
+    def update(self, measurement):
+        debug = 1
+
+        #propagation step
+
+        #Measurement Updates
+
