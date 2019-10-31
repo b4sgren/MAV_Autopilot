@@ -13,6 +13,7 @@ from messages.state_msg import StateMsg
 class observer:
     def __init__(self, ts_control):
         self.estimated_state = StateMsg()
+        self.xhat = np.zeros(12) # Do I need both this and est. state?. I think so
 
         # Covariance Matrices. Q and P (a little) are tuning parameters
         self.P = np.eye(12) * 0.5
@@ -27,6 +28,13 @@ class observer:
 
         self.N = 10  # Number of propagation steps in between measurement samples
         self.ts = SIM.ts_control/self.N
+    
+    def propagateState(self, measurement):
+        phi = self.estimated_state.phi
+        theta = self.estimated_state.theta 
+        psi = self.estimated_state.psi
+        R_bfromv = Euler2Rotation(phi, theta, psi)
+
 
     def update(self, measurement):
         debug = 1
