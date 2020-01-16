@@ -56,6 +56,8 @@ class EKF:
         self.xhat = np.zeros(9) # Currently assuming RPY and not quaternion. Also angular velocities are inputs not states
         self.accel = np.zeros(3)
         self.gyro = np.zeros(3)
+        self.P = np.eye(9)
+        self.Q = np.diag(np.ones(9)) * 0.1
         self.N = 10
         self.Ts = SIM.ts_control/self.N
     
@@ -98,6 +100,20 @@ class EKF:
     def propagate_model(self, state, measurements):
         for i in range(self.N):
             self.xhat += self.f(self.xhat, state, measurements) * self.Ts
+
+            A = jacobian(self.f, self.xhat, state, measurements)
+            Ad = np.eye(9) + A * self.Ts + A @ A * self.Ts**2 / 2.0
+            Q_gyro = np.diag(np.ones(3)) * SENSOR.gyro_sigma
+            Q_accel = np.diag(np.ones(3)) * SENSOR.accel_sigma
+            Gw = np.zeros((9, 3))
+            #Finish defiing Gw!!
+            Ga = np.zeros((9,3))
+            Ga[3:6, 3:6] = np.eye(3)
+
+            self.P = Ad @ self.P @ Ad.T + Gw @ Q_gyro @ Gw.T + Ga @ Q_accel @ Ga.T + self.Q * self.Ts**2
     
     def measurement_update(self, state, measurements):
         debug = 1
+
+def jacobian(fun, xhat, state, measurements):
+    debug = 1
