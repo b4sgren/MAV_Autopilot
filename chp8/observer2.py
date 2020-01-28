@@ -12,8 +12,8 @@ class observer:
     def __init__(self, ts_control):
         self.estimated_state = StateMsg()
 
-        self.lpf_static = alpha_filter(alpha=0.9)
-        self.lpf_diff = alpha_filter(alpha=0.5)
+        # self.lpf_static = alpha_filter(alpha=0.9)
+        # self.lpf_diff = alpha_filter(alpha=0.5)
         self.lpf_gyrox = alpha_filter(alpha=0.5)
         self.lpf_gyroy = alpha_filter(alpha=0.5)
         self.lpf_gyroz = alpha_filter(alpha=0.5)
@@ -136,6 +136,10 @@ class EKF:
     
     def measurement_update(self, state, measurements):
         debug = 1
+        #update static pressure 
+        #update diff pressure
+        #pseudo measurement
+        #gps if received
 
 def jacobian(fun, xhat, state, measurements):
     f = fun(xhat, state, measurements)
