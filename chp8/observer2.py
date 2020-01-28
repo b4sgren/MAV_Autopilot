@@ -138,7 +138,16 @@ class EKF:
         debug = 1
 
 def jacobian(fun, xhat, state, measurements):
-    debug = 1
-    jac = np.zeros((xhat.size, xhat.size))
+    f = fun(xhat, state, measurements)
+    m = f.shape[0]
+    n = xhat.shape[0]
+    eps = 0.001
+    jac = np.zeros((m, n))
+    for i in range(n):
+        x_eps = np.copy(xhat)
+        x_eps[i] += eps 
+        f_eps = fun(x_eps, state, measurements)
+        df = (f_eps - f)/eps
+        jac[:,i] = df
 
     return jac
