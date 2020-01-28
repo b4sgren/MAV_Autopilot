@@ -97,6 +97,27 @@ class EKF:
     def h(self, x, state):
         debug = 1
 
+    def skew_v(self, state):
+        Va = state.Va 
+        psi = state.psi 
+        gamma = state.gamma 
+
+        vx = Va * np.cos(psi) * np.cos(gamma)
+        vy = Va * np.sin(psi) * np.cos(gamma)
+        vz = Va * np.sin(gamma)
+
+        return np.array([[0, -vz, vy], [vz, 0, -vx], [-vy, vx, 0]])
+    
+    def S_theta(self, state):
+        phi = state.phi 
+        theta = state.theta 
+
+        S = np.array([[1.0, np.sin(phi) * np.tan(theta), np.cos(phi) * np.tan(theta)],
+                    [0.0, np.cos(phi), -np.sin(phi)],
+                    [0, np.sin(phi)/np.cos(theta), np.cos(phi)/np.cos(theta)]])
+        
+        return S
+
     def propagate_model(self, state, measurements):
         for i in range(self.N):
             self.xhat += self.f(self.xhat, state, measurements) * self.Ts
@@ -106,7 +127,8 @@ class EKF:
             Q_gyro = np.diag(np.ones(3)) * SENSOR.gyro_sigma
             Q_accel = np.diag(np.ones(3)) * SENSOR.accel_sigma
             Gw = np.zeros((9, 3))
-            #Finish defiing Gw!!
+            Gw[3:6,:] = -self.skew_v(state)            
+            Gw[6:9, :] = -self.S_theta(state)
             Ga = np.zeros((9,3))
             Ga[3:6, 3:6] = np.eye(3)
 
@@ -117,3 +139,6 @@ class EKF:
 
 def jacobian(fun, xhat, state, measurements):
     debug = 1
+    jac = np.zeros((xhat.size, xhat.size))
+
+    return jac
